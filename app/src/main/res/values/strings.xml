@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">QuickBall</string>
+    <string name="accessibility_service_description">QuickBall floating ball service that provides a floating ball overlay on your screen for quick access to features.</string>
+</resources>
