@@ -29,7 +29,7 @@
 
         <!-- Accessibility Service for Floating Ball -->
         <service
-            android:name=".FloatingBallAccessibilityService"
+            android:name=".QuickBallAccessibilityService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
             android:exported="true">
             <intent-filter>

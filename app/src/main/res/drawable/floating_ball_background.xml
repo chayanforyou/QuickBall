@@ -4,7 +4,7 @@
     <!-- Outer light grey circle -->
     <item>
         <shape android:shape="oval">
-            <solid android:color="#7D7D7D" />
+            <solid android:color="#424242" />
             <size
                 android:width="40dp"
                 android:height="40dp" />
@@ -29,7 +29,7 @@
         android:right="11dp"
         android:top="11dp">
         <shape android:shape="oval">
-            <solid android:color="#7D7D7D" />
+            <solid android:color="#424242" />
         </shape>
     </item>
 

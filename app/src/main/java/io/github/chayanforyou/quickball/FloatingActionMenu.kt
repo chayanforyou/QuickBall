@@ -5,7 +5,6 @@ import android.graphics.Path
 import android.graphics.PathMeasure
 import android.graphics.PixelFormat
 import android.graphics.Point
-import android.graphics.Rect
 import android.graphics.RectF
 import android.os.Build
 import android.util.Log
@@ -19,8 +18,6 @@ import androidx.core.content.ContextCompat
 import io.github.chayanforyou.quickball.animation.AnimationHandler
 import io.github.chayanforyou.quickball.utils.WidgetUtil.dp2px
 import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.min
 
 class FloatingActionMenu(
     private val mainActionView: View,
@@ -35,19 +32,15 @@ class FloatingActionMenu(
     private val windowManager: WindowManager by lazy {
         mainActionView.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     }
-    private var overlayContainer: FrameLayout? = null
     private val menuRadius = dp2px(radius)
     private var isOpen = false
     private val individualMenuItems = mutableMapOf<Item, WindowManager.LayoutParams>()
 
     fun getSubActionItems(): List<Item> = subActionItems
-    fun getOverlayContainer(): FrameLayout? = overlayContainer
     fun isOpen(): Boolean = isOpen
 
     init {
         animationHandler?.setMenu(this)
-        subActionItems.filter { it.width <= 0 || it.height <= 0 }
-            .forEach { measureMenuItemSize(it) }
     }
 
     // ---------- Public API ----------
@@ -91,17 +84,12 @@ class FloatingActionMenu(
 
     // ---------- Helpers & calculations ----------
     fun getActionViewCenter(): Point {
-        val coords = getActionViewCoordinates()
-        return Point(
-            coords.x + mainActionView.measuredWidth / 2,
-            coords.y + mainActionView.measuredHeight / 2
-        )
-    }
-
-    private fun getActionViewCoordinates(): Point {
         val coords = IntArray(2)
         mainActionView.getLocationOnScreen(coords)
-        return Point(coords[0], coords[1])
+        return Point(
+            coords[0] + mainActionView.measuredWidth / 2,
+            coords[1] + mainActionView.measuredHeight / 2
+        )
     }
 
     private fun calculateItemPositions(): Point {
@@ -193,109 +181,11 @@ class FloatingActionMenu(
         }
     }
 
-    // ---------- Overlay management ----------
-    private fun ensureOverlayContainer(): FrameLayout {
-        if (overlayContainer == null) {
-            overlayContainer = FrameLayout(mainActionView.context)
-        }
-        return overlayContainer!!
-    }
 
-    private fun attachOverlayContainer() {
-        try {
-            val container = ensureOverlayContainer()
-            val overlayParams = calculateOverlayContainerParams()
-            container.layoutParams = overlayParams
-
-            if (container.parent == null) {
-                windowManager.addView(container, overlayParams)
-            } else {
-                windowManager.updateViewLayout(container, overlayParams)
-            }
-            windowManager.updateViewLayout(mainActionView, mainActionView.layoutParams)
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to attach overlay container: ${e.message}")
-        }
-    }
-
-    fun detachOverlayContainer() {
-        overlayContainer?.let { container ->
-            try {
-                windowManager.removeView(container)
-            } catch (e: Exception) {
-                Log.w(TAG, "Failed to detach overlay container: ${e.message}")
-            }
-        }
-    }
-
-    private fun calculateOverlayContainerParams(): WindowManager.LayoutParams {
-        if (subActionItems.isEmpty()) return getDefaultSystemWindowParams()
-
-        val bounds = subActionItems.fold(
-            Rect(Int.MAX_VALUE, Int.MAX_VALUE, Int.MIN_VALUE, Int.MIN_VALUE)
-        ) { rect, item ->
-            rect.apply {
-                left = min(left, item.x)
-                top = min(top, item.y)
-                right = max(right, item.x + item.width)
-                bottom = max(bottom, item.y + item.height)
-            }
-        }
-
-        return getDefaultSystemWindowParams().apply {
-            width = bounds.width().coerceAtLeast(0)
-            height = bounds.height().coerceAtLeast(0)
-            x = bounds.left
-            y = bounds.top
-            gravity = Gravity.TOP or Gravity.START
-        }
-    }
-
-    // add a view to the overlay (safe helper)
-    private fun addViewToCurrentContainer(view: View, layoutParams: ViewGroup.LayoutParams) {
-        val container = ensureOverlayContainer()
-        container.addView(view, layoutParams)
-    }
-
-    fun removeViewFromCurrentContainer(view: View) {
-        overlayContainer?.removeView(view)
-    }
-
-    private fun measureMenuItemSize(item: Item) {
-        if (item.view.parent != null) return
-
-        // Temporarily add to a container to measure
-        val container = ensureOverlayContainer()
-        item.view.alpha = 0f
-        container.addView(item.view)
-
-        item.view.post(object : Runnable {
-            var attempts = 0
-            val maxAttempts = 10
-            override fun run() {
-                val w = item.view.measuredWidth
-                val h = item.view.measuredHeight
-                if ((w == 0 || h == 0) && attempts < maxAttempts) {
-                    attempts++
-                    item.view.postDelayed(this, 16)
-                    return
-                }
-                item.alpha = item.view.alpha
-                item.view.alpha = item.alpha
-                container.removeView(item.view)
-            }
-        })
-    }
-
-    private fun addViewToOverlayTemporarily(item: Item) {
-        measureMenuItemSize(item)
-    }
-
-    // ---------- data types ----------
+    // ---------- Data Class ----------
     data class Item(val view: View) {
         var x: Int = 0
         var y: Int = 0
-        var alpha: Float = view.alpha
         
         val width: Int
             get() = if (view.measuredWidth > 0) view.measuredWidth else view.layoutParams?.width ?: 0
@@ -315,7 +205,7 @@ class FloatingActionMenu(
         fun create(
             context: Context,
             resId: Int,
-            sizeDp: Float = 48f,
+            sizeDp: Float = 44f,
         ): Item {
             val sizeInPx = dp2px(sizeDp)
             val margin = dp2px(10f)
@@ -336,9 +226,8 @@ class FloatingActionMenu(
                     layoutParams = FrameLayout.LayoutParams(sizeInPx, sizeInPx)
                     background = ContextCompat.getDrawable(
                         context,
-                        R.drawable.button_action_dark_selector
+                        R.drawable.menu_button_background
                     )?.mutate()?.constantState?.newDrawable()
-
                     isClickable = true
                     addView(imageView)
                 }
@@ -349,7 +238,7 @@ class FloatingActionMenu(
             actionView: View,
             startAngle: Int = 120,
             endAngle: Int = 240,
-            radius: Float = 86f,
+            radius: Float = 80f,
             menuItems: List<Item> = emptyList(),
             animationHandler: AnimationHandler? = AnimationHandler(),
             stateChangeListener: MenuStateChangeListener? = null
@@ -362,24 +251,5 @@ class FloatingActionMenu(
             animationHandler = animationHandler,
             stateChangeListener = stateChangeListener
         )
-
-        fun getDefaultSystemWindowParams() = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
-            } else {
-                @Suppress("DEPRECATION")
-                WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY
-            },
-            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-            PixelFormat.TRANSLUCENT
-        ).apply {
-            format = PixelFormat.TRANSLUCENT
-            gravity = Gravity.TOP or Gravity.START
-        }
     }
 }

@@ -5,7 +5,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 
-class FloatingBallAccessibilityService : AccessibilityService() {
+class QuickBallAccessibilityService : AccessibilityService() {
 
     companion object {
         private const val TAG = "QuickBall"
