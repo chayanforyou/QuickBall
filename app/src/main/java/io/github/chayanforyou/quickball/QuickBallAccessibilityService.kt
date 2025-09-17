@@ -17,7 +17,7 @@ class QuickBallAccessibilityService : AccessibilityService() {
     // Auto-stash functionality
     private val stashHandler = Handler(Looper.getMainLooper())
     private val stashRunnable = Runnable { stashBall() }
-    private val stashDelay = 3000L // 3 seconds
+    private val stashDelay = 2500L
 
     override fun onServiceConnected() {
         super.onServiceConnected()
