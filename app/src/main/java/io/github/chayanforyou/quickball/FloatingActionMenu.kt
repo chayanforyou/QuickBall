@@ -179,16 +179,17 @@ class FloatingActionMenu(
     fun updateIndividualMenuItemPosition(item: Item, x: Int, y: Int) {
         val layoutParams = individualMenuItems[item]
         if (layoutParams != null) {
-            layoutParams.x = x
-            layoutParams.y = y
-            try {
-                windowManager.updateViewLayout(item.view, layoutParams)
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to update individual menu item position: ${e.message}")
+            if (layoutParams.x != x || layoutParams.y != y) {
+                layoutParams.x = x
+                layoutParams.y = y
+                try {
+                    windowManager.updateViewLayout(item.view, layoutParams)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to update individual menu item position: ${e.message}")
+                }
             }
         }
     }
-
 
     // ---------- Data Class ----------
     data class Item(val view: View, val action: MenuAction? = null) {
@@ -243,6 +244,7 @@ class FloatingActionMenu(
                         R.drawable.menu_button_background
                     )?.mutate()?.constantState?.newDrawable()
                     isClickable = true
+                    setLayerType(View.LAYER_TYPE_HARDWARE, null)
                     addView(imageView)
                 }
             )

@@ -52,6 +52,7 @@ class FloatingActionButton(
     private var isBallOnLeftSide = false
     private var isVisible = false
     private var isStashed = false
+    private var isAnimatingStash = false
 
     // Callbacks
     private var onStashStateChangedListener: ((Boolean) -> Unit)? = null
@@ -81,6 +82,7 @@ class FloatingActionButton(
                 R.drawable.menu_button_background
             )?.mutate()?.constantState?.newDrawable()
             isClickable = true
+            setLayerType(View.LAYER_TYPE_HARDWARE, null)
             addView(imageView)
             setOnTouchListener(floatingBallTouchListener)
         }
@@ -113,8 +115,9 @@ class FloatingActionButton(
     }
 
     fun stash() {
-        if (!isVisible || isStashed || floatingBall == null) return
+        if (!isVisible || isStashed || isAnimatingStash || floatingBall == null) return
 
+        isAnimatingStash = true
         val layoutParams = floatingBall!!.layoutParams as WindowManager.LayoutParams
         val ballSizePx = dp2px(ballSize)
         val stashOffsetPx = dp2px(stashOffset)
@@ -126,12 +129,11 @@ class FloatingActionButton(
         } else {
             displayMetrics.widthPixels - ballSizePx + stashOffsetPx // Hide to the right (go beyond screen edge)
         }
-
-        // Set stashed state immediately to prevent race conditions
-        isStashed = true
         
         // Animate to stash position and make transparent
         animateToPosition(layoutParams.x, layoutParams.y, targetX, layoutParams.y) {
+            isStashed = true
+            isAnimatingStash = false
             onStashStateChangedListener?.invoke(true)
         }
 
@@ -140,7 +142,12 @@ class FloatingActionButton(
     }
 
     fun unstash() {
-        if (!isVisible || !isStashed || floatingBall == null) return
+        if (!isVisible || floatingBall == null) return
+
+        // Cancel any ongoing stash animation
+        if (isAnimatingStash) {
+            isAnimatingStash = false
+        }
 
         val layoutParams = floatingBall!!.layoutParams as WindowManager.LayoutParams
         val ballSizePx = dp2px(ballSize)
@@ -154,14 +161,15 @@ class FloatingActionButton(
             displayMetrics.widthPixels - ballSizePx - marginPx // Show on right edge
         }
 
-        // Set unstashed state immediately to prevent race conditions
-        isStashed = false
-        
         // Animate to unstash position and make opaque
         animateToPosition(layoutParams.x, layoutParams.y, targetX, layoutParams.y, 50) {
-            ensureMenuCreated()
-            floatingMenu?.open(true)
+            isStashed = false
             onStashStateChangedListener?.invoke(false)
+
+            floatingBall?.post {
+                ensureMenuCreated()
+                floatingMenu?.open(true)
+            }
         }
 
         // Animate alpha to opaque
@@ -197,7 +205,7 @@ class FloatingActionButton(
 
     fun isMenuOpen(): Boolean = floatingMenu?.isOpen() == true
 
-    private fun updateMenuIcon(animDuration: Long = 80) {
+    private fun updateMenuIcon(animDuration: Long = 60) {
         floatingBall?.let { ball ->
             if (ball is FrameLayout) {
                 val imageView = ball.getChildAt(0) as? ImageView
@@ -211,6 +219,7 @@ class FloatingActionButton(
                     // Create rotating animation
                     ObjectAnimator.ofFloat(image, View.ROTATION, 0f, 90f).apply {
                         duration = animDuration
+                        interpolator = DecelerateInterpolator()
                         doOnEnd {
                             image.setImageResource(iconRes)
                             ObjectAnimator.ofFloat(image, View.ROTATION, 90f, 0f).apply {
@@ -253,20 +262,25 @@ class FloatingActionButton(
     }
 
     private fun createMenu() {
+        // Pre-calculate menu items to avoid work during animation
+        val startAngle = getMenuStartAngle()
+        val endAngle = getMenuEndAngle()
+        val menuItems = if (isBallOnLeftSide) floatingMenuItems else floatingMenuItems.reversed()
+        
         floatingMenu = FloatingActionMenu.attached(
             actionView = floatingBall!!,
-            startAngle = getMenuStartAngle(),
-            endAngle = getMenuEndAngle(),
-            menuItems = if (isBallOnLeftSide) floatingMenuItems else floatingMenuItems.reversed(),
+            startAngle = startAngle,
+            endAngle = endAngle,
+            menuItems = menuItems,
             animationHandler = AnimationHandler(),
             stateChangeListener = object : FloatingActionMenu.MenuStateChangeListener {
                 override fun onMenuOpened(menu: FloatingActionMenu) {
-                    updateMenuIcon()
+                    floatingBall?.post { updateMenuIcon() }
                     onMenuStateChangedListener?.invoke(true)
                 }
 
                 override fun onMenuClosed(menu: FloatingActionMenu) {
-                    updateMenuIcon()
+                    floatingBall?.post { updateMenuIcon() }
                     onMenuStateChangedListener?.invoke(false)
                 }
             },
@@ -346,11 +360,17 @@ class FloatingActionButton(
 
         ValueAnimator.ofFloat(0f, 1f).apply {
             duration = animDuration
+            interpolator = DecelerateInterpolator()
             addUpdateListener { animation ->
                 val progress = animation.animatedValue as Float
-                layoutParams.x = (fromX + (toX - fromX) * progress).toInt()
-                layoutParams.y = (fromY + (toY - fromY) * progress).toInt()
-                windowManager.updateViewLayout(floatingBall, layoutParams)
+                val newX = (fromX + (toX - fromX) * progress).toInt()
+                val newY = (fromY + (toY - fromY) * progress).toInt()
+
+                if (layoutParams.x != newX || layoutParams.y != newY) {
+                    layoutParams.x = newX
+                    layoutParams.y = newY
+                    windowManager.updateViewLayout(floatingBall, layoutParams)
+                }
             }
             doOnEnd { onComplete() }
             start()
@@ -382,7 +402,11 @@ class FloatingActionButton(
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     if (floatingMenu?.isOpen() == true) return true
-                    if (isStashed) return true
+
+                    if (isStashed || isAnimatingStash) {
+                        isDragging = false
+                        return true
+                    }
 
                     val layoutParams = view.layoutParams as WindowManager.LayoutParams
                     initialX = layoutParams.x
@@ -395,7 +419,7 @@ class FloatingActionButton(
 
                 MotionEvent.ACTION_MOVE -> {
                     if (floatingMenu?.isOpen() == true) return true
-                    if (isStashed) return true
+                    if (isStashed || isAnimatingStash) return true
 
                     val deltaX = (event.rawX - initialTouchX).toInt()
                     val deltaY = (event.rawY - initialTouchY).toInt()
@@ -411,10 +435,14 @@ class FloatingActionButton(
                         val topBoundaryPx = dp2px(topBoundary)
                         val bottomBoundaryPx = dp2px(bottomBoundary)
 
-                        layoutParams.x = (initialX + deltaX).coerceIn(0, displayMetrics.widthPixels - ballSizePx)
-                        layoutParams.y = (initialY + deltaY).coerceIn(topBoundaryPx, displayMetrics.heightPixels - ballSizePx - bottomBoundaryPx)
+                        val newX = (initialX + deltaX).coerceIn(0, displayMetrics.widthPixels - ballSizePx)
+                        val newY = (initialY + deltaY).coerceIn(topBoundaryPx, displayMetrics.heightPixels - ballSizePx - bottomBoundaryPx)
 
-                        windowManager.updateViewLayout(view, layoutParams)
+                        if (layoutParams.x != newX || layoutParams.y != newY) {
+                            layoutParams.x = newX
+                            layoutParams.y = newY
+                            windowManager.updateViewLayout(view, layoutParams)
+                        }
                     }
                     return true
                 }
@@ -424,7 +452,7 @@ class FloatingActionButton(
                         onDragStateChangedListener?.invoke(false)
                         snapToEdge(view)
                     } else {
-                        if (isStashed) {
+                        if (isStashed || isAnimatingStash) {
                             unstash()
                         } else {
                             ensureMenuCreated()

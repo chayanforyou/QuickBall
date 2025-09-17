@@ -14,8 +14,9 @@ import io.github.chayanforyou.quickball.FloatingActionMenu
 class AnimationHandler {
 
     companion object {
-        private const val DURATION = 150
-        private const val LAG_BETWEEN_ITEMS = 15
+        private const val OPEN_DURATION = 200L
+        private const val CLOSE_DURATION = 300L
+        private const val LAG_BETWEEN_ITEMS = 5
     }
 
     private enum class ActionType { OPENING, CLOSING }
@@ -37,6 +38,9 @@ class AnimationHandler {
         for (i in currentMenu.getSubActionItems().indices) {
             val item = currentMenu.getSubActionItems()[i]
 
+            // Enable hardware acceleration for smooth animations
+            item.view.setLayerType(View.LAYER_TYPE_HARDWARE, null)
+            
             item.view.scaleX = 0f
             item.view.scaleY = 0f
             item.view.alpha = 0f
@@ -47,26 +51,34 @@ class AnimationHandler {
             val endX = item.x
             val endY = item.y
 
-            // Create position animator
+            // Create position animator with throttled updates
             val positionAnimator = ValueAnimator.ofFloat(0f, 1f)
-            positionAnimator.duration = DURATION.toLong()
-            positionAnimator.interpolator = OvershootInterpolator(0.9f)
+            positionAnimator.duration = OPEN_DURATION
+            positionAnimator.interpolator = OvershootInterpolator(0.6f)
+            
+            // Use throttled updates to prevent frame drops
+            var lastUpdateTime = 0L
             positionAnimator.addUpdateListener { anim ->
-                val progress = anim.animatedValue as Float
-                val currentX = (startX + (endX - startX) * progress).toInt()
-                val currentY = (startY + (endY - startY) * progress).toInt()
-                menu?.updateIndividualMenuItemPosition(item, currentX, currentY)
+                val currentTime = System.currentTimeMillis()
+                // Throttle updates to ~120fps to reduce WindowManager calls
+                if (currentTime - lastUpdateTime >= 8) {
+                    val progress = anim.animatedValue as Float
+                    val currentX = (startX + (endX - startX) * progress).toInt()
+                    val currentY = (startY + (endY - startY) * progress).toInt()
+                    menu?.updateIndividualMenuItemPosition(item, currentX, currentY)
+                    lastUpdateTime = currentTime
+                }
             }
 
             // Create visual effects animator
-            val pvhR = PropertyValuesHolder.ofFloat(View.ROTATION, 720f)
+            val pvhR = PropertyValuesHolder.ofFloat(View.ROTATION, 360f)
             val pvhsX = PropertyValuesHolder.ofFloat(View.SCALE_X, 1f)
             val pvhsY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f)
             val pvhA = PropertyValuesHolder.ofFloat(View.ALPHA, 1f)
 
             val visualAnimation = ObjectAnimator.ofPropertyValuesHolder(item.view, pvhR, pvhsX, pvhsY, pvhA)
-            visualAnimation.duration = DURATION.toLong()
-            visualAnimation.interpolator = OvershootInterpolator(0.9f)
+            visualAnimation.duration = OPEN_DURATION
+            visualAnimation.interpolator = OvershootInterpolator(0.6f)
 
             // Combine animations
             val animation = AnimatorSet().apply {
@@ -102,25 +114,33 @@ class AnimationHandler {
             val endX = center.x - item.width / 2
             val endY = center.y - item.height / 2
 
-            // Create position animator
+            // Create position animator with throttled updates
             val positionAnimator = ValueAnimator.ofFloat(0f, 1f)
-            positionAnimator.duration = DURATION.toLong()
+            positionAnimator.duration = CLOSE_DURATION
             positionAnimator.interpolator = AccelerateDecelerateInterpolator()
+            
+            // Use throttled updates to prevent frame drops
+            var lastUpdateTime = 0L
             positionAnimator.addUpdateListener { anim ->
-                val progress = anim.animatedValue as Float
-                val currentX = (startX + (endX - startX) * progress).toInt()
-                val currentY = (startY + (endY - startY) * progress).toInt()
-                menu?.updateIndividualMenuItemPosition(item, currentX, currentY)
+                val currentTime = System.currentTimeMillis()
+                // Throttle updates to ~120fps to reduce WindowManager calls
+                if (currentTime - lastUpdateTime >= 8) {
+                    val progress = anim.animatedValue as Float
+                    val currentX = (startX + (endX - startX) * progress).toInt()
+                    val currentY = (startY + (endY - startY) * progress).toInt()
+                    menu?.updateIndividualMenuItemPosition(item, currentX, currentY)
+                    lastUpdateTime = currentTime
+                }
             }
 
             // Create visual effects animator
-            val pvhR = PropertyValuesHolder.ofFloat(View.ROTATION, -720f)
+            val pvhR = PropertyValuesHolder.ofFloat(View.ROTATION, -360f)
             val pvhsX = PropertyValuesHolder.ofFloat(View.SCALE_X, 0f)
             val pvhsY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 0f)
             val pvhA = PropertyValuesHolder.ofFloat(View.ALPHA, 0f)
 
             val visualAnimation = ObjectAnimator.ofPropertyValuesHolder(item.view, pvhR, pvhsX, pvhsY, pvhA)
-            visualAnimation.duration = DURATION.toLong()
+            visualAnimation.duration = CLOSE_DURATION
             visualAnimation.interpolator = AccelerateDecelerateInterpolator()
 
             // Combine animations
