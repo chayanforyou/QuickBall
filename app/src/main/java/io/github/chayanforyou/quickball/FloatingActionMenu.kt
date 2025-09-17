@@ -38,6 +38,7 @@ class FloatingActionMenu(
     private var overlayContainer: FrameLayout? = null
     private val menuRadius = dp2px(radius)
     private var isOpen = false
+    private val individualMenuItems = mutableMapOf<Item, WindowManager.LayoutParams>()
 
     fun getSubActionItems(): List<Item> = subActionItems
     fun getOverlayContainer(): FrameLayout? = overlayContainer
@@ -46,42 +47,26 @@ class FloatingActionMenu(
     init {
         animationHandler?.setMenu(this)
         subActionItems.filter { it.width <= 0 || it.height <= 0 }
-            .forEach { addViewToOverlayTemporarily(it) }
+            .forEach { measureMenuItemSize(it) }
     }
 
     // ---------- Public API ----------
     fun open(animated: Boolean) {
         val center = calculateItemPositions()
-        attachOverlayContainer()
 
         if (animated && animationHandler?.isAnimating() == true) return
-
-        val overlayParams = overlayContainer?.layoutParams as? WindowManager.LayoutParams
 
         if (animated && animationHandler != null) {
             subActionItems.forEach { item ->
                 if (item.view.parent != null) {
                     throw RuntimeException("All of the sub action items have to be independent from a parent.")
                 }
-                val params = FrameLayout.LayoutParams(item.width, item.height, Gravity.TOP or Gravity.START)
-                params.setMargins(
-                    center.x - (overlayParams?.x ?: 0) - item.width / 2,
-                    center.y - (overlayParams?.y ?: 0) - item.height / 2,
-                    0, 0
-                )
-                addViewToCurrentContainer(item.view, params)
+                addIndividualMenuItem(item, center.x - item.width / 2, center.y - item.height / 2)
             }
             animationHandler.animateMenuOpening(center)
         } else {
             subActionItems.forEach { item ->
-                val params = FrameLayout.LayoutParams(item.width, item.height, Gravity.TOP or Gravity.START)
-                params.setMargins(
-                    item.x - (overlayParams?.x ?: 0),
-                    item.y - (overlayParams?.y ?: 0),
-                    0, 0
-                )
-                item.view.layoutParams = params
-                addViewToCurrentContainer(item.view, params)
+                addIndividualMenuItem(item, item.x, item.y)
             }
         }
 
@@ -95,8 +80,7 @@ class FloatingActionMenu(
         if (animated && animationHandler != null) {
             animationHandler.animateMenuClosing(getActionViewCenter())
         } else {
-            subActionItems.forEach { removeViewFromCurrentContainer(it.view) }
-            detachOverlayContainer()
+            subActionItems.forEach { removeIndividualMenuItem(it) }
         }
 
         isOpen = false
@@ -151,6 +135,62 @@ class FloatingActionMenu(
         }
 
         return center
+    }
+
+    // ---------- Individual Menu Item Management ----------
+    private fun addIndividualMenuItem(item: Item, x: Int, y: Int) {
+        try {
+            val layoutParams = createIndividualMenuItemParams(x, y, item.width, item.height)
+            individualMenuItems[item] = layoutParams
+            windowManager.addView(item.view, layoutParams)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to add individual menu item: ${e.message}")
+        }
+    }
+
+    fun removeIndividualMenuItem(item: Item) {
+        try {
+            windowManager.removeView(item.view)
+            individualMenuItems.remove(item)
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to remove individual menu item: ${e.message}")
+        }
+    }
+
+    private fun createIndividualMenuItemParams(x: Int, y: Int, width: Int, height: Int): WindowManager.LayoutParams {
+        return WindowManager.LayoutParams(
+            width,
+            height,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
+            } else {
+                @Suppress("DEPRECATION")
+                WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY
+            },
+            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            PixelFormat.TRANSLUCENT
+        ).apply {
+            format = PixelFormat.TRANSLUCENT
+            gravity = Gravity.TOP or Gravity.START
+            this.x = x
+            this.y = y
+        }
+    }
+
+    fun updateIndividualMenuItemPosition(item: Item, x: Int, y: Int) {
+        val layoutParams = individualMenuItems[item]
+        if (layoutParams != null) {
+            layoutParams.x = x
+            layoutParams.y = y
+            try {
+                windowManager.updateViewLayout(item.view, layoutParams)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to update individual menu item position: ${e.message}")
+            }
+        }
     }
 
     // ---------- Overlay management ----------
@@ -221,10 +261,11 @@ class FloatingActionMenu(
         overlayContainer?.removeView(view)
     }
 
-    private fun addViewToOverlayTemporarily(item: Item) {
-        val container = ensureOverlayContainer()
+    private fun measureMenuItemSize(item: Item) {
         if (item.view.parent != null) return
 
+        // Temporarily add to a container to measure
+        val container = ensureOverlayContainer()
         item.view.alpha = 0f
         container.addView(item.view)
 
@@ -244,6 +285,10 @@ class FloatingActionMenu(
                 container.removeView(item.view)
             }
         })
+    }
+
+    private fun addViewToOverlayTemporarily(item: Item) {
+        measureMenuItemSize(item)
     }
 
     // ---------- data types ----------

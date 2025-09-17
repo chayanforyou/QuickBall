@@ -172,14 +172,6 @@ class FloatingActionButton(private val context: Context) {
         }
     }
 
-//    private fun getMenuStartAngle(): Int {
-//        return if (isBallOnLeftSide) { 300 } else { 120 }
-//    }
-//
-//    private fun getMenuEndAngle(): Int {
-//        return if (isBallOnLeftSide) { 60 } else { 240 }
-//    }
-
     private fun getMenuStartAngle(): Int {
         return if (isBallOnLeftSide) { 280 } else { 100 }
     }
@@ -322,11 +314,11 @@ class FloatingActionButton(private val context: Context) {
         private var isDragging = false
 
         override fun onTouch(view: View, event: MotionEvent): Boolean {
+            view.performClick()
+
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     if (floatingMenu?.isOpen() == true) return true
-
-                    println("ACTION_DOWN.....")
 
                     val layoutParams = view.layoutParams as WindowManager.LayoutParams
                     initialX = layoutParams.x

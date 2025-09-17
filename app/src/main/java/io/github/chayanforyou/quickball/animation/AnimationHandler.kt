@@ -1,21 +1,21 @@
 package io.github.chayanforyou.quickball.animation
 
 import android.animation.Animator
+import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
+import android.animation.ValueAnimator
 import android.graphics.Point
 import android.view.View
-import android.view.WindowManager
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.OvershootInterpolator
-import android.widget.FrameLayout
 import io.github.chayanforyou.quickball.FloatingActionMenu
 
 class AnimationHandler {
 
     companion object {
-        private const val DURATION = 200
-        private const val LAG_BETWEEN_ITEMS = 20
+        private const val DURATION = 150
+        private const val LAG_BETWEEN_ITEMS = 15
     }
 
     private enum class ActionType { OPENING, CLOSING }
@@ -41,17 +41,38 @@ class AnimationHandler {
             item.view.scaleY = 0f
             item.view.alpha = 0f
 
-            val pvhX = PropertyValuesHolder.ofFloat(View.TRANSLATION_X, item.x - center.x + item.width / 2f)
-            val pvhY = PropertyValuesHolder.ofFloat(View.TRANSLATION_Y, item.y - center.y + item.height / 2f)
+            // For individual menu items, we animate from center to final position
+            val startX = center.x - item.width / 2
+            val startY = center.y - item.height / 2
+            val endX = item.x
+            val endY = item.y
+
+            // Create position animator
+            val positionAnimator = ValueAnimator.ofFloat(0f, 1f)
+            positionAnimator.duration = DURATION.toLong()
+            positionAnimator.interpolator = OvershootInterpolator(0.9f)
+            positionAnimator.addUpdateListener { anim ->
+                val progress = anim.animatedValue as Float
+                val currentX = (startX + (endX - startX) * progress).toInt()
+                val currentY = (startY + (endY - startY) * progress).toInt()
+                menu?.updateIndividualMenuItemPosition(item, currentX, currentY)
+            }
+
+            // Create visual effects animator
             val pvhR = PropertyValuesHolder.ofFloat(View.ROTATION, 720f)
             val pvhsX = PropertyValuesHolder.ofFloat(View.SCALE_X, 1f)
             val pvhsY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f)
             val pvhA = PropertyValuesHolder.ofFloat(View.ALPHA, 1f)
 
-            val animation = ObjectAnimator.ofPropertyValuesHolder(item.view, pvhX, pvhY, pvhR, pvhsX, pvhsY, pvhA)
-            animation.duration = DURATION.toLong()
-            animation.interpolator = OvershootInterpolator(0.9f)
-            animation.addListener(SubActionItemAnimationListener(item, ActionType.OPENING))
+            val visualAnimation = ObjectAnimator.ofPropertyValuesHolder(item.view, pvhR, pvhsX, pvhsY, pvhA)
+            visualAnimation.duration = DURATION.toLong()
+            visualAnimation.interpolator = OvershootInterpolator(0.9f)
+
+            // Combine animations
+            val animation = AnimatorSet().apply {
+                playTogether(positionAnimator, visualAnimation)
+                addListener(SubActionItemAnimationListener(item, ActionType.OPENING))
+            }
 
             if (i == 0) {
                 lastAnimation = animation
@@ -75,17 +96,38 @@ class AnimationHandler {
         for (i in currentMenu.getSubActionItems().indices) {
             val item = currentMenu.getSubActionItems()[i]
 
-            val pvhX = PropertyValuesHolder.ofFloat(View.TRANSLATION_X, -(item.x - center.x + item.width / 2f))
-            val pvhY = PropertyValuesHolder.ofFloat(View.TRANSLATION_Y, -(item.y - center.y + item.height / 2f))
+            // For individual menu items, we animate from current position to center
+            val startX = item.x
+            val startY = item.y
+            val endX = center.x - item.width / 2
+            val endY = center.y - item.height / 2
+
+            // Create position animator
+            val positionAnimator = ValueAnimator.ofFloat(0f, 1f)
+            positionAnimator.duration = DURATION.toLong()
+            positionAnimator.interpolator = AccelerateDecelerateInterpolator()
+            positionAnimator.addUpdateListener { anim ->
+                val progress = anim.animatedValue as Float
+                val currentX = (startX + (endX - startX) * progress).toInt()
+                val currentY = (startY + (endY - startY) * progress).toInt()
+                menu?.updateIndividualMenuItemPosition(item, currentX, currentY)
+            }
+
+            // Create visual effects animator
             val pvhR = PropertyValuesHolder.ofFloat(View.ROTATION, -720f)
             val pvhsX = PropertyValuesHolder.ofFloat(View.SCALE_X, 0f)
             val pvhsY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 0f)
             val pvhA = PropertyValuesHolder.ofFloat(View.ALPHA, 0f)
 
-            val animation = ObjectAnimator.ofPropertyValuesHolder(item.view, pvhX, pvhY, pvhR, pvhsX, pvhsY, pvhA)
-            animation.duration = DURATION.toLong()
-            animation.interpolator = AccelerateDecelerateInterpolator()
-            animation.addListener(SubActionItemAnimationListener(item, ActionType.CLOSING))
+            val visualAnimation = ObjectAnimator.ofPropertyValuesHolder(item.view, pvhR, pvhsX, pvhsY, pvhA)
+            visualAnimation.duration = DURATION.toLong()
+            visualAnimation.interpolator = AccelerateDecelerateInterpolator()
+
+            // Combine animations
+            val animation = AnimatorSet().apply {
+                playTogether(positionAnimator, visualAnimation)
+                addListener(SubActionItemAnimationListener(item, ActionType.CLOSING))
+            }
 
             if (i == 0) {
                 lastAnimation = animation
@@ -125,44 +167,27 @@ class AnimationHandler {
             subActionItem: FloatingActionMenu.Item,
             actionType: ActionType
         ) {
-            val params = subActionItem.view.layoutParams
-            subActionItem.view.translationX = 0f
-            subActionItem.view.translationY = 0f
-            subActionItem.view.rotation = 0f
-            subActionItem.view.scaleX = 1f
-            subActionItem.view.scaleY = 1f
-            subActionItem.view.alpha = 1f
-
             when (actionType) {
                 ActionType.OPENING -> {
-                    val lp = params as FrameLayout.LayoutParams
-                    val overlayParams = menu?.getOverlayContainer()?.layoutParams as? WindowManager.LayoutParams
-                    lp.setMargins(
-                        subActionItem.x - (overlayParams?.x ?: 0),
-                        subActionItem.y - (overlayParams?.y ?: 0),
-                        0, 0
-                    )
-                    subActionItem.view.layoutParams = lp
+                    // For individual menu items, update position to final location
+                    subActionItem.view.translationX = 0f
+                    subActionItem.view.translationY = 0f
+                    subActionItem.view.rotation = 0f
+                    subActionItem.view.scaleX = 1f
+                    subActionItem.view.scaleY = 1f
+                    subActionItem.view.alpha = 1f
+
+                    menu?.updateIndividualMenuItemPosition(subActionItem, subActionItem.x, subActionItem.y)
                 }
 
                 ActionType.CLOSING -> {
-                    val center = menu?.getActionViewCenter()
-                    val lp = params as FrameLayout.LayoutParams
-                    val overlayParams = menu?.getOverlayContainer()?.layoutParams as? WindowManager.LayoutParams
+                    // For individual menu items, remove from window manager
+                    subActionItem.view.alpha = 0f
+                    subActionItem.view.scaleX = 0f
+                    subActionItem.view.scaleY = 0f
 
-                    if (center != null) {
-                        lp.setMargins(
-                            center.x - (overlayParams?.x ?: 0) - subActionItem.width / 2,
-                            center.y - (overlayParams?.y ?: 0) - subActionItem.height / 2,
-                            0, 0
-                        )
-                    }
-                    subActionItem.view.layoutParams = lp
-                    menu?.removeViewFromCurrentContainer(subActionItem.view)
-
-                    // When all the views are removed from the overlay container, detach it
-                    if (menu?.getOverlayContainer()?.childCount == 0) {
-                        menu?.detachOverlayContainer()
+                    subActionItem.view.post {
+                        menu?.removeIndividualMenuItem(subActionItem)
                     }
                 }
             }
