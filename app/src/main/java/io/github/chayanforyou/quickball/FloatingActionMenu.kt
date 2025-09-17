@@ -27,6 +27,7 @@ class FloatingActionMenu(
     private val subActionItems: List<Item> = mutableListOf(),
     private val animationHandler: AnimationHandler? = null,
     private var stateChangeListener: MenuStateChangeListener? = null,
+    private var menuItemClickListener: MenuItemClickListener? = null,
 ) {
 
     private val windowManager: WindowManager by lazy {
@@ -41,6 +42,13 @@ class FloatingActionMenu(
 
     init {
         animationHandler?.setMenu(this)
+        subActionItems.forEach { item ->
+            item.view.setOnClickListener {
+                item.action?.let { action ->
+                    menuItemClickListener?.onMenuItemClick(action)
+                }
+            }
+        }
     }
 
     // ---------- Public API ----------
@@ -183,7 +191,7 @@ class FloatingActionMenu(
 
 
     // ---------- Data Class ----------
-    data class Item(val view: View) {
+    data class Item(val view: View, val action: MenuAction? = null) {
         var x: Int = 0
         var y: Int = 0
         
@@ -198,6 +206,10 @@ class FloatingActionMenu(
         fun onMenuOpened(menu: FloatingActionMenu)
         fun onMenuClosed(menu: FloatingActionMenu)
     }
+    
+    interface MenuItemClickListener {
+        fun onMenuItemClick(action: MenuAction)
+    }
 
     companion object {
         private const val TAG = "FloatingActionMenu"
@@ -205,6 +217,7 @@ class FloatingActionMenu(
         fun create(
             context: Context,
             resId: Int,
+            action: MenuAction? = null,
             sizeDp: Float = 44f,
         ): Item {
             val sizeInPx = dp2px(sizeDp)
@@ -222,7 +235,8 @@ class FloatingActionMenu(
             }
 
             return Item(
-                FrameLayout(context).apply {
+                action = action,
+                view = FrameLayout(context).apply {
                     layoutParams = FrameLayout.LayoutParams(sizeInPx, sizeInPx)
                     background = ContextCompat.getDrawable(
                         context,
@@ -241,7 +255,8 @@ class FloatingActionMenu(
             radius: Float = 80f,
             menuItems: List<Item> = emptyList(),
             animationHandler: AnimationHandler? = AnimationHandler(),
-            stateChangeListener: MenuStateChangeListener? = null
+            stateChangeListener: MenuStateChangeListener? = null,
+            menuItemClickListener: MenuItemClickListener? = null
         ) = FloatingActionMenu(
             mainActionView = actionView,
             startAngle = startAngle,
@@ -249,7 +264,8 @@ class FloatingActionMenu(
             radius = radius,
             subActionItems = menuItems,
             animationHandler = animationHandler,
-            stateChangeListener = stateChangeListener
+            stateChangeListener = stateChangeListener,
+            menuItemClickListener = menuItemClickListener
         )
     }
 }

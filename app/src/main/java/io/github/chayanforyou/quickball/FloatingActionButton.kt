@@ -15,11 +15,15 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
+import io.github.chayanforyou.quickball.FloatingActionMenu.MenuItemClickListener
 import io.github.chayanforyou.quickball.animation.AnimationHandler
 import io.github.chayanforyou.quickball.utils.WidgetUtil.dp2px
 import kotlin.math.abs
 
-class FloatingActionButton(private val context: Context) {
+class FloatingActionButton(
+    private val context: Context,
+    private val menuActionHandler: MenuActionHandler? = null
+) {
 
     companion object {
         private const val TAG = "FloatingBallView"
@@ -30,11 +34,11 @@ class FloatingActionButton(private val context: Context) {
     private var floatingBall: View? = null
     private var floatingMenu: FloatingActionMenu? = null
     private val floatingMenuItems = listOf(
-        FloatingActionMenu.create(context, R.drawable.ic_volume_up),
-        FloatingActionMenu.create(context, R.drawable.ic_volume_down),
-        FloatingActionMenu.create(context, R.drawable.ic_brightness_up),
-        FloatingActionMenu.create(context, R.drawable.ic_brightness_down),
-        FloatingActionMenu.create(context, R.drawable.ic_lock),
+        FloatingActionMenu.create(context, R.drawable.ic_volume_up, MenuAction.VOLUME_UP),
+        FloatingActionMenu.create(context, R.drawable.ic_volume_down, MenuAction.VOLUME_DOWN),
+        FloatingActionMenu.create(context, R.drawable.ic_brightness_up, MenuAction.BRIGHTNESS_UP),
+        FloatingActionMenu.create(context, R.drawable.ic_brightness_down, MenuAction.BRIGHTNESS_DOWN),
+        FloatingActionMenu.create(context, R.drawable.ic_lock, MenuAction.LOCK_SCREEN),
     )
 
     // Ball properties
@@ -211,6 +215,12 @@ class FloatingActionButton(private val context: Context) {
 
                 override fun onMenuClosed(menu: FloatingActionMenu) {
                     onMenuStateChangedListener?.invoke(false)
+                }
+            },
+            menuItemClickListener = object : MenuItemClickListener {
+                override fun onMenuItemClick(action: MenuAction) {
+                    menuActionHandler?.onMenuAction(action)
+                    floatingMenu?.close(true)
                 }
             }
         )

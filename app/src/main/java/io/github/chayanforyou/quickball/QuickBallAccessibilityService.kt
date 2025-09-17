@@ -31,14 +31,11 @@ class QuickBallAccessibilityService : AccessibilityService() {
     }
 
     private fun initializeFloatingBall() {
-        floatingActionButton = FloatingActionButton(this)
+        val actionHandler = QuickBallActionHandler(this)
+        floatingActionButton = FloatingActionButton(this, actionHandler)
         floatingActionButton?.initialize()
         
         // Set up callbacks
-//        floatingActionButton?.setOnBallTappedListener {
-//            onBallTapped()
-//        }
-        
         floatingActionButton?.setOnStashStateChangedListener { isStashed ->
             onStashStateChanged(isStashed)
         }
@@ -66,7 +63,6 @@ class QuickBallAccessibilityService : AccessibilityService() {
     }
 
     private fun stashBall() {
-        // Don't stash if currently being dragged or if menu is open
         if (!isDragging && floatingActionButton?.isMenuOpen() != true) {
             floatingActionButton?.stash()
         }
