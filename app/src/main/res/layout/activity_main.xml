@@ -5,103 +5,200 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp"
+    android:padding="@dimen/activity_padding"
     tools:context=".MainActivity">
 
     <TextView
-        android:id="@+id/titleText"
+        android:id="@+id/tv_app_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="QuickBall"
-        android:textSize="28sp"
+        android:text="@string/app_name"
+        android:textSize="18sp"
         android:textStyle="bold"
-        android:textColor="@android:color/black"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="32dp" />
-
-    <TextView
-        android:id="@+id/subtitleText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Floating Ball Accessibility Service"
-        android:textSize="16sp"
-        android:textColor="@android:color/darker_gray"
-        app:layout_constraintTop_toBottomOf="@id/titleText"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/statusText"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_main_switch"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="QuickBall Service is DISABLED\nPlease enable the accessibility service to use the floating ball."
-        android:textSize="16sp"
-        android:textAlignment="center"
-        android:lineSpacingExtra="4dp"
-        android:padding="16dp"
-        android:background="@drawable/status_background"
-        app:layout_constraintTop_toBottomOf="@id/subtitleText"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="24dp"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="32dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_app_title">
 
-    <Button
-        android:id="@+id/enableButton"
+        <TextView
+            android:id="@+id/tv_switch_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/enable_quick_ball"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/switch_enable_quick_ball"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_marginTop="12dp"
+        android:background="?attr/colorOutlineVariant"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layout_main_switch" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_accessibility_permission"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Enable Service"
-        android:textSize="16sp"
-        android:padding="16dp"
-        android:backgroundTint="@android:color/holo_blue_bright"
-        app:layout_constraintTop_toBottomOf="@id/statusText"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="12dp"
+        android:background="?attr/selectableItemBackground"
+        android:paddingVertical="12dp"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="24dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/divider">
 
-    <Button
-        android:id="@+id/settingsButton"
+        <TextView
+            android:id="@+id/tv_accessibility_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="@string/accessibility_permission_title"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@id/img_accessibility_status"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_accessibility_description"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="8dp"
+            android:text="@string/accessibility_permission_description"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="13sp"
+            app:layout_constraintEnd_toStartOf="@id/img_accessibility_status"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_accessibility_title" />
+
+        <ImageView
+            android:id="@+id/img_accessibility_status"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="@string/accessibility_permission_status"
+            android:src="@drawable/ic_unchecked"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_system_settings_permission"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Open Accessibility Settings"
-        android:textSize="14sp"
-        android:padding="12dp"
-        android:backgroundTint="@android:color/darker_gray"
-        app:layout_constraintTop_toBottomOf="@id/enableButton"
-        app:layout_constraintStart_toStartOf="parent"
+        android:background="?attr/selectableItemBackground"
+        android:paddingVertical="12dp"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layout_accessibility_permission">
 
-    <Button
-        android:id="@+id/brightnessPermissionButton"
+        <TextView
+            android:id="@+id/tv_system_settings_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="@string/system_settings_title"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@id/img_system_settings_status"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_system_settings_description"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="8dp"
+            android:text="@string/system_settings_description"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="13sp"
+            app:layout_constraintEnd_toStartOf="@id/img_system_settings_status"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_system_settings_title" />
+
+        <ImageView
+            android:id="@+id/img_system_settings_status"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="@string/system_settings_permission_status"
+            android:src="@drawable/ic_unchecked"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_device_admin_permission"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Grant Brightness Permission"
-        android:textSize="14sp"
-        android:padding="12dp"
-        android:backgroundTint="@android:color/holo_orange_light"
-        android:enabled="false"
-        app:layout_constraintTop_toBottomOf="@id/settingsButton"
-        app:layout_constraintStart_toStartOf="parent"
+        android:background="?attr/selectableItemBackground"
+        android:paddingVertical="12dp"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/layout_system_settings_permission">
 
-    <TextView
-        android:id="@+id/instructionsText"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Instructions:\n1. Tap 'Enable Service' to open accessibility settings\n2. Find 'QuickBall' in the list and enable it\n3. Grant brightness permission for brightness control\n4. The floating ball will appear on your screen\n5. Drag the ball to move it around\n6. Tap the ball for quick actions"
-        android:textSize="14sp"
-        android:textColor="@android:color/darker_gray"
-        android:lineSpacingExtra="2dp"
-        android:padding="16dp"
-        app:layout_constraintTop_toBottomOf="@id/brightnessPermissionButton"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginTop="32dp"
-        android:layout_marginBottom="16dp" />
+        <TextView
+            android:id="@+id/tv_device_admin_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:text="@string/device_admin_title"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@id/img_device_admin_status"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_device_admin_description"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="8dp"
+            android:text="@string/device_admin_description"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:textSize="13sp"
+            app:layout_constraintEnd_toStartOf="@id/img_device_admin_status"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_device_admin_title" />
+
+        <ImageView
+            android:id="@+id/img_device_admin_status"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="@string/device_admin_permission_status"
+            android:src="@drawable/ic_unchecked"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

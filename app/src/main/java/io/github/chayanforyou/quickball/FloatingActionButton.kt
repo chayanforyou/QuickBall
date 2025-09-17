@@ -79,7 +79,7 @@ class FloatingActionButton(
             layoutParams = FrameLayout.LayoutParams(sizeInPx, sizeInPx)
             background = ContextCompat.getDrawable(
                 context,
-                R.drawable.menu_button_background
+                R.drawable.floating_ball_background
             )?.mutate()?.constantState?.newDrawable()
             isClickable = true
             setLayerType(View.LAYER_TYPE_HARDWARE, null)
@@ -205,7 +205,7 @@ class FloatingActionButton(
 
     fun isMenuOpen(): Boolean = floatingMenu?.isOpen() == true
 
-    private fun updateMenuIcon(animDuration: Long = 60) {
+    private fun updateMenuIcon(animDuration: Long = 80) {
         floatingBall?.let { ball ->
             if (ball is FrameLayout) {
                 val imageView = ball.getChildAt(0) as? ImageView

@@ -31,6 +31,14 @@ class QuickBallActionHandler(private val accessibilityService: AccessibilityServ
         private const val BRIGHTNESS_STEP = 25
     }
 
+    private val devicePolicyManager: DevicePolicyManager by lazy {
+        accessibilityService.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+    }
+
+    private val adminComponent: ComponentName by lazy {
+        ComponentName(accessibilityService, DeviceAdminReceiver::class.java)
+    }
+
     private val audioManager: AudioManager by lazy {
         accessibilityService.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     }
@@ -142,25 +150,20 @@ class QuickBallActionHandler(private val accessibilityService: AccessibilityServ
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 accessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_LOCK_SCREEN)
             } else {
-                performLegacyLockScreen()
+                performDeviceAdminLockScreen()
             }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to perform lock screen action", e)
         }
     }
 
-    private fun performLegacyLockScreen() {
+    private fun performDeviceAdminLockScreen() {
         try {
-            val devicePolicyManager =
-                accessibilityService.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
-            val adminComponent =
-                ComponentName(accessibilityService, DeviceAdminReceiver::class.java)
-
             if (devicePolicyManager.isAdminActive(adminComponent)) {
                 devicePolicyManager.lockNow()
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to perform legacy lock screen action", e)
+            Log.e(TAG, "Failed to perform device admin lock screen", e)
         }
     }
 }

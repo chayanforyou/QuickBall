@@ -241,7 +241,7 @@ class FloatingActionMenu(
                     layoutParams = FrameLayout.LayoutParams(sizeInPx, sizeInPx)
                     background = ContextCompat.getDrawable(
                         context,
-                        R.drawable.menu_button_background
+                        R.drawable.floating_ball_background
                     )?.mutate()?.constantState?.newDrawable()
                     isClickable = true
                     setLayerType(View.LAYER_TYPE_HARDWARE, null)

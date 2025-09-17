@@ -1,14 +1,18 @@
 package io.github.chayanforyou.quickball
 
 import android.accessibilityservice.AccessibilityService
+import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.accessibility.AccessibilityEvent
 
 class QuickBallAccessibilityService : AccessibilityService() {
 
     companion object {
         private const val TAG = "QuickBall"
+        const val ACTION_ENABLE_QUICK_BALL = "io.github.chayanforyou.quickball.ENABLE_QUICK_BALL"
+        const val ACTION_DISABLE_QUICK_BALL = "io.github.chayanforyou.quickball.DISABLE_QUICK_BALL"
     }
 
     private var floatingActionButton: FloatingActionButton? = null
@@ -21,11 +25,32 @@ class QuickBallAccessibilityService : AccessibilityService() {
 
     override fun onServiceConnected() {
         super.onServiceConnected()
+        
         initializeFloatingBall()
+        
+        // Only show the ball if Quick Ball is enabled in settings
+        if (PreferenceManager.isQuickBallEnabled(this)) {
+            showFloatingBall()
+        }
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent != null && !intent.action.isNullOrEmpty()) {
+            when (intent.action) {
+                ACTION_ENABLE_QUICK_BALL -> {
+                    showFloatingBall()
+                }
+                ACTION_DISABLE_QUICK_BALL -> {
+                    hideFloatingBall()
+                }
+            }
+        }
+        return super.onStartCommand(intent, flags, startId)
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        
         hideFloatingBall()
         stashHandler.removeCallbacksAndMessages(null)
     }
@@ -47,13 +72,11 @@ class QuickBallAccessibilityService : AccessibilityService() {
         floatingActionButton?.setOnMenuStateChangedListener { isMenuOpen ->
             onMenuStateChanged(isMenuOpen)
         }
-
-        showFloatingBall()
-        stashBall()
     }
 
     private fun showFloatingBall() {
         floatingActionButton?.show()
+        stashBall()
         resetStashTimer()
     }
 
@@ -79,15 +102,6 @@ class QuickBallAccessibilityService : AccessibilityService() {
 
     private fun cancelStashTimer() {
         stashHandler.removeCallbacks(stashRunnable)
-    }
-
-    private fun onBallTapped() {
-        Log.d(TAG, "Ball tapped")
-        // Add your tap functionality here
-        // For example, show a menu, open an app, etc.
-        
-        // Reset stash timer after tap
-        resetStashTimer()
     }
 
     private fun onStashStateChanged(isStashed: Boolean) {
@@ -120,12 +134,12 @@ class QuickBallAccessibilityService : AccessibilityService() {
         }
     }
 
-    override fun onAccessibilityEvent(event: android.view.accessibility.AccessibilityEvent?) {
+    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         // Handle accessibility events if needed
     }
 
     override fun onInterrupt() {
-        // Handle service interruption
+        // Handle service interruption,
     }
 }
 

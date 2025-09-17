@@ -1,4 +1,24 @@
 <resources>
     <string name="app_name">QuickBall</string>
+    
+    <!-- Accessibility Service (for AndroidManifest.xml) -->
     <string name="accessibility_service_description">QuickBall floating ball service that provides a floating ball overlay on your screen for quick access to features.</string>
+    
+    <!-- Main Activity -->
+    <string name="enable_quick_ball">Enable Quick Ball</string>
+    
+    <!-- Accessibility Permission -->
+    <string name="accessibility_permission_title">Accessibility Service</string>
+    <string name="accessibility_permission_description">Allows QuickBall to display floating overlay,\ncontrol volume, and lock your device</string>
+    <string name="accessibility_permission_status">Accessibility permission status</string>
+    
+    <!-- System Settings Permission -->
+    <string name="system_settings_title">Modify System Settings</string>
+    <string name="system_settings_description">Allows QuickBall to adjust screen brightness</string>
+    <string name="system_settings_permission_status">System settings permission status</string>
+    
+    <!-- Device Admin Permission -->
+    <string name="device_admin_title">Device Administrator</string>
+    <string name="device_admin_description">Required for screen lock on older Android versions</string>
+    <string name="device_admin_permission_status">Device admin permission status</string>
 </resources>
