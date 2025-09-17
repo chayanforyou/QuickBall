@@ -74,16 +74,30 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp" />
 
+    <Button
+        android:id="@+id/brightnessPermissionButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Grant Brightness Permission"
+        android:textSize="14sp"
+        android:padding="12dp"
+        android:backgroundTint="@android:color/holo_orange_light"
+        android:enabled="false"
+        app:layout_constraintTop_toBottomOf="@id/settingsButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
     <TextView
         android:id="@+id/instructionsText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Instructions:\n1. Tap 'Enable Service' to open accessibility settings\n2. Find 'QuickBall' in the list and enable it\n3. The floating ball will appear on your screen\n4. Drag the ball to move it around\n5. Tap the ball for quick actions"
+        android:text="Instructions:\n1. Tap 'Enable Service' to open accessibility settings\n2. Find 'QuickBall' in the list and enable it\n3. Grant brightness permission for brightness control\n4. The floating ball will appear on your screen\n5. Drag the ball to move it around\n6. Tap the ball for quick actions"
         android:textSize="14sp"
         android:textColor="@android:color/darker_gray"
         android:lineSpacingExtra="2dp"
         android:padding="16dp"
-        app:layout_constraintTop_toBottomOf="@id/settingsButton"
+        app:layout_constraintTop_toBottomOf="@id/brightnessPermissionButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"

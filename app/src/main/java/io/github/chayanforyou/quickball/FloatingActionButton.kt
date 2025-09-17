@@ -220,7 +220,9 @@ class FloatingActionButton(
             menuItemClickListener = object : MenuItemClickListener {
                 override fun onMenuItemClick(action: MenuAction) {
                     menuActionHandler?.onMenuAction(action)
-                    floatingMenu?.close(true)
+                    if (action == MenuAction.LOCK_SCREEN) {
+                        floatingMenu?.close(true)
+                    }
                 }
             }
         )

@@ -1,6 +1,12 @@
 package io.github.chayanforyou.quickball
 
 import android.accessibilityservice.AccessibilityService
+import android.app.admin.DevicePolicyManager
+import android.content.ComponentName
+import android.content.Context
+import android.media.AudioManager
+import android.os.Build
+import android.provider.Settings
 import android.util.Log
 
 interface MenuActionHandler {
@@ -15,10 +21,18 @@ enum class MenuAction {
     LOCK_SCREEN
 }
 
-class QuickBallActionHandler(private val accessibilityService: AccessibilityService) : MenuActionHandler {
+class QuickBallActionHandler(private val accessibilityService: AccessibilityService) :
+    MenuActionHandler {
 
     companion object {
         private const val TAG = "MenuActionHandler"
+        private const val MAX_BRIGHTNESS = 255
+        private const val MIN_BRIGHTNESS = 10
+        private const val BRIGHTNESS_STEP = 25
+    }
+
+    private val audioManager: AudioManager by lazy {
+        accessibilityService.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     }
 
     override fun onMenuAction(action: MenuAction) {
@@ -33,8 +47,11 @@ class QuickBallActionHandler(private val accessibilityService: AccessibilityServ
 
     private fun performVolumeUpAction() {
         try {
-            // Use global action for volume up
-//            accessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_VOLUME_UP)
+            audioManager.adjustStreamVolume(
+                AudioManager.STREAM_MUSIC,
+                AudioManager.ADJUST_RAISE,
+                AudioManager.FLAG_PLAY_SOUND
+            )
         } catch (e: Exception) {
             Log.e(TAG, "Failed to perform volume up action", e)
         }
@@ -42,39 +59,108 @@ class QuickBallActionHandler(private val accessibilityService: AccessibilityServ
 
     private fun performVolumeDownAction() {
         try {
-            // Use global action for volume down
-//            accessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_VOLUME_DOWN)
+            audioManager.adjustStreamVolume(
+                AudioManager.STREAM_MUSIC,
+                AudioManager.ADJUST_LOWER,
+                AudioManager.FLAG_PLAY_SOUND
+            )
         } catch (e: Exception) {
             Log.e(TAG, "Failed to perform volume down action", e)
         }
     }
 
     private fun performBrightnessUpAction() {
-        try {
-            // This would require additional permissions and system-level access
-            // For now, we'll log it - you might need to implement this differently
-            Log.d(TAG, "Brightness up action requested - requires additional implementation")
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to perform brightness up action", e)
+        if (!canModifyBrightness()) {
+            Log.w(TAG, "Cannot modify brightness - permission not granted")
+            return
         }
+
+        val currentBrightness = getCurrentBrightness()
+        val newBrightness = (currentBrightness + BRIGHTNESS_STEP).coerceAtMost(MAX_BRIGHTNESS)
+        setBrightness(newBrightness)
     }
 
     private fun performBrightnessDownAction() {
+        if (!canModifyBrightness()) {
+            Log.w(TAG, "Cannot modify brightness - permission not granted")
+            return
+        }
+
+        val currentBrightness = getCurrentBrightness()
+        val newBrightness = (currentBrightness - BRIGHTNESS_STEP).coerceAtLeast(MIN_BRIGHTNESS)
+        setBrightness(newBrightness)
+    }
+
+    private fun getCurrentBrightness(): Int {
+        return try {
+            Settings.System.getInt(
+                accessibilityService.contentResolver,
+                Settings.System.SCREEN_BRIGHTNESS
+            )
+        } catch (_: Settings.SettingNotFoundException) {
+            128 // Default to middle brightness
+        }
+    }
+
+    private fun canModifyBrightness(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Settings.System.canWrite(accessibilityService)
+        } else {
+            true // For older versions
+        }
+    }
+
+    private fun setBrightness(brightness: Int) {
         try {
-            // This would require additional permissions and system-level access
-            // For now, we'll log it - you might need to implement this differently
-            Log.d(TAG, "Brightness down action requested - requires additional implementation")
+            // Switch to manual mode if currently automatic
+            val currentMode = Settings.System.getInt(
+                accessibilityService.contentResolver,
+                Settings.System.SCREEN_BRIGHTNESS_MODE
+            )
+
+            if (currentMode == Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC) {
+                Settings.System.putInt(
+                    accessibilityService.contentResolver,
+                    Settings.System.SCREEN_BRIGHTNESS_MODE,
+                    Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL
+                )
+            }
+
+            // Set the brightness level
+            Settings.System.putInt(
+                accessibilityService.contentResolver,
+                Settings.System.SCREEN_BRIGHTNESS,
+                brightness
+            )
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to perform brightness down action", e)
+            Log.e(TAG, "Failed to set brightness", e)
         }
     }
 
     private fun performLockScreenAction() {
         try {
-            // Use global action to lock screen
-            accessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_LOCK_SCREEN)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                accessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_LOCK_SCREEN)
+            } else {
+                performLegacyLockScreen()
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to perform lock screen action", e)
+        }
+    }
+
+    private fun performLegacyLockScreen() {
+        try {
+            val devicePolicyManager =
+                accessibilityService.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
+            val adminComponent =
+                ComponentName(accessibilityService, DeviceAdminReceiver::class.java)
+
+            if (devicePolicyManager.isAdminActive(adminComponent)) {
+                devicePolicyManager.lockNow()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to perform legacy lock screen action", e)
         }
     }
 }
