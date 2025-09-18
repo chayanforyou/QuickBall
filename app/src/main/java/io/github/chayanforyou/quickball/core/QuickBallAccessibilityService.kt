@@ -117,7 +117,6 @@ class QuickBallAccessibilityService : AccessibilityService() {
     private fun hideFloatingBall() {
         cancelStashTimer()
         floatingBall?.hide()
-        floatingBall?.hideMenu()
     }
 
     private fun stashBall(animated: Boolean = true) {

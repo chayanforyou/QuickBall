@@ -39,10 +39,6 @@ class FloatingActionMenu(
     private var isOpen = false
     private val individualMenuItems = mutableMapOf<Item, WindowManager.LayoutParams>()
 
-    fun getSubActionItems(): List<Item> = subActionItems
-    fun isOpen(): Boolean = isOpen
-    fun isAnimating(): Boolean = animationManager?.isAnimating() == true
-
     init {
         animationManager?.setMenu(this)
         subActionItems.forEach { item ->
@@ -55,6 +51,12 @@ class FloatingActionMenu(
     }
 
     // ---------- Public API ----------
+    fun getSubActionItems(): List<Item> = subActionItems
+
+    fun isOpen(): Boolean = isOpen
+
+    fun isAnimating(): Boolean = animationManager?.isAnimating() == true
+
     fun open(animated: Boolean) {
         if (isOpen) return // Already open
         if (animated && animationManager?.isAnimating() == true) return
@@ -101,6 +103,15 @@ class FloatingActionMenu(
 
     fun setAnimationCompletionListener(listener: (() -> Unit)?) {
         animationManager?.setAnimationCompletionListener(listener)
+    }
+
+    inline fun doOnAnimationEnd(
+        crossinline action: (isOpen: Boolean) -> Unit
+    ) {
+        setAnimationCompletionListener {
+            setAnimationCompletionListener(null)
+            action(isOpen())
+        }
     }
 
     // ---------- Helpers & calculations ----------
@@ -238,8 +249,8 @@ class FloatingActionMenu(
     companion object {
         private const val TAG = "FloatingActionMenu"
 
-        private val sizeInPx by lazy { dp2px(44f) }
-        private val margin by lazy { dp2px(10f) }
+        private val sizeInPx by lazy { dp2px(52f) }
+        private val margin by lazy { dp2px(14f) }
 
         fun create(
             context: Context,
@@ -276,7 +287,7 @@ class FloatingActionMenu(
             actionView: View,
             startAngle: Int = 120,
             endAngle: Int = 240,
-            radius: Float = 80f,
+            radius: Float = 94f,
             menuItems: List<Item> = emptyList(),
             animationManager: AnimationManager? = AnimationManager(),
             stateChangeListener: MenuStateChangeListener? = null,
