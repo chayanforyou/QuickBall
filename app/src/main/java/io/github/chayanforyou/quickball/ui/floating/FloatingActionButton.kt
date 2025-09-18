@@ -49,7 +49,7 @@ class FloatingActionButton(
     // Ball properties
     private val ballSize = 36f
     private val ballMargin = 4f
-    private val stashOffset = 22f
+    private val stashOffset = 20f
     private val topBoundary = 100f
     private val bottomBoundary = 100f
     private var isBallOnLeftSide = false
@@ -165,18 +165,20 @@ class FloatingActionButton(
         }
 
         // Animate to unstash position and make opaque
-        animateToPosition(layoutParams.x, layoutParams.y, targetX, layoutParams.y, 50) {
+        animateToPosition(layoutParams.x, layoutParams.y, targetX, layoutParams.y, 30) {
             isStashed = false
             onStashStateChangedListener?.invoke(false)
 
             floatingBall?.post {
-                ensureMenuCreated()
-                floatingMenu?.open(true)
+                if (isVisible) {
+                    ensureMenuCreated()
+                    floatingMenu?.open(true)
+                }
             }
         }
 
         // Animate alpha to opaque
-        animateAlpha(0.5f, 1.0f, 50)
+        animateAlpha(0.5f, 1.0f, 30)
     }
 
     private fun snapToEdge(view: View) {
@@ -380,7 +382,7 @@ class FloatingActionButton(
         }
     }
 
-    private fun animateAlpha(fromAlpha: Float, toAlpha: Float, animDuration: Long = 100) {
+    private fun animateAlpha(fromAlpha: Float, toAlpha: Float, animDuration: Long = 200) {
         ValueAnimator.ofFloat(fromAlpha, toAlpha).apply {
             duration = animDuration
             interpolator = DecelerateInterpolator()

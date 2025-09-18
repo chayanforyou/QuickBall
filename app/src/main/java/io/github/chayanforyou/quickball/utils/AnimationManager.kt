@@ -14,8 +14,7 @@ import io.github.chayanforyou.quickball.ui.floating.FloatingActionMenu
 class AnimationManager {
 
     companion object {
-        private const val OPEN_DURATION = 200L
-        private const val CLOSE_DURATION = 300L
+        private const val DURATION = 300L
         private const val LAG_BETWEEN_ITEMS = 5
     }
 
@@ -53,32 +52,26 @@ class AnimationManager {
 
             // Create position animator with throttled updates
             val positionAnimator = ValueAnimator.ofFloat(0f, 1f)
-            positionAnimator.duration = OPEN_DURATION
-            positionAnimator.interpolator = OvershootInterpolator(0.6f)
+            positionAnimator.duration = DURATION
+            positionAnimator.interpolator = OvershootInterpolator(0.9f)
             
             // Use throttled updates to prevent frame drops
-            var lastUpdateTime = 0L
             positionAnimator.addUpdateListener { anim ->
-                val currentTime = System.currentTimeMillis()
-                // Throttle updates to ~120fps to reduce WindowManager calls
-                if (currentTime - lastUpdateTime >= 8) {
-                    val progress = anim.animatedValue as Float
-                    val currentX = (startX + (endX - startX) * progress).toInt()
-                    val currentY = (startY + (endY - startY) * progress).toInt()
-                    menu?.updateIndividualMenuItemPosition(item, currentX, currentY)
-                    lastUpdateTime = currentTime
-                }
+                val progress = anim.animatedValue as Float
+                val currentX = (startX + (endX - startX) * progress).toInt()
+                val currentY = (startY + (endY - startY) * progress).toInt()
+                menu?.updateIndividualMenuItemPosition(item, currentX, currentY)
             }
 
             // Create visual effects animator
-            val pvhR = PropertyValuesHolder.ofFloat(View.ROTATION, 360f)
+            val pvhR = PropertyValuesHolder.ofFloat(View.ROTATION, 720f)
             val pvhsX = PropertyValuesHolder.ofFloat(View.SCALE_X, 1f)
             val pvhsY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f)
             val pvhA = PropertyValuesHolder.ofFloat(View.ALPHA, 1f)
 
             val visualAnimation = ObjectAnimator.ofPropertyValuesHolder(item.view, pvhR, pvhsX, pvhsY, pvhA)
-            visualAnimation.duration = OPEN_DURATION
-            visualAnimation.interpolator = OvershootInterpolator(0.6f)
+            visualAnimation.duration = DURATION
+            visualAnimation.interpolator = OvershootInterpolator(0.9f)
 
             // Combine animations
             val animation = AnimatorSet().apply {
@@ -116,31 +109,25 @@ class AnimationManager {
 
             // Create position animator with throttled updates
             val positionAnimator = ValueAnimator.ofFloat(0f, 1f)
-            positionAnimator.duration = CLOSE_DURATION
+            positionAnimator.duration = DURATION
             positionAnimator.interpolator = AccelerateDecelerateInterpolator()
             
             // Use throttled updates to prevent frame drops
-            var lastUpdateTime = 0L
             positionAnimator.addUpdateListener { anim ->
-                val currentTime = System.currentTimeMillis()
-                // Throttle updates to ~120fps to reduce WindowManager calls
-                if (currentTime - lastUpdateTime >= 8) {
-                    val progress = anim.animatedValue as Float
-                    val currentX = (startX + (endX - startX) * progress).toInt()
-                    val currentY = (startY + (endY - startY) * progress).toInt()
-                    menu?.updateIndividualMenuItemPosition(item, currentX, currentY)
-                    lastUpdateTime = currentTime
-                }
+                val progress = anim.animatedValue as Float
+                val currentX = (startX + (endX - startX) * progress).toInt()
+                val currentY = (startY + (endY - startY) * progress).toInt()
+                menu?.updateIndividualMenuItemPosition(item, currentX, currentY)
             }
 
             // Create visual effects animator
-            val pvhR = PropertyValuesHolder.ofFloat(View.ROTATION, -360f)
+            val pvhR = PropertyValuesHolder.ofFloat(View.ROTATION, -720f)
             val pvhsX = PropertyValuesHolder.ofFloat(View.SCALE_X, 0f)
             val pvhsY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 0f)
             val pvhA = PropertyValuesHolder.ofFloat(View.ALPHA, 0f)
 
             val visualAnimation = ObjectAnimator.ofPropertyValuesHolder(item.view, pvhR, pvhsX, pvhsY, pvhA)
-            visualAnimation.duration = CLOSE_DURATION
+            visualAnimation.duration = DURATION
             visualAnimation.interpolator = AccelerateDecelerateInterpolator()
 
             // Combine animations
