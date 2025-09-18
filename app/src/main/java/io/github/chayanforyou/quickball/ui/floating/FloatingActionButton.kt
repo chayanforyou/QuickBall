@@ -3,6 +3,7 @@ package io.github.chayanforyou.quickball.ui.floating
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.Context
+import android.graphics.Color
 import android.graphics.PixelFormat
 import android.os.Build
 import android.util.DisplayMetrics
@@ -37,6 +38,7 @@ class FloatingActionButton(
     private val displayMetrics: DisplayMetrics by lazy { context.resources.displayMetrics }
     private val windowManager: WindowManager by lazy { context.getSystemService(Context.WINDOW_SERVICE) as WindowManager }
     private var floatingBall: View? = null
+    private var menuOverlay: View? = null
     private var floatingMenu: FloatingActionMenu? = null
     private val floatingMenuItems = listOf(
         FloatingActionMenu.create(context, R.drawable.ic_volume_up, MenuAction.VOLUME_UP),
@@ -67,7 +69,6 @@ class FloatingActionButton(
     private var onMenuStateChangedListener: ((Boolean) -> Unit)? = null
 
     fun initialize() {
-
         val sizeInPx = dp2px(ballSize)
         val margin = dp2px(7f)
 
@@ -93,6 +94,9 @@ class FloatingActionButton(
             addView(imageView)
             setOnTouchListener(floatingBallTouchListener)
         }
+
+        // Create menu overlay once during initialization
+        menuOverlay = createMenuOverlay()
     }
 
     fun show() {
@@ -231,7 +235,10 @@ class FloatingActionButton(
 
     fun isMenuOpen(): Boolean = floatingMenu?.isOpen() == true
 
-    fun hideMenu() = floatingMenu?.close(false)
+    fun hideMenu(animated: Boolean = false) {
+        hideMenuOverlay()
+        floatingMenu?.close(animated)
+    }
 
     private fun saveCurrentPosition() {
         val layoutParams = floatingBall?.layoutParams as? WindowManager.LayoutParams
@@ -332,11 +339,13 @@ class FloatingActionButton(
             animationManager = AnimationManager(),
             stateChangeListener = object : FloatingActionMenu.MenuStateChangeListener {
                 override fun onMenuOpened(menu: FloatingActionMenu) {
+                    showMenuOverlay()
                     floatingBall?.post { updateMenuIcon() }
                     onMenuStateChangedListener?.invoke(true)
                 }
 
                 override fun onMenuClosed(menu: FloatingActionMenu) {
+                    hideMenuOverlay()
                     floatingBall?.post { updateMenuIcon() }
                     onMenuStateChangedListener?.invoke(false)
                 }
@@ -371,38 +380,35 @@ class FloatingActionButton(
     }
 
     private fun createLayoutParams(): WindowManager.LayoutParams {
-        val layoutParams = WindowManager.LayoutParams()
+        return WindowManager.LayoutParams().apply {
+            type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
+            } else {
+                @Suppress("DEPRECATION")
+                WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY
+            }
 
-        // Set window type based on Android version
-        layoutParams.type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
-        } else {
-            @Suppress("DEPRECATION")
-            WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY
+            // Set flags
+            flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+
+            // Set format
+            format = PixelFormat.TRANSLUCENT
+
+            // Set size
+            val sizeInPx = dp2px(ballSize)
+            width = sizeInPx
+            height = sizeInPx
+
+            // Set initial position (right edge, center vertically)
+            x = displayMetrics.widthPixels - sizeInPx - dp2px(ballMargin)
+            y = displayMetrics.heightPixels / 2 - sizeInPx / 2
+
+            // Set gravity
+            gravity = Gravity.TOP or Gravity.START
         }
-
-        // Set flags
-        layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED or
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-
-        // Set format
-        layoutParams.format = PixelFormat.TRANSLUCENT
-
-        // Set size
-        val sizeInPx = dp2px(ballSize)
-        layoutParams.width = sizeInPx
-        layoutParams.height = sizeInPx
-
-        // Set initial position (right edge, center vertically)
-        layoutParams.x = displayMetrics.widthPixels - sizeInPx - dp2px(ballMargin)
-        layoutParams.y = displayMetrics.heightPixels / 2 - sizeInPx / 2
-
-        // Set gravity
-        layoutParams.gravity = Gravity.TOP or Gravity.START
-
-        return layoutParams
     }
 
     private fun animateToPosition(
@@ -443,6 +449,72 @@ class FloatingActionButton(
                 floatingBall?.alpha = alpha
             }
             start()
+        }
+    }
+
+    private fun createMenuOverlay(): View {
+        return View(context).apply {
+            setBackgroundColor(Color.TRANSPARENT)
+            isClickable = true
+            isFocusable = false
+            setOnTouchListener {v, event ->
+                v.performClick()
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        hideMenu(true)
+                        true
+                    }
+                    MotionEvent.ACTION_OUTSIDE -> {
+                        hideMenu(true)
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }
+    }
+
+    private fun showMenuOverlay() {
+        val overlay = menuOverlay ?: return
+        if (overlay.parent != null) return
+
+        try {
+            val layoutParams = createMenuOverlayLayoutParams()
+            windowManager.addView(overlay, layoutParams)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error showing menu overlay", e)
+        }
+    }
+
+    private fun hideMenuOverlay() {
+        menuOverlay?.let { overlay ->
+            try {
+                if (overlay.parent != null) {
+                    windowManager.removeView(overlay)
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error hiding menu overlay", e)
+            }
+        }
+    }
+
+    private fun createMenuOverlayLayoutParams(): WindowManager.LayoutParams {
+        return WindowManager.LayoutParams().apply {
+            type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
+            } else {
+                @Suppress("DEPRECATION")
+                WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY
+            }
+            flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                    WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
+
+            format = PixelFormat.TRANSLUCENT
+            width = WindowManager.LayoutParams.MATCH_PARENT
+            height = WindowManager.LayoutParams.MATCH_PARENT
+            gravity = Gravity.TOP or Gravity.START
         }
     }
 
