@@ -26,7 +26,7 @@ A floating ball that provides quick access to system functions like volume, brig
 
 ## Video Sample
 
-*Coming soon - video demonstration will be added here*
+https://github.com/user-attachments/assets/650aeea5-4d29-4695-aaf5-aa9c304150fe
 
 ## Security Note
 
