@@ -57,6 +57,10 @@ class FloatingActionButton(
     private var isStashed = false
     private var isAnimatingStash = false
 
+    // Position memory
+    private var lastPositionX: Int? = null
+    private var lastPositionY: Int? = null
+
     // Callbacks
     private var onStashStateChangedListener: ((Boolean) -> Unit)? = null
     private var onDragStateChangedListener: ((Boolean) -> Unit)? = null
@@ -103,10 +107,16 @@ class FloatingActionButton(
         } catch (e: Exception) {
             Log.e(TAG, "Error showing floating ball", e)
         }
+
+        // Restore last position if available
+        restoreLastPosition()
     }
 
     fun hide() {
         if (!isVisible || floatingBall == null) return
+
+        // Save current position
+        saveCurrentPosition()
 
         try {
             windowManager.removeView(floatingBall)
@@ -117,10 +127,9 @@ class FloatingActionButton(
         }
     }
 
-    fun stash() {
+    fun stash(animated: Boolean = true) {
         if (!isVisible || isStashed || isAnimatingStash || floatingBall == null) return
 
-        isAnimatingStash = true
         val layoutParams = floatingBall!!.layoutParams as WindowManager.LayoutParams
         val ballSizePx = dp2px(ballSize)
         val stashOffsetPx = dp2px(stashOffset)
@@ -133,18 +142,27 @@ class FloatingActionButton(
             displayMetrics.widthPixels - ballSizePx + stashOffsetPx // Hide to the right (go beyond screen edge)
         }
         
-        // Animate to stash position and make transparent
-        animateToPosition(layoutParams.x, layoutParams.y, targetX, layoutParams.y) {
+        if (animated) {
+            isAnimatingStash = true
+            // Animate to stash position and make transparent
+            animateToPosition(layoutParams.x, layoutParams.y, targetX, layoutParams.y) {
+                isStashed = true
+                isAnimatingStash = false
+                onStashStateChangedListener?.invoke(true)
+            }
+            // Animate alpha to transparent
+            animateAlpha(1.0f, 0.5f)
+        } else {
+            // Instantly move to stash position
+            layoutParams.x = targetX
+            windowManager.updateViewLayout(floatingBall, layoutParams)
+            floatingBall?.alpha = 0.5f
             isStashed = true
-            isAnimatingStash = false
             onStashStateChangedListener?.invoke(true)
         }
-
-        // Animate alpha to transparent
-        animateAlpha(1.0f, 0.5f)
     }
 
-    fun unstash() {
+    fun unstash(animated: Boolean = true) {
         if (!isVisible || floatingBall == null) return
 
         // Cancel any ongoing stash animation
@@ -164,21 +182,24 @@ class FloatingActionButton(
             displayMetrics.widthPixels - ballSizePx - marginPx // Show on right edge
         }
 
-        // Animate to unstash position and make opaque
-        animateToPosition(layoutParams.x, layoutParams.y, targetX, layoutParams.y, 30) {
+        if (animated) {
+            // Animate to unstash position and make opaque
+            animateToPosition(layoutParams.x, layoutParams.y, targetX, layoutParams.y, 30) {
+                isStashed = false
+                onStashStateChangedListener?.invoke(false)
+                openFloatingMenu()
+            }
+            // Animate alpha to opaque
+            animateAlpha(0.5f, 1.0f, 30)
+        } else {
+            // Instantly move to unstash position
+            layoutParams.x = targetX
+            windowManager.updateViewLayout(floatingBall, layoutParams)
+            floatingBall?.alpha = 1.0f
             isStashed = false
             onStashStateChangedListener?.invoke(false)
-
-            floatingBall?.post {
-                if (isVisible) {
-                    ensureMenuCreated()
-                    floatingMenu?.open(true)
-                }
-            }
+            openFloatingMenu()
         }
-
-        // Animate alpha to opaque
-        animateAlpha(0.5f, 1.0f, 30)
     }
 
     private fun snapToEdge(view: View) {
@@ -209,6 +230,37 @@ class FloatingActionButton(
     fun isVisible(): Boolean = isVisible
 
     fun isMenuOpen(): Boolean = floatingMenu?.isOpen() == true
+
+    fun hideMenu() = floatingMenu?.close(false)
+
+    private fun saveCurrentPosition() {
+        val layoutParams = floatingBall?.layoutParams as? WindowManager.LayoutParams
+        layoutParams?.let {
+            lastPositionX = it.x
+            lastPositionY = it.y
+        }
+    }
+
+    private fun restoreLastPosition() {
+        val savedX = lastPositionX
+        val savedY = lastPositionY
+        
+        if (savedX != null && savedY != null && floatingBall != null) {
+            val layoutParams = floatingBall!!.layoutParams as WindowManager.LayoutParams
+            layoutParams.x = savedX
+            layoutParams.y = savedY
+            windowManager.updateViewLayout(floatingBall, layoutParams)
+        }
+    }
+
+    private fun openFloatingMenu() {
+        floatingBall?.post {
+            if (isVisible) {
+                ensureMenuCreated()
+                floatingMenu?.open(true)
+            }
+        }
+    }
 
     private fun updateMenuIcon(animDuration: Long = 80) {
         floatingBall?.let { ball ->
