@@ -152,6 +152,12 @@ class AnimationManager {
     fun setAnimating(animating: Boolean) {
         this.animating = animating
     }
+    
+    fun setAnimationCompletionListener(listener: (() -> Unit)?) {
+        this.animationCompletionListener = listener
+    }
+    
+    private var animationCompletionListener: (() -> Unit)? = null
 
     private inner class SubActionItemAnimationListener(
         private val subActionItem: FloatingActionMenu.Item,
@@ -209,10 +215,12 @@ class AnimationManager {
 
         override fun onAnimationEnd(animation: Animator) {
             setAnimating(false)
+            animationCompletionListener?.invoke()
         }
 
         override fun onAnimationCancel(animation: Animator) {
             setAnimating(false)
+            animationCompletionListener?.invoke()
         }
 
         override fun onAnimationRepeat(animation: Animator) {

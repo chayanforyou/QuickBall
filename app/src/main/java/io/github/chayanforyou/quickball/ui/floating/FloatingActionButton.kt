@@ -48,12 +48,19 @@ class FloatingActionButton(
         FloatingActionMenu.create(context, R.drawable.ic_lock, MenuAction.LOCK_SCREEN),
     )
 
-    // Ball properties
+    // Ball properties (cached as pixels for performance)
     private val ballSize = 36f
     private val ballMargin = 4f
     private val stashOffset = 20f
     private val topBoundary = 100f
     private val bottomBoundary = 100f
+    
+    // Cached pixel values to avoid repeated dp2px calls
+    private val ballSizePx by lazy { dp2px(ballSize) }
+    private val ballMarginPx by lazy { dp2px(ballMargin) }
+    private val stashOffsetPx by lazy { dp2px(stashOffset) }
+    private val topBoundaryPx by lazy { dp2px(topBoundary) }
+    private val bottomBoundaryPx by lazy { dp2px(bottomBoundary) }
     private var isBallOnLeftSide = false
     private var isVisible = false
     private var isStashed = false
@@ -69,7 +76,6 @@ class FloatingActionButton(
     private var onMenuStateChangedListener: ((Boolean) -> Unit)? = null
 
     fun initialize() {
-        val sizeInPx = dp2px(ballSize)
         val margin = dp2px(7f)
 
         val imageView = ImageView(context).apply {
@@ -84,7 +90,7 @@ class FloatingActionButton(
         }
 
         floatingBall = FrameLayout(context).apply {
-            layoutParams = FrameLayout.LayoutParams(sizeInPx, sizeInPx)
+            layoutParams = FrameLayout.LayoutParams(ballSizePx, ballSizePx)
             background = ContextCompat.getDrawable(
                 context,
                 R.drawable.floating_ball_background
@@ -135,8 +141,6 @@ class FloatingActionButton(
         if (!isVisible || isStashed || isAnimatingStash || floatingBall == null) return
 
         val layoutParams = floatingBall!!.layoutParams as WindowManager.LayoutParams
-        val ballSizePx = dp2px(ballSize)
-        val stashOffsetPx = dp2px(stashOffset)
 
         // Determine which edge to stash to and calculate target position
         val isOnLeftEdge = layoutParams.x < displayMetrics.widthPixels / 2
@@ -175,15 +179,13 @@ class FloatingActionButton(
         }
 
         val layoutParams = floatingBall!!.layoutParams as WindowManager.LayoutParams
-        val ballSizePx = dp2px(ballSize)
-        val marginPx = dp2px(ballMargin)
 
         // Determine which edge to unstash from
         val isOnLeftEdge = layoutParams.x < displayMetrics.widthPixels / 2
         val targetX = if (isOnLeftEdge) {
-            marginPx // Show on left edge
+            ballMarginPx // Show on left edge
         } else {
-            displayMetrics.widthPixels - ballSizePx - marginPx // Show on right edge
+            displayMetrics.widthPixels - ballSizePx - ballMarginPx // Show on right edge
         }
 
         if (animated) {
@@ -219,8 +221,6 @@ class FloatingActionButton(
         }
 
         // Keep Y position within bounds (respect top and bottom boundaries)
-        val topBoundaryPx = dp2px(topBoundary)
-        val bottomBoundaryPx = dp2px(bottomBoundary)
         layoutParams.y = layoutParams.y.coerceIn(
             topBoundaryPx,
             displayMetrics.heightPixels - ballSizePx - bottomBoundaryPx
@@ -237,7 +237,24 @@ class FloatingActionButton(
 
     fun hideMenu(animated: Boolean = false) {
         hideMenuOverlay()
-        floatingMenu?.close(animated)
+        floatingMenu?.let { menu ->
+            if (menu.isOpen()) {
+                if (menu.isAnimating()) {
+                    waitForAnimationAndClose(menu, animated)
+                } else {
+                    menu.close(animated)
+                }
+            }
+        }
+    }
+    
+    private fun waitForAnimationAndClose(menu: FloatingActionMenu, animated: Boolean) {
+        menu.setAnimationCompletionListener {
+            if (menu.isOpen()) {
+                menu.close(animated)
+            }
+            menu.setAnimationCompletionListener(null)
+        }
     }
 
     private fun saveCurrentPosition() {
@@ -261,11 +278,11 @@ class FloatingActionButton(
     }
 
     private fun openFloatingMenu() {
+        if (!isVisible) return
+        
         floatingBall?.post {
-            if (isVisible) {
-                ensureMenuCreated()
-                floatingMenu?.open(true)
-            }
+            ensureMenuCreated()
+            floatingMenu?.open(true)
         }
     }
 
@@ -323,10 +340,12 @@ class FloatingActionButton(
             recreateMenu()
             isBallOnLeftSide = currentlyOnLeft
         }
+
+        // Show overlay before menu items are added
+        showMenuOverlay()
     }
 
     private fun createMenu() {
-        // Pre-calculate menu items to avoid work during animation
         val startAngle = getMenuStartAngle()
         val endAngle = getMenuEndAngle()
         val menuItems = if (isBallOnLeftSide) floatingMenuItems else floatingMenuItems.reversed()
@@ -339,7 +358,6 @@ class FloatingActionButton(
             animationManager = AnimationManager(),
             stateChangeListener = object : FloatingActionMenu.MenuStateChangeListener {
                 override fun onMenuOpened(menu: FloatingActionMenu) {
-                    showMenuOverlay()
                     floatingBall?.post { updateMenuIcon() }
                     onMenuStateChangedListener?.invoke(true)
                 }
@@ -398,13 +416,12 @@ class FloatingActionButton(
             format = PixelFormat.TRANSLUCENT
 
             // Set size
-            val sizeInPx = dp2px(ballSize)
-            width = sizeInPx
-            height = sizeInPx
+            width = ballSizePx
+            height = ballSizePx
 
             // Set initial position (right edge, center vertically)
-            x = displayMetrics.widthPixels - sizeInPx - dp2px(ballMargin)
-            y = displayMetrics.heightPixels / 2 - sizeInPx / 2
+            x = displayMetrics.widthPixels - ballSizePx - ballMarginPx
+            y = displayMetrics.heightPixels / 2 - ballSizePx / 2
 
             // Set gravity
             gravity = Gravity.TOP or Gravity.START
@@ -457,14 +474,10 @@ class FloatingActionButton(
             setBackgroundColor(Color.TRANSPARENT)
             isClickable = true
             isFocusable = false
-            setOnTouchListener {v, event ->
+            setOnTouchListener { v, event ->
                 v.performClick()
                 when (event.action) {
-                    MotionEvent.ACTION_DOWN -> {
-                        hideMenu(true)
-                        true
-                    }
-                    MotionEvent.ACTION_OUTSIDE -> {
+                    MotionEvent.ACTION_DOWN, MotionEvent.ACTION_OUTSIDE -> {
                         hideMenu(true)
                         true
                     }
@@ -584,7 +597,9 @@ class FloatingActionButton(
                         if (isStashed || isAnimatingStash) {
                             unstash()
                         } else {
-                            ensureMenuCreated()
+                            if (floatingMenu?.isOpen() == false) {
+                                ensureMenuCreated()
+                            }
                             floatingMenu?.toggle(true)
                         }
                     }
