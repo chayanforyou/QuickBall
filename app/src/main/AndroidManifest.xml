@@ -17,7 +17,7 @@
         android:theme="@style/Theme.QuickBall"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,7 +28,7 @@
 
         <!-- Accessibility Service for Floating Ball -->
         <service
-            android:name=".QuickBallAccessibilityService"
+            android:name=".core.QuickBallAccessibilityService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
             android:exported="true">
             <intent-filter>
@@ -41,7 +41,7 @@
 
         <!-- Device Admin Receiver for Lock Screen -->
         <receiver
-            android:name=".DeviceAdminReceiver"
+            android:name=".core.DeviceAdminReceiver"
             android:permission="android.permission.BIND_DEVICE_ADMIN"
             android:exported="true">
             <meta-data

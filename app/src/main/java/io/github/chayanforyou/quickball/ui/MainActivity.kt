@@ -1,4 +1,4 @@
-package io.github.chayanforyou.quickball
+package io.github.chayanforyou.quickball.ui
 
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.app.admin.DevicePolicyManager
@@ -16,7 +16,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import io.github.chayanforyou.quickball.R
+import io.github.chayanforyou.quickball.core.DeviceAdminReceiver
+import io.github.chayanforyou.quickball.core.QuickBallAccessibilityService
 import io.github.chayanforyou.quickball.databinding.ActivityMainBinding
+import io.github.chayanforyou.quickball.domain.PreferenceManager
 
 class MainActivity : AppCompatActivity() {
 

@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="@dimen/activity_padding"
-    tools:context=".MainActivity">
+    tools:context="ui.MainActivity">
 
     <TextView
         android:id="@+id/tv_app_title"

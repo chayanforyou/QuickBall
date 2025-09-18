@@ -1,4 +1,4 @@
-package io.github.chayanforyou.quickball
+package io.github.chayanforyou.quickball.domain.handlers
 
 import android.accessibilityservice.AccessibilityService
 import android.app.admin.DevicePolicyManager
@@ -8,24 +8,13 @@ import android.media.AudioManager
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
-
-interface MenuActionHandler {
-    fun onMenuAction(action: MenuAction)
-}
-
-enum class MenuAction {
-    VOLUME_UP,
-    VOLUME_DOWN,
-    BRIGHTNESS_UP,
-    BRIGHTNESS_DOWN,
-    LOCK_SCREEN
-}
+import io.github.chayanforyou.quickball.core.DeviceAdminReceiver
 
 class QuickBallActionHandler(private val accessibilityService: AccessibilityService) :
     MenuActionHandler {
 
     companion object {
-        private const val TAG = "MenuActionHandler"
+        private const val TAG = "QuickBallActionHandler"
         private const val MAX_BRIGHTNESS = 255
         private const val MIN_BRIGHTNESS = 10
         private const val BRIGHTNESS_STEP = 25

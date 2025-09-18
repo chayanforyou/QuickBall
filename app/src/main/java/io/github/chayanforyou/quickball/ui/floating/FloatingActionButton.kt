@@ -1,4 +1,4 @@
-package io.github.chayanforyou.quickball
+package io.github.chayanforyou.quickball.ui.floating
 
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
@@ -17,8 +17,11 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
-import io.github.chayanforyou.quickball.FloatingActionMenu.MenuItemClickListener
-import io.github.chayanforyou.quickball.animation.AnimationHandler
+import io.github.chayanforyou.quickball.R
+import io.github.chayanforyou.quickball.domain.handlers.MenuAction
+import io.github.chayanforyou.quickball.domain.handlers.MenuActionHandler
+import io.github.chayanforyou.quickball.ui.floating.FloatingActionMenu.MenuItemClickListener
+import io.github.chayanforyou.quickball.utils.AnimationManager
 import io.github.chayanforyou.quickball.utils.WidgetUtil.dp2px
 import kotlin.math.abs
 
@@ -272,7 +275,7 @@ class FloatingActionButton(
             startAngle = startAngle,
             endAngle = endAngle,
             menuItems = menuItems,
-            animationHandler = AnimationHandler(),
+            animationManager = AnimationManager(),
             stateChangeListener = object : FloatingActionMenu.MenuStateChangeListener {
                 override fun onMenuOpened(menu: FloatingActionMenu) {
                     floatingBall?.post { updateMenuIcon() }

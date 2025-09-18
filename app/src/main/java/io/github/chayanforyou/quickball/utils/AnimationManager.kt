@@ -1,4 +1,4 @@
-package io.github.chayanforyou.quickball.animation
+package io.github.chayanforyou.quickball.utils
 
 import android.animation.Animator
 import android.animation.AnimatorSet
@@ -9,9 +9,9 @@ import android.graphics.Point
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.OvershootInterpolator
-import io.github.chayanforyou.quickball.FloatingActionMenu
+import io.github.chayanforyou.quickball.ui.floating.FloatingActionMenu
 
-class AnimationHandler {
+class AnimationManager {
 
     companion object {
         private const val OPEN_DURATION = 200L

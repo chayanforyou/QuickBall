@@ -1,4 +1,4 @@
-package io.github.chayanforyou.quickball
+package io.github.chayanforyou.quickball.ui.floating
 
 import android.content.Context
 import android.graphics.Path
@@ -15,7 +15,9 @@ import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
-import io.github.chayanforyou.quickball.animation.AnimationHandler
+import io.github.chayanforyou.quickball.R
+import io.github.chayanforyou.quickball.domain.handlers.MenuAction
+import io.github.chayanforyou.quickball.utils.AnimationManager
 import io.github.chayanforyou.quickball.utils.WidgetUtil.dp2px
 import kotlin.math.abs
 
@@ -25,7 +27,7 @@ class FloatingActionMenu(
     private val endAngle: Int,
     private val radius: Float,
     private val subActionItems: List<Item> = mutableListOf(),
-    private val animationHandler: AnimationHandler? = null,
+    private val animationManager: AnimationManager? = null,
     private var stateChangeListener: MenuStateChangeListener? = null,
     private var menuItemClickListener: MenuItemClickListener? = null,
 ) {
@@ -41,7 +43,7 @@ class FloatingActionMenu(
     fun isOpen(): Boolean = isOpen
 
     init {
-        animationHandler?.setMenu(this)
+        animationManager?.setMenu(this)
         subActionItems.forEach { item ->
             item.view.setOnClickListener {
                 item.action?.let { action ->
@@ -55,16 +57,16 @@ class FloatingActionMenu(
     fun open(animated: Boolean) {
         val center = calculateItemPositions()
 
-        if (animated && animationHandler?.isAnimating() == true) return
+        if (animated && animationManager?.isAnimating() == true) return
 
-        if (animated && animationHandler != null) {
+        if (animated && animationManager != null) {
             subActionItems.forEach { item ->
                 if (item.view.parent != null) {
                     throw RuntimeException("All of the sub action items have to be independent from a parent.")
                 }
                 addIndividualMenuItem(item, center.x - item.width / 2, center.y - item.height / 2)
             }
-            animationHandler.animateMenuOpening(center)
+            animationManager.animateMenuOpening(center)
         } else {
             subActionItems.forEach { item ->
                 addIndividualMenuItem(item, item.x, item.y)
@@ -76,10 +78,10 @@ class FloatingActionMenu(
     }
 
     fun close(animated: Boolean) {
-        if (animated && animationHandler?.isAnimating() == true) return
+        if (animated && animationManager?.isAnimating() == true) return
 
-        if (animated && animationHandler != null) {
-            animationHandler.animateMenuClosing(getActionViewCenter())
+        if (animated && animationManager != null) {
+            animationManager.animateMenuClosing(getActionViewCenter())
         } else {
             subActionItems.forEach { removeIndividualMenuItem(it) }
         }
@@ -256,7 +258,7 @@ class FloatingActionMenu(
             endAngle: Int = 240,
             radius: Float = 80f,
             menuItems: List<Item> = emptyList(),
-            animationHandler: AnimationHandler? = AnimationHandler(),
+            animationManager: AnimationManager? = AnimationManager(),
             stateChangeListener: MenuStateChangeListener? = null,
             menuItemClickListener: MenuItemClickListener? = null
         ) = FloatingActionMenu(
@@ -265,7 +267,7 @@ class FloatingActionMenu(
             endAngle = endAngle,
             radius = radius,
             subActionItems = menuItems,
-            animationHandler = animationHandler,
+            animationManager = animationManager,
             stateChangeListener = stateChangeListener,
             menuItemClickListener = menuItemClickListener
         )

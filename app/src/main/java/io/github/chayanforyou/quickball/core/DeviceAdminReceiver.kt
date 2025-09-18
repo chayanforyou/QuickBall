@@ -1,4 +1,4 @@
-package io.github.chayanforyou.quickball
+package io.github.chayanforyou.quickball.core
 
 import android.app.admin.DeviceAdminReceiver
 import android.content.Context

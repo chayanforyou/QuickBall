@@ -1,4 +1,4 @@
-package io.github.chayanforyou.quickball
+package io.github.chayanforyou.quickball.domain
 
 import android.content.Context
 import androidx.core.content.edit

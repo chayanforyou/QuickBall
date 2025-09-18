@@ -1,4 +1,4 @@
-package io.github.chayanforyou.quickball
+package io.github.chayanforyou.quickball.core
 
 import android.accessibilityservice.AccessibilityService
 import android.content.Intent
@@ -6,6 +6,9 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
+import io.github.chayanforyou.quickball.domain.PreferenceManager
+import io.github.chayanforyou.quickball.domain.handlers.QuickBallActionHandler
+import io.github.chayanforyou.quickball.ui.floating.FloatingActionButton
 
 class QuickBallAccessibilityService : AccessibilityService() {
 
