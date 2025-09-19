@@ -3,6 +3,7 @@ package io.github.chayanforyou.quickball.ui.floating
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.Context
+import android.graphics.Color
 import android.graphics.PixelFormat
 import android.os.Build
 import android.util.DisplayMetrics
@@ -23,7 +24,6 @@ import io.github.chayanforyou.quickball.domain.handlers.MenuActionHandler
 import io.github.chayanforyou.quickball.ui.floating.FloatingActionMenu.MenuItemClickListener
 import io.github.chayanforyou.quickball.utils.AnimationManager
 import io.github.chayanforyou.quickball.utils.WidgetUtil.dp2px
-import kotlin.math.abs
 
 class FloatingActionButton(
     private val context: Context,
@@ -37,6 +37,7 @@ class FloatingActionButton(
     private val displayMetrics: DisplayMetrics by lazy { context.resources.displayMetrics }
     private val windowManager: WindowManager by lazy { context.getSystemService(Context.WINDOW_SERVICE) as WindowManager }
     private var floatingBall: View? = null
+    private var menuOverlay: View? = null
     private var floatingMenu: FloatingActionMenu? = null
     private val floatingMenuItems = listOf(
         FloatingActionMenu.create(context, R.drawable.ic_volume_up, MenuAction.VOLUME_UP),
@@ -47,11 +48,12 @@ class FloatingActionButton(
     )
 
     // Ball properties
-    private val ballSize = 36f
-    private val ballMargin = 4f
-    private val stashOffset = 20f
-    private val topBoundary = 100f
-    private val bottomBoundary = 100f
+    private val ballSize by lazy { dp2px(44f) }
+    private val ballMargin by lazy { dp2px(6f) }
+    private val stashOffset by lazy { dp2px(28f) }
+    private val topBoundary by lazy { dp2px(100f) }
+    private val bottomBoundary by lazy { dp2px(100f) }
+
     private var isBallOnLeftSide = false
     private var isVisible = false
     private var isStashed = false
@@ -67,9 +69,74 @@ class FloatingActionButton(
     private var onMenuStateChangedListener: ((Boolean) -> Unit)? = null
 
     fun initialize() {
+        // Create menu overlay
+        menuOverlay = createMenuOverlay()
 
-        val sizeInPx = dp2px(ballSize)
-        val margin = dp2px(7f)
+        // Create floating ball
+        floatingBall = createFloatingBall()
+    }
+
+    private fun createMenuOverlay(): View {
+        return View(context).apply {
+            setBackgroundColor(Color.TRANSPARENT)
+            isClickable = true
+            isFocusable = false
+            visibility = View.GONE
+            setOnTouchListener { v, event ->
+                v.performClick()
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN,
+                    MotionEvent.ACTION_OUTSIDE -> {
+                        hideMenu(true)
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }
+    }
+
+    private fun addOverlayToWindow() {
+        val overlay = menuOverlay ?: return
+
+        try {
+            val layoutParams = createMenuOverlayLayoutParams()
+            windowManager.addView(overlay, layoutParams)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error adding menu overlay to window", e)
+        }
+    }
+
+    private fun showMenuOverlay() {
+        menuOverlay?.visibility = View.VISIBLE
+    }
+
+    private fun hideMenuOverlay() {
+        menuOverlay?.visibility = View.GONE
+    }
+
+    private fun createMenuOverlayLayoutParams(): WindowManager.LayoutParams {
+        return WindowManager.LayoutParams().apply {
+            type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
+            } else {
+                @Suppress("DEPRECATION")
+                WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY
+            }
+            flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                    WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
+
+            format = PixelFormat.TRANSLUCENT
+            width = WindowManager.LayoutParams.MATCH_PARENT
+            height = WindowManager.LayoutParams.MATCH_PARENT
+            gravity = Gravity.TOP or Gravity.START
+        }
+    }
+
+    private fun createFloatingBall(): FrameLayout {
+        val margin = dp2px(8f)
 
         val imageView = ImageView(context).apply {
             setImageResource(R.drawable.ic_menu_open)
@@ -82,8 +149,8 @@ class FloatingActionButton(
             }
         }
 
-        floatingBall = FrameLayout(context).apply {
-            layoutParams = FrameLayout.LayoutParams(sizeInPx, sizeInPx)
+        return FrameLayout(context).apply {
+            layoutParams = FrameLayout.LayoutParams(ballSize, ballSize)
             background = ContextCompat.getDrawable(
                 context,
                 R.drawable.floating_ball_background
@@ -95,18 +162,56 @@ class FloatingActionButton(
         }
     }
 
-    fun show() {
-        if (isVisible) return
+    private fun createFloatingBallLayoutParams(): WindowManager.LayoutParams {
+        return WindowManager.LayoutParams().apply {
+            type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
+            } else {
+                @Suppress("DEPRECATION")
+                WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY
+            }
 
-        val layoutParams = createLayoutParams()
+            // Set flags
+            flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+
+            // Set format
+            format = PixelFormat.TRANSLUCENT
+
+            // Set size
+            width = ballSize
+            height = ballSize
+
+            // Set initial position (right edge, center vertically)
+            x = displayMetrics.widthPixels - ballSize - ballMargin
+            y = displayMetrics.heightPixels / 2 - ballSize / 2
+
+            // Set gravity
+            gravity = Gravity.TOP or Gravity.START
+        }
+    }
+
+    private fun addFloatingBallToWindow() {
+        val overlay = floatingBall ?: return
 
         try {
-            windowManager.addView(floatingBall, layoutParams)
+            val layoutParams = createFloatingBallLayoutParams()
+            windowManager.addView(overlay, layoutParams)
             isVisible = true
             isStashed = false
         } catch (e: Exception) {
             Log.e(TAG, "Error showing floating ball", e)
         }
+    }
+
+    fun show() {
+        if (isVisible) return
+
+        // Add overlay FIRST to ensure proper z-order (below everything)
+        addOverlayToWindow()
+        addFloatingBallToWindow()
 
         // Restore last position if available
         restoreLastPosition()
@@ -117,9 +222,18 @@ class FloatingActionButton(
 
         // Save current position
         saveCurrentPosition()
+        
+        // Hide and cleanup menu
+        hideMenu(false)
 
         try {
             windowManager.removeView(floatingBall)
+            menuOverlay?.let { overlay ->
+                if (overlay.parent != null) {
+                    windowManager.removeView(overlay)
+                }
+            }
+            
             isVisible = false
             isStashed = false
         } catch (e: Exception) {
@@ -131,15 +245,13 @@ class FloatingActionButton(
         if (!isVisible || isStashed || isAnimatingStash || floatingBall == null) return
 
         val layoutParams = floatingBall!!.layoutParams as WindowManager.LayoutParams
-        val ballSizePx = dp2px(ballSize)
-        val stashOffsetPx = dp2px(stashOffset)
 
         // Determine which edge to stash to and calculate target position
         val isOnLeftEdge = layoutParams.x < displayMetrics.widthPixels / 2
         val targetX = if (isOnLeftEdge) {
-            -stashOffsetPx // Hide to the left (go negative to hide part of ball)
+            -stashOffset // Hide to the left (go negative to hide part of ball)
         } else {
-            displayMetrics.widthPixels - ballSizePx + stashOffsetPx // Hide to the right (go beyond screen edge)
+            displayMetrics.widthPixels - ballSize + stashOffset // Hide to the right (go beyond screen edge)
         }
         
         if (animated) {
@@ -151,12 +263,12 @@ class FloatingActionButton(
                 onStashStateChangedListener?.invoke(true)
             }
             // Animate alpha to transparent
-            animateAlpha(1.0f, 0.5f)
+            animateAlpha(1.0f, 0.4f)
         } else {
             // Instantly move to stash position
             layoutParams.x = targetX
             windowManager.updateViewLayout(floatingBall, layoutParams)
-            floatingBall?.alpha = 0.5f
+            floatingBall?.alpha = 0.4f
             isStashed = true
             onStashStateChangedListener?.invoke(true)
         }
@@ -171,15 +283,13 @@ class FloatingActionButton(
         }
 
         val layoutParams = floatingBall!!.layoutParams as WindowManager.LayoutParams
-        val ballSizePx = dp2px(ballSize)
-        val marginPx = dp2px(ballMargin)
 
         // Determine which edge to unstash from
         val isOnLeftEdge = layoutParams.x < displayMetrics.widthPixels / 2
         val targetX = if (isOnLeftEdge) {
-            marginPx // Show on left edge
+            ballMargin // Show on left edge
         } else {
-            displayMetrics.widthPixels - ballSizePx - marginPx // Show on right edge
+            displayMetrics.widthPixels - ballSize - ballMargin // Show on right edge
         }
 
         if (animated) {
@@ -190,7 +300,7 @@ class FloatingActionButton(
                 openFloatingMenu()
             }
             // Animate alpha to opaque
-            animateAlpha(0.5f, 1.0f, 30)
+            animateAlpha(0.4f, 1.0f, 30)
         } else {
             // Instantly move to unstash position
             layoutParams.x = targetX
@@ -202,36 +312,30 @@ class FloatingActionButton(
         }
     }
 
-    private fun snapToEdge(view: View) {
-        val layoutParams = view.layoutParams as WindowManager.LayoutParams
-        val ballSizePx = dp2px(ballSize)
-        val marginPx = dp2px(ballMargin)
-
-        // Snap to left or right edge based on current position
-        if (layoutParams.x < displayMetrics.widthPixels / 2) {
-            layoutParams.x = marginPx
-        } else {
-            layoutParams.x = displayMetrics.widthPixels - ballSizePx - marginPx
-        }
-
-        // Keep Y position within bounds (respect top and bottom boundaries)
-        val topBoundaryPx = dp2px(topBoundary)
-        val bottomBoundaryPx = dp2px(bottomBoundary)
-        layoutParams.y = layoutParams.y.coerceIn(
-            topBoundaryPx,
-            displayMetrics.heightPixels - ballSizePx - bottomBoundaryPx
-        )
-
-        windowManager.updateViewLayout(view, layoutParams)
-    }
-
     fun isStashed(): Boolean = isStashed
+
+    fun isAnimatingStash(): Boolean = isAnimatingStash
 
     fun isVisible(): Boolean = isVisible
 
     fun isMenuOpen(): Boolean = floatingMenu?.isOpen() == true
 
-    fun hideMenu() = floatingMenu?.close(false)
+    fun onDragStateChanged(isDragging: Boolean) {
+        onDragStateChangedListener?.invoke(isDragging)
+    }
+
+    private fun hideMenu(animated: Boolean = false) {
+        hideMenuOverlay()
+        floatingMenu?.takeIf { it.isOpen() }?.apply {
+            if (isAnimating()) {
+                doOnAnimationEnd { isOpen ->
+                    if (isOpen) close(animated)
+                }
+            } else {
+                close(animated)
+            }
+        }
+    }
 
     private fun saveCurrentPosition() {
         val layoutParams = floatingBall?.layoutParams as? WindowManager.LayoutParams
@@ -254,15 +358,16 @@ class FloatingActionButton(
     }
 
     private fun openFloatingMenu() {
+        if (!isVisible) return
+        
         floatingBall?.post {
-            if (isVisible) {
-                ensureMenuCreated()
-                floatingMenu?.open(true)
-            }
+            ensureMenuCreated()
+            showMenuOverlay()
+            floatingMenu?.open(true)
         }
     }
 
-    private fun updateMenuIcon(animDuration: Long = 80) {
+    private fun updateMenuIcon(animDuration: Long = 100L) {
         floatingBall?.let { ball ->
             if (ball is FrameLayout) {
                 val imageView = ball.getChildAt(0) as? ImageView
@@ -319,7 +424,6 @@ class FloatingActionButton(
     }
 
     private fun createMenu() {
-        // Pre-calculate menu items to avoid work during animation
         val startAngle = getMenuStartAngle()
         val endAngle = getMenuEndAngle()
         val menuItems = if (isBallOnLeftSide) floatingMenuItems else floatingMenuItems.reversed()
@@ -337,6 +441,7 @@ class FloatingActionButton(
                 }
 
                 override fun onMenuClosed(menu: FloatingActionMenu) {
+                    hideMenuOverlay()
                     floatingBall?.post { updateMenuIcon() }
                     onMenuStateChangedListener?.invoke(false)
                 }
@@ -370,49 +475,7 @@ class FloatingActionButton(
         onMenuStateChangedListener = listener
     }
 
-    private fun createLayoutParams(): WindowManager.LayoutParams {
-        val layoutParams = WindowManager.LayoutParams()
-
-        // Set window type based on Android version
-        layoutParams.type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
-        } else {
-            @Suppress("DEPRECATION")
-            WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY
-        }
-
-        // Set flags
-        layoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED or
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-
-        // Set format
-        layoutParams.format = PixelFormat.TRANSLUCENT
-
-        // Set size
-        val sizeInPx = dp2px(ballSize)
-        layoutParams.width = sizeInPx
-        layoutParams.height = sizeInPx
-
-        // Set initial position (right edge, center vertically)
-        layoutParams.x = displayMetrics.widthPixels - sizeInPx - dp2px(ballMargin)
-        layoutParams.y = displayMetrics.heightPixels / 2 - sizeInPx / 2
-
-        // Set gravity
-        layoutParams.gravity = Gravity.TOP or Gravity.START
-
-        return layoutParams
-    }
-
-    private fun animateToPosition(
-        fromX: Int,
-        fromY: Int,
-        toX: Int,
-        toY: Int,
-        animDuration: Long = 200,
-        onComplete: () -> Unit
-    ) {
+    private fun animateToPosition(fromX: Int, fromY: Int, toX: Int, toY: Int, animDuration: Long = 200, onComplete: () -> Unit) {
         val layoutParams = floatingBall!!.layoutParams as WindowManager.LayoutParams
 
         ValueAnimator.ofFloat(0f, 1f).apply {
@@ -446,80 +509,46 @@ class FloatingActionButton(
         }
     }
 
-    private val floatingBallTouchListener = object : View.OnTouchListener {
-        private var initialX = 0
-        private var initialY = 0
-        private var initialTouchX = 0f
-        private var initialTouchY = 0f
-        private var isDragging = false
+    private val floatingBallTouchListener by lazy {
+        FloatingBallTouchListener(
+            displayMetrics = displayMetrics,
+            windowManager = windowManager,
+            ballSize = ballSize,
+            topBoundary = topBoundary,
+            bottomBoundary = bottomBoundary,
+            floatingButton = this
+        )
+    }
 
-        override fun onTouch(view: View, event: MotionEvent): Boolean {
-            view.performClick()
+    fun snapToEdge(view: View) {
+        val layoutParams = view.layoutParams as WindowManager.LayoutParams
 
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    if (floatingMenu?.isOpen() == true) return true
+        // Snap to left or right edge based on current position
+        if (layoutParams.x < displayMetrics.widthPixels / 2) {
+            layoutParams.x = ballMargin
+        } else {
+            layoutParams.x = displayMetrics.widthPixels - ballSize - ballMargin
+        }
 
-                    if (isStashed || isAnimatingStash) {
-                        isDragging = false
-                        return true
-                    }
+        // Keep Y position within bounds (respect top and bottom boundaries)
+        layoutParams.y = layoutParams.y.coerceIn(
+            topBoundary,
+            displayMetrics.heightPixels - ballSize - bottomBoundary
+        )
 
-                    val layoutParams = view.layoutParams as WindowManager.LayoutParams
-                    initialX = layoutParams.x
-                    initialY = layoutParams.y
-                    initialTouchX = event.rawX
-                    initialTouchY = event.rawY
-                    isDragging = false
-                    return true
-                }
-
-                MotionEvent.ACTION_MOVE -> {
-                    if (floatingMenu?.isOpen() == true) return true
-                    if (isStashed || isAnimatingStash) return true
-
-                    val deltaX = (event.rawX - initialTouchX).toInt()
-                    val deltaY = (event.rawY - initialTouchY).toInt()
-
-                    if (abs(deltaX) > 10 || abs(deltaY) > 10 && !isDragging) {
-                        isDragging = true
-                        onDragStateChangedListener?.invoke(true)
-                    }
-
-                    if (isDragging) {
-                        val layoutParams = view.layoutParams as WindowManager.LayoutParams
-                        val ballSizePx = dp2px(ballSize)
-                        val topBoundaryPx = dp2px(topBoundary)
-                        val bottomBoundaryPx = dp2px(bottomBoundary)
-
-                        val newX = (initialX + deltaX).coerceIn(0, displayMetrics.widthPixels - ballSizePx)
-                        val newY = (initialY + deltaY).coerceIn(topBoundaryPx, displayMetrics.heightPixels - ballSizePx - bottomBoundaryPx)
-
-                        if (layoutParams.x != newX || layoutParams.y != newY) {
-                            layoutParams.x = newX
-                            layoutParams.y = newY
-                            windowManager.updateViewLayout(view, layoutParams)
-                        }
-                    }
-                    return true
-                }
-
-                MotionEvent.ACTION_UP -> {
-                    if (isDragging) {
-                        onDragStateChangedListener?.invoke(false)
-                        snapToEdge(view)
-                    } else {
-                        if (isStashed || isAnimatingStash) {
-                            unstash()
-                        } else {
-                            ensureMenuCreated()
-                            floatingMenu?.toggle(true)
-                        }
-                    }
-                    return true
-                }
+        windowManager.updateViewLayout(view, layoutParams)
+    }
+    
+    fun handleBallClick() {
+        if (isStashed || isAnimatingStash) {
+            unstash()
+        } else {
+            // Only prepare overlay when opening menu, not when closing
+            if (floatingMenu?.isOpen() == false) {
+                ensureMenuCreated()
+                showMenuOverlay()
             }
-            return false
+            floatingMenu?.toggle(true)
         }
     }
 }

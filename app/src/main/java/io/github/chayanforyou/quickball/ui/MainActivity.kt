@@ -6,12 +6,13 @@ import android.content.ComponentName
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.view.View
 import android.view.accessibility.AccessibilityManager
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
@@ -22,9 +23,12 @@ import io.github.chayanforyou.quickball.core.QuickBallAccessibilityService
 import io.github.chayanforyou.quickball.databinding.ActivityMainBinding
 import io.github.chayanforyou.quickball.domain.PreferenceManager
 
+
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private val handler = Handler(Looper.getMainLooper())
+    private var currentPermission: PermissionType? = null
 
     private val devicePolicyManager: DevicePolicyManager by lazy {
         getSystemService(DEVICE_POLICY_SERVICE) as DevicePolicyManager
@@ -34,22 +38,38 @@ class MainActivity : AppCompatActivity() {
         ComponentName(this, DeviceAdminReceiver::class.java)
     }
 
-    // Activity result launchers
-    private val accessibilitySettingsLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            updatePermissionStates()
-        }
+    enum class PermissionType { ACCESSIBILITY, SYSTEM_SETTINGS, DEVICE_ADMIN }
 
-    private val writeSettingsLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            updatePermissionStates()
-        }
+    private val checkPermissionRunnable = object : Runnable {
+        override fun run() {
+            when (currentPermission) {
+                PermissionType.ACCESSIBILITY -> {
+                    if (isAccessibilityServiceEnabled()) {
+                        bringAppToFront()
+                        return
+                    }
+                }
 
-    private val deviceAdminLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            updatePermissionStates()
-        }
+                PermissionType.SYSTEM_SETTINGS -> {
+                    if (canModifySystemSettings()) {
+                        bringAppToFront()
+                        return
+                    }
+                }
 
+                PermissionType.DEVICE_ADMIN -> {
+                    if (isDeviceAdminEnabled()) {
+                        bringAppToFront()
+                        return
+                    }
+                }
+
+                null -> return
+            }
+
+            handler.postDelayed(this, 500)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -206,7 +226,7 @@ class MainActivity : AppCompatActivity() {
     private fun openAccessibilitySettings() {
         try {
             val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-            accessibilitySettingsLauncher.launch(intent)
+            requestPermission(intent, PermissionType.ACCESSIBILITY)
         } catch (_: Exception) {
             showToast("Could not open accessibility settings")
         }
@@ -219,7 +239,7 @@ class MainActivity : AppCompatActivity() {
                     val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS).apply {
                         data = "package:$packageName".toUri()
                     }
-                    writeSettingsLauncher.launch(intent)
+                    requestPermission(intent, PermissionType.SYSTEM_SETTINGS)
                 }
                 else -> showToast("System settings permission is not required on this Android version")
             }
@@ -235,13 +255,28 @@ class MainActivity : AppCompatActivity() {
                 putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, 
                     "QuickBall needs device admin permission to lock your screen on older Android versions and Xiaomi devices.")
             }
-            deviceAdminLauncher.launch(intent)
+            requestPermission(intent, PermissionType.DEVICE_ADMIN)
         } catch (_: Exception) {
             showToast("Could not open device admin settings")
         }
     }
 
-    // Utility Methods
+    private fun requestPermission(intent: Intent, permission: PermissionType) {
+        currentPermission = permission
+        startActivity(intent)
+        handler.postDelayed(checkPermissionRunnable, 1000)
+    }
+
+    private fun bringAppToFront() {
+        val intent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or
+                    Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                    Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+        startActivity(intent)
+        currentPermission = null
+    }
+
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }

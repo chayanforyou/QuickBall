@@ -39,9 +39,6 @@ class FloatingActionMenu(
     private var isOpen = false
     private val individualMenuItems = mutableMapOf<Item, WindowManager.LayoutParams>()
 
-    fun getSubActionItems(): List<Item> = subActionItems
-    fun isOpen(): Boolean = isOpen
-
     init {
         animationManager?.setMenu(this)
         subActionItems.forEach { item ->
@@ -54,16 +51,27 @@ class FloatingActionMenu(
     }
 
     // ---------- Public API ----------
+    fun getSubActionItems(): List<Item> = subActionItems
+
+    fun isOpen(): Boolean = isOpen
+
+    fun isAnimating(): Boolean = animationManager?.isAnimating() == true
+
     fun open(animated: Boolean) {
+        if (isOpen) return // Already open
+        if (animated && animationManager?.isAnimating() == true) return
+        
         val center = calculateItemPositions()
 
-        if (animated && animationManager?.isAnimating() == true) return
-
         if (animated && animationManager != null) {
+            // Validate all items are detached before animating
             subActionItems.forEach { item ->
                 if (item.view.parent != null) {
                     throw RuntimeException("All of the sub action items have to be independent from a parent.")
                 }
+            }
+            
+            subActionItems.forEach { item ->
                 addIndividualMenuItem(item, center.x - item.width / 2, center.y - item.height / 2)
             }
             animationManager.animateMenuOpening(center)
@@ -78,6 +86,7 @@ class FloatingActionMenu(
     }
 
     fun close(animated: Boolean) {
+        if (!isOpen) return // Already closed
         if (animated && animationManager?.isAnimating() == true) return
 
         if (animated && animationManager != null) {
@@ -91,6 +100,19 @@ class FloatingActionMenu(
     }
 
     fun toggle(animated: Boolean) = if (isOpen) close(animated) else open(animated)
+
+    fun setAnimationCompletionListener(listener: (() -> Unit)?) {
+        animationManager?.setAnimationCompletionListener(listener)
+    }
+
+    inline fun doOnAnimationEnd(
+        crossinline action: (isOpen: Boolean) -> Unit
+    ) {
+        setAnimationCompletionListener {
+            setAnimationCompletionListener(null)
+            action(isOpen())
+        }
+    }
 
     // ---------- Helpers & calculations ----------
     fun getActionViewCenter(): Point {
@@ -137,21 +159,29 @@ class FloatingActionMenu(
 
     // ---------- Individual Menu Item Management ----------
     private fun addIndividualMenuItem(item: Item, x: Int, y: Int) {
+        if (individualMenuItems.containsKey(item)) {
+            return
+        }
+
         try {
             val layoutParams = createIndividualMenuItemParams(x, y, item.width, item.height)
             individualMenuItems[item] = layoutParams
             windowManager.addView(item.view, layoutParams)
         } catch (e: Exception) {
-            Log.e(TAG, "Failed to add individual menu item: ${e.message}")
+            Log.w(TAG, "Failed to add menu item: ${e.message}")
         }
     }
 
     fun removeIndividualMenuItem(item: Item) {
+        if (!individualMenuItems.containsKey(item)) {
+            return
+        }
+
         try {
             windowManager.removeView(item.view)
             individualMenuItems.remove(item)
         } catch (e: Exception) {
-            Log.w(TAG, "Failed to remove individual menu item: ${e.message}")
+            Log.w(TAG, "Failed to remove menu item: ${e.message}")
         }
     }
 
@@ -179,17 +209,19 @@ class FloatingActionMenu(
     }
 
     fun updateIndividualMenuItemPosition(item: Item, x: Int, y: Int) {
-        val layoutParams = individualMenuItems[item]
-        if (layoutParams != null) {
-            if (layoutParams.x != x || layoutParams.y != y) {
-                layoutParams.x = x
-                layoutParams.y = y
-                try {
-                    windowManager.updateViewLayout(item.view, layoutParams)
-                } catch (e: Exception) {
-                    Log.e(TAG, "Failed to update individual menu item position: ${e.message}")
-                }
-            }
+        val layoutParams = individualMenuItems[item] ?: return
+
+        if (layoutParams.x == x && layoutParams.y == y) {
+            return
+        }
+        
+        layoutParams.x = x
+        layoutParams.y = y
+
+        try {
+            windowManager.updateViewLayout(item.view, layoutParams)
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to update menu item position: ${e.message}")
         }
     }
 
@@ -217,15 +249,14 @@ class FloatingActionMenu(
     companion object {
         private const val TAG = "FloatingActionMenu"
 
+        private val sizeInPx by lazy { dp2px(52f) }
+        private val margin by lazy { dp2px(14f) }
+
         fun create(
             context: Context,
             resId: Int,
             action: MenuAction? = null,
-            sizeDp: Float = 44f,
         ): Item {
-            val sizeInPx = dp2px(sizeDp)
-            val margin = dp2px(10f)
-
             val imageView = ImageView(context).apply {
                 setImageResource(resId)
                 layoutParams = FrameLayout.LayoutParams(
@@ -256,7 +287,7 @@ class FloatingActionMenu(
             actionView: View,
             startAngle: Int = 120,
             endAngle: Int = 240,
-            radius: Float = 80f,
+            radius: Float = 94f,
             menuItems: List<Item> = emptyList(),
             animationManager: AnimationManager? = AnimationManager(),
             stateChangeListener: MenuStateChangeListener? = null,

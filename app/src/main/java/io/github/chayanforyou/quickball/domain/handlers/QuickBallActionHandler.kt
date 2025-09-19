@@ -17,7 +17,7 @@ class QuickBallActionHandler(private val accessibilityService: AccessibilityServ
         private const val TAG = "QuickBallActionHandler"
         private const val MAX_BRIGHTNESS = 255
         private const val MIN_BRIGHTNESS = 0
-        private const val BRIGHTNESS_STEP = 15
+        private const val BRIGHTNESS_STEP = 5
     }
 
     private val devicePolicyManager: DevicePolicyManager by lazy {
@@ -95,7 +95,7 @@ class QuickBallActionHandler(private val accessibilityService: AccessibilityServ
                 Settings.System.SCREEN_BRIGHTNESS
             )
         } catch (_: Settings.SettingNotFoundException) {
-            120 // Default to middle brightness
+            125 // Default to middle brightness
         }
     }
 
