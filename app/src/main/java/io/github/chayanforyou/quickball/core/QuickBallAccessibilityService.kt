@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.res.Configuration
 import android.os.Handler
 import android.os.Looper
 import android.view.accessibility.AccessibilityEvent
@@ -23,7 +24,6 @@ class QuickBallAccessibilityService : AccessibilityService() {
     private var floatingBall: FloatingActionButton? = null
     private var isDragging = false
     private var isScreenLocked = false
-    private var wasVisibleBeforeLock = false
     
     // Auto-stash functionality
     private val stashHandler = Handler(Looper.getMainLooper())
@@ -79,6 +79,11 @@ class QuickBallAccessibilityService : AccessibilityService() {
             }
         }
         return super.onStartCommand(intent, flags, startId)
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        applyCurrentOrientationPositioning()
     }
 
     override fun onDestroy() {
@@ -140,7 +145,6 @@ class QuickBallAccessibilityService : AccessibilityService() {
 
     private fun onStashStateChanged(isStashed: Boolean) {
         if (!isStashed) {
-            // Reset timer when ball is unstashed
             resetStashTimer()
         }
     }
@@ -192,9 +196,8 @@ class QuickBallAccessibilityService : AccessibilityService() {
     private fun handleScreenLocked() {
         if (!isScreenLocked) {
             isScreenLocked = true
-            wasVisibleBeforeLock = floatingBall?.isVisible() == true
 
-            if (wasVisibleBeforeLock) {
+            if (floatingBall?.isVisible() == true) {
                 hideFloatingBall()
             }
         }
@@ -204,12 +207,31 @@ class QuickBallAccessibilityService : AccessibilityService() {
         if (isScreenLocked) {
             isScreenLocked = false
 
-            // Only show the ball if it was visible before lock and Quick Ball is still enabled
-            if (wasVisibleBeforeLock && PreferenceManager.isQuickBallEnabled(this)) {
+            if (PreferenceManager.isQuickBallEnabled(this)) {
                 showFloatingBall()
+                // Apply current orientation positioning
+                applyCurrentOrientationPositioning()
             }
-
-            wasVisibleBeforeLock = false
+        }
+    }
+    
+    private fun applyCurrentOrientationPositioning() {
+        if (floatingBall?.isVisible() == true && !isDragging) {
+            val currentOrientation = resources.configuration.orientation
+            when (currentOrientation) {
+                Configuration.ORIENTATION_LANDSCAPE -> {
+                    floatingBall?.moveToLandscapePosition()
+                    floatingBall?.forceStash()
+                }
+                Configuration.ORIENTATION_PORTRAIT -> {
+                    floatingBall?.moveToPortraitPosition()
+                    floatingBall?.forceStash()
+                }
+                else -> {
+                    floatingBall?.moveToPortraitPosition()
+                    floatingBall?.forceStash()
+                }
+            }
         }
     }
 }

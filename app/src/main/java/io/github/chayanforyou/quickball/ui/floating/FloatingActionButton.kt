@@ -3,6 +3,7 @@ package io.github.chayanforyou.quickball.ui.floating
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.PixelFormat
 import android.os.Build
@@ -39,18 +40,11 @@ class FloatingActionButton(
     private var floatingBall: View? = null
     private var menuOverlay: View? = null
     private var floatingMenu: FloatingActionMenu? = null
-    private val floatingMenuItems = listOf(
-        FloatingActionMenu.create(context, R.drawable.ic_volume_up, MenuAction.VOLUME_UP),
-        FloatingActionMenu.create(context, R.drawable.ic_volume_down, MenuAction.VOLUME_DOWN),
-        FloatingActionMenu.create(context, R.drawable.ic_brightness_up, MenuAction.BRIGHTNESS_UP),
-        FloatingActionMenu.create(context, R.drawable.ic_brightness_down, MenuAction.BRIGHTNESS_DOWN),
-        FloatingActionMenu.create(context, R.drawable.ic_lock, MenuAction.LOCK_SCREEN),
-    )
 
     // Ball properties
     private val ballSize by lazy { dp2px(44f) }
     private val ballMargin by lazy { dp2px(6f) }
-    private val stashOffset by lazy { dp2px(28f) }
+    private val stashOffset by lazy { dp2px(26f) }
     private val topBoundary by lazy { dp2px(100f) }
     private val bottomBoundary by lazy { dp2px(100f) }
 
@@ -59,16 +53,39 @@ class FloatingActionButton(
     private var isStashed = false
     private var isAnimatingStash = false
 
-    // Position memory
-    private var lastPositionX: Int? = null
-    private var lastPositionY: Int? = null
+    // Orientation-specific position
+    private var portraitPosition: Pair<Int, Int>? = null
+    private var landscapePosition: Pair<Int, Int>? = null
+    private var currentOrientation = Configuration.ORIENTATION_UNDEFINED
 
     // Callbacks
     private var onStashStateChangedListener: ((Boolean) -> Unit)? = null
     private var onDragStateChangedListener: ((Boolean) -> Unit)? = null
     private var onMenuStateChangedListener: ((Boolean) -> Unit)? = null
 
+    private val floatingMenuItems = listOf(
+        FloatingActionMenu.create(context, R.drawable.ic_volume_up, MenuAction.VOLUME_UP),
+        FloatingActionMenu.create(context, R.drawable.ic_volume_down, MenuAction.VOLUME_DOWN),
+        FloatingActionMenu.create(context, R.drawable.ic_brightness_up, MenuAction.BRIGHTNESS_UP),
+        FloatingActionMenu.create(context, R.drawable.ic_brightness_down, MenuAction.BRIGHTNESS_DOWN),
+        FloatingActionMenu.create(context, R.drawable.ic_lock, MenuAction.LOCK_SCREEN),
+    )
+
+    private val floatingBallTouchListener by lazy {
+        FloatingBallTouchListener(
+            displayMetrics = displayMetrics,
+            windowManager = windowManager,
+            ballSize = ballSize,
+            topBoundary = topBoundary,
+            bottomBoundary = bottomBoundary,
+            floatingButton = this
+        )
+    }
+
     fun initialize() {
+        // Initialize current orientation
+        currentOrientation = context.resources.configuration.orientation
+        
         // Create menu overlay
         menuOverlay = createMenuOverlay()
 
@@ -206,6 +223,10 @@ class FloatingActionButton(
         }
     }
 
+    fun isStashed(): Boolean = isStashed
+
+    fun isAnimatingStash(): Boolean = isAnimatingStash
+
     fun show() {
         if (isVisible) return
 
@@ -220,8 +241,8 @@ class FloatingActionButton(
     fun hide() {
         if (!isVisible || floatingBall == null) return
 
-        // Save current position
-        saveCurrentPosition()
+        // Save current position for the current orientation
+        savePositionForCurrentOrientation()
         
         // Hide and cleanup menu
         hideMenu(false)
@@ -311,10 +332,27 @@ class FloatingActionButton(
             openFloatingMenu()
         }
     }
+    
+    fun forceStash() {
+        if (!isVisible || floatingBall == null) return
 
-    fun isStashed(): Boolean = isStashed
+        val layoutParams = floatingBall!!.layoutParams as WindowManager.LayoutParams
 
-    fun isAnimatingStash(): Boolean = isAnimatingStash
+        // Determine which edge to stash to and calculate target position
+        val isOnLeftEdge = layoutParams.x < displayMetrics.widthPixels / 2
+        val targetX = if (isOnLeftEdge) {
+            -stashOffset // Hide to the left (go negative to hide part of ball)
+        } else {
+            displayMetrics.widthPixels - ballSize + stashOffset // Hide to the right (go beyond screen edge)
+        }
+        
+        // Force stash instantly without checks
+        layoutParams.x = targetX
+        windowManager.updateViewLayout(floatingBall, layoutParams)
+        floatingBall?.alpha = 0.4f
+        isStashed = true
+        onStashStateChangedListener?.invoke(true)
+    }
 
     fun isVisible(): Boolean = isVisible
 
@@ -337,22 +375,21 @@ class FloatingActionButton(
         }
     }
 
-    private fun saveCurrentPosition() {
-        val layoutParams = floatingBall?.layoutParams as? WindowManager.LayoutParams
-        layoutParams?.let {
-            lastPositionX = it.x
-            lastPositionY = it.y
-        }
-    }
-
     private fun restoreLastPosition() {
-        val savedX = lastPositionX
-        val savedY = lastPositionY
+        if (floatingBall == null) return
         
-        if (savedX != null && savedY != null && floatingBall != null) {
-            val layoutParams = floatingBall!!.layoutParams as WindowManager.LayoutParams
-            layoutParams.x = savedX
-            layoutParams.y = savedY
+        val layoutParams = floatingBall!!.layoutParams as WindowManager.LayoutParams
+        
+        // Try to restore orientation-specific position
+        val savedPosition = when (currentOrientation) {
+            Configuration.ORIENTATION_PORTRAIT -> portraitPosition
+            Configuration.ORIENTATION_LANDSCAPE -> landscapePosition
+            else -> portraitPosition
+        }
+        
+        savedPosition?.let { (x, y) ->
+            layoutParams.x = x
+            layoutParams.y = y
             windowManager.updateViewLayout(floatingBall, layoutParams)
         }
     }
@@ -509,17 +546,6 @@ class FloatingActionButton(
         }
     }
 
-    private val floatingBallTouchListener by lazy {
-        FloatingBallTouchListener(
-            displayMetrics = displayMetrics,
-            windowManager = windowManager,
-            ballSize = ballSize,
-            topBoundary = topBoundary,
-            bottomBoundary = bottomBoundary,
-            floatingButton = this
-        )
-    }
-
     fun snapToEdge(view: View) {
         val layoutParams = view.layoutParams as WindowManager.LayoutParams
 
@@ -537,6 +563,9 @@ class FloatingActionButton(
         )
 
         windowManager.updateViewLayout(view, layoutParams)
+        
+        // Save the new position for current orientation
+        savePositionForCurrentOrientation()
     }
     
     fun handleBallClick() {
@@ -549,6 +578,62 @@ class FloatingActionButton(
                 showMenuOverlay()
             }
             floatingMenu?.toggle(true)
+        }
+    }
+    
+    fun moveToLandscapePosition() {
+        if (!isVisible || floatingBall == null) return
+        
+        val layoutParams = floatingBall!!.layoutParams as WindowManager.LayoutParams
+        
+        // Use saved landscape position or default to top-right corner
+        val (targetX, targetY) = landscapePosition ?: Pair(
+            displayMetrics.widthPixels - ballSize - ballMargin,
+            topBoundary + ballMargin
+        )
+        
+        // Move instantly to new position
+        layoutParams.x = targetX
+        layoutParams.y = targetY
+        windowManager.updateViewLayout(floatingBall, layoutParams)
+        
+        // Update current orientation
+        currentOrientation = Configuration.ORIENTATION_LANDSCAPE
+    }
+    
+    fun moveToPortraitPosition() {
+        if (!isVisible || floatingBall == null) return
+        
+        val layoutParams = floatingBall!!.layoutParams as WindowManager.LayoutParams
+        
+        // Use saved portrait position or default to center-right
+        val (targetX, targetY) = portraitPosition ?: Pair(
+            displayMetrics.widthPixels - ballSize - ballMargin,
+            displayMetrics.heightPixels / 2 - ballSize / 2
+        )
+        
+        // Move instantly to new position
+        layoutParams.x = targetX
+        layoutParams.y = targetY
+        windowManager.updateViewLayout(floatingBall, layoutParams)
+        
+        // Update current orientation
+        currentOrientation = Configuration.ORIENTATION_PORTRAIT
+    }
+    
+    private fun savePositionForCurrentOrientation() {
+        val layoutParams = floatingBall?.layoutParams as? WindowManager.LayoutParams ?: return
+
+        when (currentOrientation) {
+            Configuration.ORIENTATION_PORTRAIT -> {
+                portraitPosition = Pair(layoutParams.x, layoutParams.y)
+            }
+            Configuration.ORIENTATION_LANDSCAPE -> {
+                landscapePosition = Pair(layoutParams.x, layoutParams.y)
+            }
+            else -> {
+                portraitPosition = Pair(layoutParams.x, layoutParams.y)
+            }
         }
     }
 }
