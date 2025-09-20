@@ -9,5 +9,6 @@ enum class MenuAction {
     VOLUME_DOWN,
     BRIGHTNESS_UP,
     BRIGHTNESS_DOWN,
-    LOCK_SCREEN
+    LOCK_SCREEN,
+    TAKE_SCREENSHOT
 }
