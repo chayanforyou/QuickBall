@@ -4,14 +4,20 @@ import android.accessibilityservice.AccessibilityService
 import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.media.AudioManager
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import io.github.chayanforyou.quickball.core.DeviceAdminReceiver
+import io.github.chayanforyou.quickball.ui.ScreenshotPermissionActivity
 
-class QuickBallActionHandler(private val accessibilityService: AccessibilityService) :
-    MenuActionHandler {
+class QuickBallActionHandler(
+    private val accessibilityService: AccessibilityService,
+    private val onCloseMenu: (() -> Unit)? = null
+) : MenuActionHandler {
 
     companion object {
         private const val TAG = "QuickBallActionHandler"
@@ -39,6 +45,7 @@ class QuickBallActionHandler(private val accessibilityService: AccessibilityServ
             MenuAction.BRIGHTNESS_UP -> performBrightnessUpAction()
             MenuAction.BRIGHTNESS_DOWN -> performBrightnessDownAction()
             MenuAction.LOCK_SCREEN -> performLockScreenAction()
+            MenuAction.TAKE_SCREENSHOT -> performScreenshotAction()
         }
     }
 
@@ -153,6 +160,40 @@ class QuickBallActionHandler(private val accessibilityService: AccessibilityServ
             }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to perform device admin lock screen", e)
+        }
+    }
+
+    private fun performScreenshotAction() {
+        try {
+            onCloseMenu?.invoke()
+            Handler(Looper.getMainLooper()).postDelayed({
+                takeScreenshot()
+            }, 300)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to perform screenshot action", e)
+        }
+    }
+    
+    private fun takeScreenshot() {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                accessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_TAKE_SCREENSHOT)
+                Log.i(TAG, "Screenshot taken using accessibility service")
+            } else {
+                performScreenshotForOlderDevices()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to take screenshot", e)
+        }
+    }
+
+    private fun performScreenshotForOlderDevices() {
+        try {
+            val intent = Intent(accessibilityService, ScreenshotPermissionActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            accessibilityService.startActivity(intent)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to take screenshot", e)
         }
     }
 }
