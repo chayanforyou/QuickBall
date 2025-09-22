@@ -21,4 +21,14 @@
     <string name="device_admin_title">Device Administrator</string>
     <string name="device_admin_description">Required for screen lock on older Android versions</string>
     <string name="device_admin_permission_status">Device admin permission status</string>
+    
+    <!-- Permission Dialog Messages -->
+    <string name="accessibility_dialog_title">Accessibility Permission Required</string>
+    <string name="accessibility_dialog_message">QuickBall requires an accessibility service for its core functionality, to display a floating ball overlay and perform system actions like volume control, brightness adjustment, and screen lock.\n\nThe accessibility service is essential for the app to work properly and provide quick access to device controls from anywhere on your screen.\n\nIt never collects or shares any data! It is focused on privacy and the app does not send any network requests.</string>
+    
+    <string name="system_settings_dialog_title">System Settings Permission Required</string>
+    <string name="system_settings_dialog_message">QuickBall requires system settings permission to modify screen brightness levels in order to provide brightness control features.\n\nThis permission is needed for the brightness up and down controls in the floating ball menu to work properly.\n\nIt never collects or shares any data! It is focused on privacy and the app does not send any network requests.</string>
+    
+    <string name="dialog_button_quit">Quit</string>
+    <string name="dialog_button_accept">Accept</string>
 </resources>
