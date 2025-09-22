@@ -15,6 +15,7 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
+import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import io.github.chayanforyou.quickball.R
@@ -225,7 +226,11 @@ class MainActivity : AppCompatActivity() {
     // Permission Requests
     private fun openAccessibilitySettings() {
         try {
-            val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+            val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
+                val key = ComponentName(packageName, QuickBallAccessibilityService::class.java.name).flattenToString()
+                putExtra(":settings:fragment_args_key", key)
+                putExtra(":settings:show_fragment_args", bundleOf(":settings:fragment_args_key" to key))
+            }
             requestPermission(intent, PermissionType.ACCESSIBILITY)
         } catch (_: Exception) {
             showToast("Could not open accessibility settings")
@@ -252,7 +257,7 @@ class MainActivity : AppCompatActivity() {
         try {
             val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
                 putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, adminComponent)
-                putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, 
+                putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION,
                     "QuickBall needs device admin permission to lock your screen on older Android versions and Xiaomi devices.")
             }
             requestPermission(intent, PermissionType.DEVICE_ADMIN)

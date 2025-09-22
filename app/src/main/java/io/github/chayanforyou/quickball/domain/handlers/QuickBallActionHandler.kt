@@ -168,7 +168,7 @@ class QuickBallActionHandler(
             onCloseMenu?.invoke()
             Handler(Looper.getMainLooper()).postDelayed({
                 takeScreenshot()
-            }, 300)
+            }, 300L)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to perform screenshot action", e)
         }
@@ -178,7 +178,6 @@ class QuickBallActionHandler(
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 accessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_TAKE_SCREENSHOT)
-                Log.i(TAG, "Screenshot taken using accessibility service")
             } else {
                 performScreenshotForOlderDevices()
             }
