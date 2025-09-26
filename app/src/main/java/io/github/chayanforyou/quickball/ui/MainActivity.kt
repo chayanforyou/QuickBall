@@ -96,6 +96,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         updatePermissionStates()
+        checkAndShowPermissionDialogs()
     }
 
     // Event Listeners
@@ -284,5 +285,34 @@ class MainActivity : AppCompatActivity() {
 
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+    
+    // Permission Dialog Management
+    private fun checkAndShowPermissionDialogs() {
+        if (!isAccessibilityServiceEnabled()) {
+            showAccessibilityPermissionDialog()
+            return
+        }
+
+        if (!canModifySystemSettings()) {
+            showSystemSettingsPermissionDialog()
+            return
+        }
+    }
+
+    private fun showAccessibilityPermissionDialog() {
+        DialogUtil.showAccessibilityPermissionDialog(
+            context = this,
+            onAccept = { openAccessibilitySettings() },
+            onQuit = { finish() }
+        )
+    }
+
+    private fun showSystemSettingsPermissionDialog() {
+        DialogUtil.showSystemSettingsPermissionDialog(
+            context = this,
+            onAccept = { requestModifySystemSettingsPermission() },
+            onQuit = { finish() }
+        )
     }
 }
