@@ -68,7 +68,7 @@ class FloatingActionButton(
         FloatingActionMenu.create(context, R.drawable.ic_volume_down, MenuAction.VOLUME_DOWN),
         FloatingActionMenu.create(context, R.drawable.ic_brightness_up, MenuAction.BRIGHTNESS_UP),
         FloatingActionMenu.create(context, R.drawable.ic_brightness_down, MenuAction.BRIGHTNESS_DOWN),
-        FloatingActionMenu.create(context, R.drawable.ic_screenshot, MenuAction.TAKE_SCREENSHOT),
+        FloatingActionMenu.create(context, R.drawable.ic_lock, MenuAction.LOCK_SCREEN),
     )
 
     private val floatingBallTouchListener by lazy {
