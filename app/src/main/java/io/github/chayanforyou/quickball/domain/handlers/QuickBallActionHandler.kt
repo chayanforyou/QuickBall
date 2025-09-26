@@ -1,18 +1,14 @@
 package io.github.chayanforyou.quickball.domain.handlers
 
 import android.accessibilityservice.AccessibilityService
-import android.app.admin.DevicePolicyManager
-import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
 import android.media.AudioManager
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
-import io.github.chayanforyou.quickball.core.DeviceAdminReceiver
-import io.github.chayanforyou.quickball.ui.ScreenshotPermissionActivity
+import android.widget.Toast
 
 class QuickBallActionHandler(
     private val accessibilityService: AccessibilityService,
@@ -24,14 +20,6 @@ class QuickBallActionHandler(
         private const val MAX_BRIGHTNESS = 255
         private const val MIN_BRIGHTNESS = 0
         private const val BRIGHTNESS_STEP = 5
-    }
-
-    private val devicePolicyManager: DevicePolicyManager by lazy {
-        accessibilityService.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
-    }
-
-    private val adminComponent: ComponentName by lazy {
-        ComponentName(accessibilityService, DeviceAdminReceiver::class.java)
     }
 
     private val audioManager: AudioManager by lazy {
@@ -133,20 +121,10 @@ class QuickBallActionHandler(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 accessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_LOCK_SCREEN)
             } else {
-                performDeviceAdminLockScreen()
+                Toast.makeText(accessibilityService, "Locking screen is not supported on this device.", Toast.LENGTH_SHORT).show()
             }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to perform lock screen action", e)
-        }
-    }
-
-    private fun performDeviceAdminLockScreen() {
-        try {
-            if (devicePolicyManager.isAdminActive(adminComponent)) {
-                devicePolicyManager.lockNow()
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to perform device admin lock screen", e)
         }
     }
 
@@ -166,18 +144,8 @@ class QuickBallActionHandler(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 accessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_TAKE_SCREENSHOT)
             } else {
-                performScreenshotForOlderDevices()
+                Toast.makeText(accessibilityService.applicationContext, "Taking screenshot is not supported on this device.", Toast.LENGTH_SHORT).show()
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to take screenshot", e)
-        }
-    }
-
-    private fun performScreenshotForOlderDevices() {
-        try {
-            val intent = Intent(accessibilityService, ScreenshotPermissionActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            accessibilityService.startActivity(intent)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to take screenshot", e)
         }

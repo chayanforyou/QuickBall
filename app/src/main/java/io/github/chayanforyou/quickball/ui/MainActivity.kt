@@ -1,7 +1,6 @@
 package io.github.chayanforyou.quickball.ui
 
 import android.accessibilityservice.AccessibilityServiceInfo
-import android.app.admin.DevicePolicyManager
 import android.content.ComponentName
 import android.content.Intent
 import android.os.Build
@@ -9,7 +8,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
-import android.view.View
 import android.view.accessibility.AccessibilityManager
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -19,7 +17,6 @@ import androidx.core.os.bundleOf
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import io.github.chayanforyou.quickball.R
-import io.github.chayanforyou.quickball.core.DeviceAdminReceiver
 import io.github.chayanforyou.quickball.core.QuickBallAccessibilityService
 import io.github.chayanforyou.quickball.databinding.ActivityMainBinding
 import io.github.chayanforyou.quickball.domain.PreferenceManager
@@ -31,15 +28,7 @@ class MainActivity : AppCompatActivity() {
     private val handler = Handler(Looper.getMainLooper())
     private var currentPermission: PermissionType? = null
 
-    private val devicePolicyManager: DevicePolicyManager by lazy {
-        getSystemService(DEVICE_POLICY_SERVICE) as DevicePolicyManager
-    }
-
-    private val adminComponent: ComponentName by lazy {
-        ComponentName(this, DeviceAdminReceiver::class.java)
-    }
-
-    enum class PermissionType { ACCESSIBILITY, SYSTEM_SETTINGS, DEVICE_ADMIN }
+    enum class PermissionType { ACCESSIBILITY, SYSTEM_SETTINGS }
 
     private val checkPermissionRunnable = object : Runnable {
         override fun run() {
@@ -53,13 +42,6 @@ class MainActivity : AppCompatActivity() {
 
                 PermissionType.SYSTEM_SETTINGS -> {
                     if (canModifySystemSettings()) {
-                        bringAppToFront()
-                        return
-                    }
-                }
-
-                PermissionType.DEVICE_ADMIN -> {
-                    if (isDeviceAdminEnabled()) {
                         bringAppToFront()
                         return
                     }
@@ -122,13 +104,6 @@ class MainActivity : AppCompatActivity() {
                 else -> showToast("System settings permission is already granted!")
             }
         }
-
-        binding.layoutDeviceAdminPermission.setOnClickListener {
-            when {
-                !isDeviceAdminEnabled() -> requestDeviceAdminPermission()
-                else -> showToast("Device administrator permission is already granted!")
-            }
-        }
     }
 
     // Quick Ball Control
@@ -155,7 +130,6 @@ class MainActivity : AppCompatActivity() {
     private fun updatePermissionStates() {
         val accessibilityEnabled = isAccessibilityServiceEnabled()
         val systemSettingsEnabled = canModifySystemSettings()
-        val deviceAdminEnabled = isDeviceAdminEnabled()
         val allPermissionsGranted = hasAllRequiredPermissions()
 
         binding.imgAccessibilityStatus.setImageResource(
@@ -165,16 +139,6 @@ class MainActivity : AppCompatActivity() {
         binding.imgSystemSettingsStatus.setImageResource(
             if (systemSettingsEnabled) R.drawable.ic_checked else R.drawable.ic_unchecked
         )
-
-        // Show only for older versions where accessibility service lock might not work reliably
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            binding.layoutDeviceAdminPermission.visibility = View.GONE
-        } else {
-            binding.layoutDeviceAdminPermission.visibility = View.VISIBLE
-            binding.imgDeviceAdminStatus.setImageResource(
-                if (deviceAdminEnabled) R.drawable.ic_checked else R.drawable.ic_unchecked
-            )
-        }
 
         binding.switchEnableQuickBall.isEnabled = allPermissionsGranted
 
@@ -216,14 +180,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun isDeviceAdminEnabled(): Boolean {
-        return try {
-            devicePolicyManager.isAdminActive(adminComponent)
-        } catch (_: Exception) {
-            false
-        }
-    }
-
     // Permission Requests
     private fun openAccessibilitySettings() {
         try {
@@ -251,19 +207,6 @@ class MainActivity : AppCompatActivity() {
             }
         } catch (_: Exception) {
             showToast("Could not request system settings permission")
-        }
-    }
-
-    private fun requestDeviceAdminPermission() {
-        try {
-            val intent = Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN).apply {
-                putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, adminComponent)
-                putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION,
-                    "QuickBall needs device admin permission to lock your screen on older Android versions and Xiaomi devices.")
-            }
-            requestPermission(intent, PermissionType.DEVICE_ADMIN)
-        } catch (_: Exception) {
-            showToast("Could not open device admin settings")
         }
     }
 
