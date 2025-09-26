@@ -68,7 +68,7 @@ class FloatingActionButton(
         FloatingActionMenu.create(context, R.drawable.ic_volume_down, MenuAction.VOLUME_DOWN),
         FloatingActionMenu.create(context, R.drawable.ic_brightness_up, MenuAction.BRIGHTNESS_UP),
         FloatingActionMenu.create(context, R.drawable.ic_brightness_down, MenuAction.BRIGHTNESS_DOWN),
-        FloatingActionMenu.create(context, R.drawable.ic_lock, MenuAction.LOCK_SCREEN),
+        FloatingActionMenu.create(context, R.drawable.ic_screenshot, MenuAction.TAKE_SCREENSHOT),
     )
 
     private val floatingBallTouchListener by lazy {
@@ -190,6 +190,7 @@ class FloatingActionButton(
 
             // Set flags
             flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
                     WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED or
                     WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
@@ -362,7 +363,7 @@ class FloatingActionButton(
         onDragStateChangedListener?.invoke(isDragging)
     }
 
-    private fun hideMenu(animated: Boolean = false) {
+    fun hideMenu(animated: Boolean = false) {
         hideMenuOverlay()
         floatingMenu?.takeIf { it.isOpen() }?.apply {
             if (isAnimating()) {
@@ -486,9 +487,15 @@ class FloatingActionButton(
             menuItemClickListener = object : MenuItemClickListener {
                 override fun onMenuItemClick(action: MenuAction) {
                     menuActionHandler?.onMenuAction(action)
-                    if (action == MenuAction.LOCK_SCREEN) {
-                        floatingMenu?.close(true)
+                    val shouldClose = when (action) {
+                        MenuAction.VOLUME_UP,
+                        MenuAction.VOLUME_DOWN,
+                        MenuAction.BRIGHTNESS_UP,
+                        MenuAction.BRIGHTNESS_DOWN -> false
+                        else -> true
                     }
+
+                    if (shouldClose) floatingMenu?.close(true)
                 }
             }
         )

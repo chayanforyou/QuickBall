@@ -95,7 +95,14 @@ class QuickBallAccessibilityService : AccessibilityService() {
     }
 
     private fun initializeFloatingBall() {
-        val actionHandler = QuickBallActionHandler(this)
+        val actionHandler = QuickBallActionHandler(this) {
+            floatingBall?.let { ball ->
+                if (ball.isMenuOpen()) {
+                    ball.forceStash()
+                }
+            }
+        }
+
         floatingBall = FloatingActionButton(this, actionHandler)
         floatingBall?.initialize()
         
