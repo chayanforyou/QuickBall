@@ -27,7 +27,7 @@ A floating ball that provides quick access to system functions like volume, brig
 ## How to Use
 
 1. **Install the App**: Build and install QuickBall on your Android device
-2. **Enable Permissions**: 
+2. **Enable Permissions**:
    - Open QuickBall app
    - Grant accessibility service permission
    - Grant system settings permission

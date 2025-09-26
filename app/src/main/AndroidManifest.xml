@@ -7,11 +7,6 @@
     <uses-permission android:name="android.permission.BIND_ACCESSIBILITY_SERVICE"
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
-    
-    <!-- Permissions for screenshot functionality -->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:allowBackup="true"
@@ -31,12 +26,6 @@
             </intent-filter>
         </activity>
 
-        <!-- Activity for handling screenshot permission on older devices -->
-        <activity
-            android:name=".ui.ScreenshotPermissionActivity"
-            android:exported="false"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-
         <!-- Accessibility Service for Floating Ball -->
         <service
             android:name=".core.QuickBallAccessibilityService"
@@ -50,19 +39,6 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility_service_config" />
         </service>
-
-        <!-- Device Admin Receiver for Lock Screen -->
-        <receiver
-            android:name=".core.DeviceAdminReceiver"
-            android:permission="android.permission.BIND_DEVICE_ADMIN"
-            android:exported="true">
-            <meta-data
-                android:name="android.app.device_admin"
-                android:resource="@xml/device_admin" />
-            <intent-filter>
-                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
-            </intent-filter>
-        </receiver>
     </application>
 
 </manifest>
