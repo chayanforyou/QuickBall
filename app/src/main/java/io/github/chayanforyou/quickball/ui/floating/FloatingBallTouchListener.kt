@@ -1,5 +1,6 @@
 package io.github.chayanforyou.quickball.ui.floating
 
+import android.annotation.SuppressLint
 import android.util.DisplayMetrics
 import android.view.MotionEvent
 import android.view.View
@@ -21,9 +22,8 @@ class FloatingBallTouchListener(
     private var initialTouchY = 0f
     private var isDragging = false
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouch(view: View, event: MotionEvent): Boolean {
-        view.performClick()
-
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 if (floatingButton.isMenuOpen()) return true

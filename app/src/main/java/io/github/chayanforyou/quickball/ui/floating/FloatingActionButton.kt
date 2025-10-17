@@ -2,6 +2,7 @@ package io.github.chayanforyou.quickball.ui.floating
 
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Color
@@ -93,6 +94,7 @@ class FloatingActionButton(
         floatingBall = createFloatingBall()
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun createMenuOverlay(): View {
         return View(context).apply {
             setBackgroundColor(Color.TRANSPARENT)
@@ -100,7 +102,6 @@ class FloatingActionButton(
             isFocusable = false
             visibility = View.GONE
             setOnTouchListener { v, event ->
-                v.performClick()
                 when (event.action) {
                     MotionEvent.ACTION_DOWN,
                     MotionEvent.ACTION_OUTSIDE -> {
