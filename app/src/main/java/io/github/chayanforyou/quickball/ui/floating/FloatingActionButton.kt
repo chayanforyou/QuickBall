@@ -21,10 +21,11 @@ import android.widget.ImageView
 import androidx.core.animation.doOnEnd
 import androidx.core.content.ContextCompat
 import io.github.chayanforyou.quickball.R
+import io.github.chayanforyou.quickball.domain.PreferenceManager
 import io.github.chayanforyou.quickball.domain.handlers.MenuAction
 import io.github.chayanforyou.quickball.domain.handlers.MenuActionHandler
 import io.github.chayanforyou.quickball.ui.floating.FloatingActionMenu.MenuItemClickListener
-import io.github.chayanforyou.quickball.utils.AnimationManager
+import io.github.chayanforyou.quickball.ui.helpers.AnimationHelper
 import io.github.chayanforyou.quickball.utils.WidgetUtil.dp2px
 
 class FloatingActionButton(
@@ -49,10 +50,11 @@ class FloatingActionButton(
     private val topBoundary by lazy { dp2px(100f) }
     private val bottomBoundary by lazy { dp2px(100f) }
 
-    private var isBallOnLeftSide = false
     private var isVisible = false
     private var isStashed = false
     private var isAnimatingStash = false
+    private var isBallOnLeftSide = false
+    private var lastMenuItemsHash: Int = 0
 
     // Orientation-specific position
     private var portraitPosition: Pair<Int, Int>? = null
@@ -64,13 +66,13 @@ class FloatingActionButton(
     private var onDragStateChangedListener: ((Boolean) -> Unit)? = null
     private var onMenuStateChangedListener: ((Boolean) -> Unit)? = null
 
-    private val floatingMenuItems = listOf(
-        FloatingActionMenu.create(context, R.drawable.ic_volume_up, MenuAction.VOLUME_UP),
-        FloatingActionMenu.create(context, R.drawable.ic_volume_down, MenuAction.VOLUME_DOWN),
-        FloatingActionMenu.create(context, R.drawable.ic_brightness_up, MenuAction.BRIGHTNESS_UP),
-        FloatingActionMenu.create(context, R.drawable.ic_brightness_down, MenuAction.BRIGHTNESS_DOWN),
-        FloatingActionMenu.create(context, R.drawable.ic_lock, MenuAction.LOCK_SCREEN),
-    )
+    private fun getFloatingMenuItems(): List<FloatingActionMenu.Item> {
+        val selectedMenuItems = PreferenceManager.getSelectedMenuItems(context)
+        
+        return selectedMenuItems.map { menuItem ->
+            FloatingActionMenu.create(context, menuItem.iconRes, menuItem.action)
+        }
+    }
 
     private val floatingBallTouchListener by lazy {
         FloatingBallTouchListener(
@@ -417,13 +419,13 @@ class FloatingActionButton(
                         R.drawable.ic_menu_open
                     }
 
-                    // Create rotating animation
-                    ObjectAnimator.ofFloat(image, View.ROTATION, 0f, 90f).apply {
+                    // Rotating animation (counter-clockwise)
+                    ObjectAnimator.ofFloat(image, View.ROTATION, 0f, -90f).apply {
                         duration = animDuration
                         interpolator = DecelerateInterpolator()
                         doOnEnd {
                             image.setImageResource(iconRes)
-                            ObjectAnimator.ofFloat(image, View.ROTATION, 90f, 0f).apply {
+                            ObjectAnimator.ofFloat(image, View.ROTATION, -90f, 0f).apply {
                                 duration = animDuration
                             }.start()
                         }
@@ -454,25 +456,30 @@ class FloatingActionButton(
 
     private fun ensureMenuCreated() {
         val currentlyOnLeft = isBallOnLeftSide()
+        val currentMenuItems = PreferenceManager.getSelectedMenuItems(context)
+        val currentMenuItemsHash = currentMenuItems.hashCode()
 
-        // Create menu if it doesn't exist OR if ball position has changed
-        if (floatingMenu == null || isBallOnLeftSide != currentlyOnLeft) {
+        if (floatingMenu == null || 
+            isBallOnLeftSide != currentlyOnLeft || 
+            lastMenuItemsHash != currentMenuItemsHash) {
+            
             recreateMenu()
             isBallOnLeftSide = currentlyOnLeft
+            lastMenuItemsHash = currentMenuItemsHash
         }
     }
 
     private fun createMenu() {
         val startAngle = getMenuStartAngle()
         val endAngle = getMenuEndAngle()
-        val menuItems = if (isBallOnLeftSide) floatingMenuItems else floatingMenuItems.reversed()
+        val menuItems = if (isBallOnLeftSide) getFloatingMenuItems() else getFloatingMenuItems().reversed()
         
         floatingMenu = FloatingActionMenu.attached(
             actionView = floatingBall!!,
             startAngle = startAngle,
             endAngle = endAngle,
             menuItems = menuItems,
-            animationManager = AnimationManager(),
+            animationHelper = AnimationHelper(),
             stateChangeListener = object : FloatingActionMenu.MenuStateChangeListener {
                 override fun onMenuOpened(menu: FloatingActionMenu) {
                     floatingBall?.post { updateMenuIcon() }

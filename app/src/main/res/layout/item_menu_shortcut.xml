@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:padding="@dimen/padding">
+
+    <ImageView
+        android:id="@+id/iv_drag_handle"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:alpha="0.3"
+        android:contentDescription="@string/drag_handle_description"
+        android:src="@drawable/ic_drag_handle"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/iv_menu_icon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="26dp"
+        android:contentDescription="@string/menu_icon_description"
+        android:scaleType="centerInside"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/iv_drag_handle"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="?attr/colorControlNormal"
+        tools:src="@drawable/ic_volume_up" />
+
+    <TextView
+        android:id="@+id/tv_menu_title"
+        style="@style/TextAppearance.Material3.BodyLarge"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/iv_arrow_forward"
+        app:layout_constraintStart_toEndOf="@id/iv_menu_icon"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Volume Up" />
+
+    <ImageView
+        android:id="@+id/iv_arrow_forward"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:alpha="0.6"
+        android:contentDescription="@string/menu_icon_description"
+        android:src="@drawable/ic_arrow_forward"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
