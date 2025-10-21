@@ -11,29 +11,36 @@ import java.util.Collections
 
 class MenuItemAdapter(
     private var menuItems: List<MenuItemModel>,
-    private val onStartDrag: (RecyclerView.ViewHolder) -> Unit
-) : RecyclerView.Adapter<MenuItemAdapter.MenuItemViewHolder>() {
+    private val onStartDrag: (RecyclerView.ViewHolder) -> Unit,
+    private val onItemClick: (Int) -> Unit,
+) : RecyclerView.Adapter<MenuItemAdapter.ViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MenuItemViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = ItemMenuShortcutBinding.inflate(inflater, parent, false)
-        return MenuItemViewHolder(binding)
+        return ViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: MenuItemViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(menuItems[position])
     }
 
     override fun getItemCount(): Int = menuItems.size
 
-    fun getCurrentItems(): List<MenuItemModel> = menuItems.toList()
+    fun getCurrentItems(): MutableList<MenuItemModel> = menuItems.toMutableList()
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun updateMenuItems(newMenuItems: List<MenuItemModel>) {
+        menuItems = newMenuItems
+        notifyDataSetChanged()
+    }
 
     fun moveItem(fromPosition: Int, toPosition: Int) {
         Collections.swap(menuItems, fromPosition, toPosition)
         notifyItemMoved(fromPosition, toPosition)
     }
 
-    inner class MenuItemViewHolder(private val binding: ItemMenuShortcutBinding) :
+    inner class ViewHolder(private val binding: ItemMenuShortcutBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         @SuppressLint("ClickableViewAccessibility")
@@ -43,9 +50,13 @@ class MenuItemAdapter(
 
             ivDragHandle.setOnTouchListener { _, event ->
                 if (event.action == MotionEvent.ACTION_DOWN) {
-                    onStartDrag(this@MenuItemViewHolder)
+                    onStartDrag(this@ViewHolder)
                 }
                 false
+            }
+
+            root.setOnClickListener {
+                onItemClick(bindingAdapterPosition)
             }
         }
     }

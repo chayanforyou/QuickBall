@@ -48,4 +48,11 @@
     <string name="drag_to_reorder_hint">Drag items to reorder them</string>
     <string name="menu_icon_description">Menu item icon</string>
     <string name="drag_handle_description">Drag to reorder</string>
+    
+    <!-- Select Shortcut Fragment -->
+    <string name="select_shortcut_title">Select Shortcut</string>
+    <string name="select_shortcut_description">Choose a shortcut to replace the current one</string>
+    
+    <!-- Hide Automatically Fragment -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

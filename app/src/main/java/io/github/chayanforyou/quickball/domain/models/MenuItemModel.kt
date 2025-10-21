@@ -7,7 +7,8 @@ import io.github.chayanforyou.quickball.domain.handlers.MenuAction
 data class MenuItemModel(
     val action: MenuAction,
     @DrawableRes val iconRes: Int,
-    val title: String
+    val title: String,
+    val isSelected: Boolean = false
 ) {
     companion object {
 
