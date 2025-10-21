@@ -25,7 +25,7 @@ import io.github.chayanforyou.quickball.domain.PreferenceManager
 import io.github.chayanforyou.quickball.domain.handlers.MenuAction
 import io.github.chayanforyou.quickball.domain.handlers.MenuActionHandler
 import io.github.chayanforyou.quickball.ui.floating.FloatingActionMenu.MenuItemClickListener
-import io.github.chayanforyou.quickball.ui.helpers.AnimationHelper
+import io.github.chayanforyou.quickball.helpers.AnimationHelper
 import io.github.chayanforyou.quickball.utils.WidgetUtil.dp2px
 
 class FloatingActionButton(
@@ -46,7 +46,7 @@ class FloatingActionButton(
     // Ball properties
     private val ballSize by lazy { dp2px(44f) }
     private val ballMargin by lazy { dp2px(6f) }
-    private val stashOffset by lazy { dp2px(26f) }
+    private val stashOffset by lazy { dp2px(24f) }
     private val topBoundary by lazy { dp2px(100f) }
     private val bottomBoundary by lazy { dp2px(100f) }
 

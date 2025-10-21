@@ -21,7 +21,7 @@ import androidx.navigation.fragment.findNavController
 import io.github.chayanforyou.quickball.core.QuickBallAccessibilityService
 import io.github.chayanforyou.quickball.databinding.FragmentHomeBinding
 import io.github.chayanforyou.quickball.domain.PreferenceManager
-import io.github.chayanforyou.quickball.ui.DialogUtil
+import io.github.chayanforyou.quickball.utils.DialogUtil
 
 class HomeFragment : Fragment() {
 

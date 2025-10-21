@@ -13,7 +13,7 @@ import io.github.chayanforyou.quickball.databinding.FragmentShortcutBinding
 import io.github.chayanforyou.quickball.domain.PreferenceManager
 import io.github.chayanforyou.quickball.domain.models.MenuItemModel
 import io.github.chayanforyou.quickball.ui.adapters.MenuItemAdapter
-import io.github.chayanforyou.quickball.ui.helpers.MenuItemTouchHelper
+import io.github.chayanforyou.quickball.helpers.MenuItemTouchHelper
 import io.github.chayanforyou.quickball.ui.viewmodels.MenuSelectionViewModel
 
 class ShortcutFragment : Fragment() {

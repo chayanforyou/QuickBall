@@ -12,6 +12,7 @@ object PreferenceManager {
     private const val PREFS_NAME = "quick_ball_prefs"
     private const val KEY_QUICK_BALL_ENABLED = "quick_ball_enabled"
     private const val KEY_SELECTED_MENU_ITEMS = "selected_menu_items"
+    private const val KEY_SELECTED_APPS = "selected_apps"
     
     private val gson = Gson()
     
@@ -63,5 +64,56 @@ object PreferenceManager {
         return defaultActions.mapNotNull { action ->
             MenuItemModel.getMenuItemByAction(action)
         }
+    }
+    
+    // ==================== APP SELECTION PREFERENCES ====================
+    
+    /**
+     * Save a set of selected app package names
+     */
+    fun saveSelectedApps(context: Context, selectedApps: Set<String>) {
+        val prefs = getPreferences(context)
+        prefs.edit { putStringSet(KEY_SELECTED_APPS, selectedApps) }
+    }
+    
+    /**
+     * Get the set of selected app package names
+     */
+    fun getSelectedApps(context: Context): Set<String> {
+        val prefs = getPreferences(context)
+        return prefs.getStringSet(KEY_SELECTED_APPS, emptySet()) ?: emptySet()
+    }
+    
+    /**
+     * Add a single app to selected apps
+     */
+    fun addSelectedApp(context: Context, packageName: String) {
+        val currentSelected = getSelectedApps(context).toMutableSet()
+        currentSelected.add(packageName)
+        saveSelectedApps(context, currentSelected)
+    }
+    
+    /**
+     * Remove a single app from selected apps
+     */
+    fun removeSelectedApp(context: Context, packageName: String) {
+        val currentSelected = getSelectedApps(context).toMutableSet()
+        currentSelected.remove(packageName)
+        saveSelectedApps(context, currentSelected)
+    }
+    
+    /**
+     * Check if an app is selected
+     */
+    fun isAppSelected(context: Context, packageName: String): Boolean {
+        return getSelectedApps(context).contains(packageName)
+    }
+    
+    /**
+     * Clear all selected apps
+     */
+    fun clearAllSelectedApps(context: Context) {
+        val prefs = getPreferences(context)
+        prefs.edit { remove(KEY_SELECTED_APPS) }
     }
 }

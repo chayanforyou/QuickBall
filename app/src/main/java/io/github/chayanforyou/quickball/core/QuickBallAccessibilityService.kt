@@ -7,8 +7,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.Configuration
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.view.accessibility.AccessibilityEvent
 import io.github.chayanforyou.quickball.domain.PreferenceManager
 import io.github.chayanforyou.quickball.domain.handlers.QuickBallActionHandler
@@ -23,60 +25,46 @@ class QuickBallAccessibilityService : AccessibilityService() {
 
     private var floatingBall: FloatingActionButton? = null
     private var isDragging = false
-    private var isScreenLocked = false
-    
-    // Auto-stash functionality
-    private val stashHandler = Handler(Looper.getMainLooper())
-    private val stashRunnable = Runnable { stashBall() }
+    private var lastEventTimeStamp = 0L
+
+    private val debounceDelay = 100L
     private val stashDelay = 2500L
-    
-    // Screen lock detection
+
+    private val stashHandler by lazy { Handler(Looper.getMainLooper()) }
+    private val stashRunnable = Runnable { stashBall() }
+
     private val keyguardManager: KeyguardManager by lazy {
         getSystemService(KEYGUARD_SERVICE) as KeyguardManager
     }
     
+    private inline val isKeyguardLocked: Boolean
+        get() = keyguardManager.isKeyguardLocked
+
     private val screenReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
-                Intent.ACTION_SCREEN_OFF -> {
-                    handleScreenLocked()
-                }
-                Intent.ACTION_USER_PRESENT -> {
-                    handleScreenUnlocked()
-                }
-                Intent.ACTION_SCREEN_ON -> {
-                    if (keyguardManager.isKeyguardLocked) {
-                        handleScreenLocked()
-                    } else {
-                        handleScreenUnlocked()
-                    }
-                }
+                Intent.ACTION_SCREEN_OFF -> handleScreenLocked()
+                Intent.ACTION_USER_PRESENT -> handleScreenUnlocked()
+                Intent.ACTION_SCREEN_ON ->
+                    if (isKeyguardLocked) handleScreenLocked() else handleScreenUnlocked()
             }
         }
     }
 
     override fun onServiceConnected() {
         super.onServiceConnected()
-        
         initializeFloatingBall()
         registerScreenReceiver()
-        
-        // Only show the ball if Quick Ball is enabled in settings and screen is not locked
-        if (PreferenceManager.isQuickBallEnabled(this) && !isScreenCurrentlyLocked()) {
+
+        if (PreferenceManager.isQuickBallEnabled(this) && !isKeyguardLocked) {
             showFloatingBall()
         }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent != null && !intent.action.isNullOrEmpty()) {
-            when (intent.action) {
-                ACTION_ENABLE_QUICK_BALL -> {
-                    showFloatingBall()
-                }
-                ACTION_DISABLE_QUICK_BALL -> {
-                    hideFloatingBall()
-                }
-            }
+        when (intent?.action) {
+            ACTION_ENABLE_QUICK_BALL -> showFloatingBall()
+            ACTION_DISABLE_QUICK_BALL -> hideFloatingBall()
         }
         return super.onStartCommand(intent, flags, startId)
     }
@@ -88,35 +76,21 @@ class QuickBallAccessibilityService : AccessibilityService() {
 
     override fun onDestroy() {
         super.onDestroy()
-        
         hideFloatingBall()
-        unregisterScreenReceiver()
+        unregisterReceiverSafe(screenReceiver)
         stashHandler.removeCallbacksAndMessages(null)
     }
 
     private fun initializeFloatingBall() {
         val actionHandler = QuickBallActionHandler(this) {
-            floatingBall?.let { ball ->
-                if (ball.isMenuOpen()) {
-                    ball.forceStash()
-                }
-            }
+            floatingBall?.takeIf { it.isMenuOpen() }?.forceStash()
         }
 
-        floatingBall = FloatingActionButton(this, actionHandler)
-        floatingBall?.initialize()
-        
-        // Set up callbacks
-        floatingBall?.setOnStashStateChangedListener { isStashed ->
-            onStashStateChanged(isStashed)
-        }
-        
-        floatingBall?.setOnDragStateChangedListener { isDragging ->
-            onDragStateChanged(isDragging)
-        }
-        
-        floatingBall?.setOnMenuStateChangedListener { isMenuOpen ->
-            onMenuStateChanged(isMenuOpen)
+        floatingBall = FloatingActionButton(this, actionHandler).apply {
+            initialize()
+            setOnStashStateChangedListener(::onStashStateChanged)
+            setOnDragStateChangedListener(::onDragStateChanged)
+            setOnMenuStateChangedListener(::onMenuStateChanged)
         }
     }
 
@@ -151,95 +125,87 @@ class QuickBallAccessibilityService : AccessibilityService() {
     }
 
     private fun onStashStateChanged(isStashed: Boolean) {
-        if (!isStashed) {
-            resetStashTimer()
-        }
+        if (!isStashed) resetStashTimer()
     }
-    
+
     private fun onDragStateChanged(isDragging: Boolean) {
         this.isDragging = isDragging
-        if (isDragging) {
-            cancelStashTimer()
-        } else {
-            resetStashTimer()
-        }
+        if (isDragging) cancelStashTimer() else resetStashTimer()
     }
 
     private fun onMenuStateChanged(isMenuOpen: Boolean) {
-        if (!isMenuOpen) {
-            resetStashTimer()
+        if (!isMenuOpen) resetStashTimer()
+    }
+
+    private inline fun withDebounce(action: () -> Unit) {
+        val currentTime = SystemClock.uptimeMillis()
+        if (currentTime - lastEventTimeStamp > debounceDelay) {
+            action()
+            lastEventTimeStamp = currentTime
+        }
+    }
+
+    private fun handleMonitoredAppEvent() = withDebounce {
+        if (floatingBall?.isVisible() == true) hideFloatingBall()
+    }
+
+    private fun handleNonMonitoredAppEvent() = withDebounce {
+        if (PreferenceManager.isQuickBallEnabled(this) && !isKeyguardLocked) {
+            if (floatingBall?.isVisible() != true) showFloatingBall()
         }
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        // Handle accessibility events if needed
+        if (event?.source == null) return
+        val root = rootInActiveWindow ?: return
+        val pkg = root.packageName?.toString() ?: return
+
+        val selectedApps = PreferenceManager.getSelectedApps(this)
+        if (pkg in selectedApps) handleMonitoredAppEvent() else handleNonMonitoredAppEvent()
     }
 
-    override fun onInterrupt() {
-        // Handle service interruption,
-    }
-    
+    override fun onInterrupt() {}
+
     private fun registerScreenReceiver() {
         val filter = IntentFilter().apply {
             addAction(Intent.ACTION_SCREEN_OFF)
             addAction(Intent.ACTION_SCREEN_ON)
             addAction(Intent.ACTION_USER_PRESENT)
         }
-        registerReceiver(screenReceiver, filter)
-    }
-    
-    private fun unregisterScreenReceiver() {
-        try {
-            unregisterReceiver(screenReceiver)
-        } catch (e: IllegalArgumentException) {
-            e.printStackTrace()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(screenReceiver, filter, RECEIVER_NOT_EXPORTED)
+        } else {
+            @Suppress("DEPRECATION")
+            registerReceiver(screenReceiver, filter)
         }
     }
-    
-    private fun isScreenCurrentlyLocked(): Boolean {
-        return keyguardManager.isKeyguardLocked
+
+    private fun unregisterReceiverSafe(receiver: BroadcastReceiver) {
+        runCatching { unregisterReceiver(receiver) }
     }
-    
+
     private fun handleScreenLocked() {
-        if (!isScreenLocked) {
-            isScreenLocked = true
-
-            if (floatingBall?.isVisible() == true) {
-                hideFloatingBall()
-            }
+        if (floatingBall?.isVisible() == true) {
+            hideFloatingBall()
         }
     }
-    
+
     private fun handleScreenUnlocked() {
-        if (isScreenLocked) {
-            isScreenLocked = false
-
-            if (PreferenceManager.isQuickBallEnabled(this)) {
-                showFloatingBall()
-                // Apply current orientation positioning
-                applyCurrentOrientationPositioning()
-            }
+        if (PreferenceManager.isQuickBallEnabled(this)) {
+            showFloatingBall()
+            applyCurrentOrientationPositioning()
         }
     }
-    
+
     private fun applyCurrentOrientationPositioning() {
-        if (floatingBall?.isVisible() == true && !isDragging) {
-            val currentOrientation = resources.configuration.orientation
-            when (currentOrientation) {
-                Configuration.ORIENTATION_LANDSCAPE -> {
-                    floatingBall?.moveToLandscapePosition()
-                    floatingBall?.forceStash()
-                }
-                Configuration.ORIENTATION_PORTRAIT -> {
-                    floatingBall?.moveToPortraitPosition()
-                    floatingBall?.forceStash()
-                }
-                else -> {
-                    floatingBall?.moveToPortraitPosition()
-                    floatingBall?.forceStash()
-                }
-            }
+        val ball = floatingBall ?: return
+        if (!ball.isVisible() || isDragging) return
+
+        when (resources.configuration.orientation) {
+            Configuration.ORIENTATION_LANDSCAPE -> ball.moveToLandscapePosition()
+            else -> ball.moveToPortraitPosition()
         }
+        ball.forceStash()
     }
 }
-

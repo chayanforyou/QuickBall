@@ -17,7 +17,7 @@ import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import io.github.chayanforyou.quickball.R
 import io.github.chayanforyou.quickball.domain.handlers.MenuAction
-import io.github.chayanforyou.quickball.ui.helpers.AnimationHelper
+import io.github.chayanforyou.quickball.helpers.AnimationHelper
 import io.github.chayanforyou.quickball.utils.WidgetUtil.dp2px
 import kotlin.math.abs
 

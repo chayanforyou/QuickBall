@@ -1,4 +1,4 @@
-package io.github.chayanforyou.quickball.ui.helpers
+package io.github.chayanforyou.quickball.helpers
 
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView

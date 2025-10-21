@@ -1,4 +1,4 @@
-package io.github.chayanforyou.quickball.ui.helpers
+package io.github.chayanforyou.quickball.helpers
 
 import android.animation.Animator
 import android.animation.AnimatorSet
