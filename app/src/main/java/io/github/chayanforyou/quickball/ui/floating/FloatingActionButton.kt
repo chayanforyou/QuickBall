@@ -362,7 +362,7 @@ class FloatingActionButton(
 
     fun isMenuOpen(): Boolean = floatingMenu?.isOpen() == true
 
-    fun onDragStateChanged(isDragging: Boolean) {
+    fun setDragging(isDragging: Boolean) {
         onDragStateChangedListener?.invoke(isDragging)
     }
 

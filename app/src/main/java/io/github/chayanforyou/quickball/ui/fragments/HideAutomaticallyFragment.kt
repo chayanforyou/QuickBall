@@ -98,7 +98,7 @@ class HideAutomaticallyFragment : Fragment() {
                     isSelected = selectedApps.contains(appInfo.packageName)
                 )
             }
-            .sortedBy { it.appName.lowercase() }
+            .sortedWith(compareByDescending<AppModel> { it.isSelected }.thenBy { it.appName.lowercase() })
     }
 
     private fun updateAppSelectionState(app: AppModel, isSelected: Boolean) {

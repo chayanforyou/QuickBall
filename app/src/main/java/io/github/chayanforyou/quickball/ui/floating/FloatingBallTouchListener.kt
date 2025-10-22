@@ -51,7 +51,7 @@ class FloatingBallTouchListener(
 
                 if (abs(deltaX) > 10 || abs(deltaY) > 10 && !isDragging) {
                     isDragging = true
-                    floatingButton.onDragStateChanged(true)
+                    floatingButton.setDragging(true)
                 }
 
                 if (isDragging) {
@@ -62,7 +62,7 @@ class FloatingBallTouchListener(
 
             MotionEvent.ACTION_UP -> {
                 if (isDragging) {
-                    floatingButton.onDragStateChanged(false)
+                    floatingButton.setDragging(false)
                     floatingButton.snapToEdge(view)
                 } else {
                     floatingButton.handleBallClick()

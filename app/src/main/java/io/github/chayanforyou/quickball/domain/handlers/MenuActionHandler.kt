@@ -5,10 +5,27 @@ interface MenuActionHandler {
 }
 
 enum class MenuAction {
+    // Navigation
+    HOME,
+    BACK,
+    RECENT,
+
+    // Volume / Sound
     VOLUME_UP,
     VOLUME_DOWN,
+    SILENT_TOGGLE,
+
+    // Display
     BRIGHTNESS_UP,
     BRIGHTNESS_DOWN,
-    LOCK_SCREEN,
-    TAKE_SCREENSHOT
+    TORCH_TOGGLE,
+
+    // Connectivity
+    WIFI_TOGGLE,
+    BLUETOOTH_TOGGLE,
+    MOBILE_DATA_TOGGLE,
+
+    // Utilities
+    SCREENSHOT,
+    LOCK_SCREEN
 }

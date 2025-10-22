@@ -10,7 +10,6 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.os.SystemClock
 import android.view.accessibility.AccessibilityEvent
 import io.github.chayanforyou.quickball.domain.PreferenceManager
 import io.github.chayanforyou.quickball.domain.handlers.QuickBallActionHandler
@@ -25,20 +24,22 @@ class QuickBallAccessibilityService : AccessibilityService() {
 
     private var floatingBall: FloatingActionButton? = null
     private var isDragging = false
-    private var lastEventTimeStamp = 0L
+    private var lastPackageName: String? = null
+    private val ignoredPackages = setOf("com.android.systemui", "android")
 
-    private val debounceDelay = 100L
-    private val stashDelay = 2500L
-
-    private val stashHandler by lazy { Handler(Looper.getMainLooper()) }
+    private val stashHandler = Handler(Looper.getMainLooper())
     private val stashRunnable = Runnable { stashBall() }
+    private val stashDelay = 2500L
 
     private val keyguardManager: KeyguardManager by lazy {
         getSystemService(KEYGUARD_SERVICE) as KeyguardManager
     }
-    
-    private inline val isKeyguardLocked: Boolean
+
+    private val isKeyguardLocked: Boolean
         get() = keyguardManager.isKeyguardLocked
+
+    private val selectedApps: Set<String>
+        get() = PreferenceManager.getSelectedApps(this)
 
     private val screenReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -57,26 +58,26 @@ class QuickBallAccessibilityService : AccessibilityService() {
         registerScreenReceiver()
 
         if (PreferenceManager.isQuickBallEnabled(this) && !isKeyguardLocked) {
-            showFloatingBall()
+            showBall()
         }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
-            ACTION_ENABLE_QUICK_BALL -> showFloatingBall()
-            ACTION_DISABLE_QUICK_BALL -> hideFloatingBall()
+            ACTION_ENABLE_QUICK_BALL -> showBall()
+            ACTION_DISABLE_QUICK_BALL -> hideBall()
         }
         return super.onStartCommand(intent, flags, startId)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        applyCurrentOrientationPositioning()
+        adjustPosition()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        hideFloatingBall()
+        hideBall()
         unregisterReceiverSafe(screenReceiver)
         stashHandler.removeCallbacksAndMessages(null)
     }
@@ -94,13 +95,13 @@ class QuickBallAccessibilityService : AccessibilityService() {
         }
     }
 
-    private fun showFloatingBall() {
+    private fun showBall() {
         floatingBall?.show()
         stashBall(false)
         resetStashTimer()
     }
 
-    private fun hideFloatingBall() {
+    private fun hideBall() {
         cancelStashTimer()
         floatingBall?.hide()
     }
@@ -137,47 +138,31 @@ class QuickBallAccessibilityService : AccessibilityService() {
         if (!isMenuOpen) resetStashTimer()
     }
 
-    private inline fun withDebounce(action: () -> Unit) {
-        val currentTime = SystemClock.uptimeMillis()
-        if (currentTime - lastEventTimeStamp > debounceDelay) {
-            action()
-            lastEventTimeStamp = currentTime
-        }
-    }
-
-    private fun handleMonitoredAppEvent() = withDebounce {
-        if (floatingBall?.isVisible() == true) hideFloatingBall()
-    }
-
-    private fun handleNonMonitoredAppEvent() = withDebounce {
-        if (PreferenceManager.isQuickBallEnabled(this) && !isKeyguardLocked) {
-            if (floatingBall?.isVisible() != true) showFloatingBall()
-        }
-    }
-
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event?.source == null) return
-        val root = rootInActiveWindow ?: return
-        val pkg = root.packageName?.toString() ?: return
+        val pkg = getCurrentAppPackage() ?: return
 
-        val selectedApps = PreferenceManager.getSelectedApps(this)
-        if (pkg in selectedApps) handleMonitoredAppEvent() else handleNonMonitoredAppEvent()
+        if (isKeyguardLocked || pkg in ignoredPackages || pkg == lastPackageName) return
+
+        lastPackageName = pkg
+        if (pkg in selectedApps) handleMonitoredAppEvent()
+        else handleNonMonitoredAppEvent()
     }
 
     override fun onInterrupt() {}
 
     private fun registerScreenReceiver() {
-        val filter = IntentFilter().apply {
+        IntentFilter().apply {
             addAction(Intent.ACTION_SCREEN_OFF)
             addAction(Intent.ACTION_SCREEN_ON)
             addAction(Intent.ACTION_USER_PRESENT)
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(screenReceiver, filter, RECEIVER_NOT_EXPORTED)
-        } else {
-            @Suppress("DEPRECATION")
-            registerReceiver(screenReceiver, filter)
+        }.also {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                registerReceiver(screenReceiver, it, RECEIVER_EXPORTED)
+            } else {
+                @Suppress("UnspecifiedRegisterReceiverFlag")
+                registerReceiver(screenReceiver, it)
+            }
         }
     }
 
@@ -185,20 +170,40 @@ class QuickBallAccessibilityService : AccessibilityService() {
         runCatching { unregisterReceiver(receiver) }
     }
 
+    private fun handleMonitoredAppEvent() {
+        floatingBall?.takeIf { it.isVisible() }?.let { hideBall() }
+    }
+
+    private fun handleNonMonitoredAppEvent() {
+        if (!PreferenceManager.isQuickBallEnabled(this)) return
+        showBall()
+    }
+
     private fun handleScreenLocked() {
-        if (floatingBall?.isVisible() == true) {
-            hideFloatingBall()
-        }
+        floatingBall?.takeIf { it.isVisible() }?.let { hideBall() }
     }
 
     private fun handleScreenUnlocked() {
-        if (PreferenceManager.isQuickBallEnabled(this)) {
-            showFloatingBall()
-            applyCurrentOrientationPositioning()
+        if (!PreferenceManager.isQuickBallEnabled(this)) return
+
+        getCurrentAppPackage()?.let { pkg ->
+            if (pkg in selectedApps) return
+        }
+
+        showBall()
+        adjustPosition()
+    }
+
+    private fun getCurrentAppPackage(): String? {
+        return try {
+            val root = rootInActiveWindow
+            root?.packageName?.toString()
+        } catch (_: Exception) {
+            null
         }
     }
 
-    private fun applyCurrentOrientationPositioning() {
+    private fun adjustPosition() {
         val ball = floatingBall ?: return
         if (!ball.isVisible() || isDragging) return
 
