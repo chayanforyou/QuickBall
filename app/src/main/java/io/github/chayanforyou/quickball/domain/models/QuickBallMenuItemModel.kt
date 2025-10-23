@@ -4,7 +4,7 @@ import androidx.annotation.DrawableRes
 import io.github.chayanforyou.quickball.R
 import io.github.chayanforyou.quickball.domain.handlers.MenuAction
 
-data class MenuItemModel(
+data class QuickBallMenuItemModel(
     val action: MenuAction,
     @DrawableRes val iconRes: Int,
     val title: String,
@@ -12,94 +12,94 @@ data class MenuItemModel(
 ) {
     companion object {
 
-        fun getAllMenuItems(): List<MenuItemModel> = listOf(
+        fun getAllMenuItems(): List<QuickBallMenuItemModel> = listOf(
             // Navigation
-            MenuItemModel(
+            QuickBallMenuItemModel(
                 action = MenuAction.HOME,
                 iconRes = R.drawable.ic_home,
                 title = "Home",
             ),
-            MenuItemModel(
+            QuickBallMenuItemModel(
                 action = MenuAction.BACK,
                 iconRes = R.drawable.ic_back,
                 title = "Back",
             ),
-            MenuItemModel(
+            QuickBallMenuItemModel(
                 action = MenuAction.RECENT,
                 iconRes = R.drawable.ic_recent,
                 title = "Recent Apps",
             ),
 
             // Display
-            MenuItemModel(
+            QuickBallMenuItemModel(
                 action = MenuAction.BRIGHTNESS_UP,
                 iconRes = R.drawable.ic_brightness_up,
                 title = "Brightness Up",
             ),
-            MenuItemModel(
+            QuickBallMenuItemModel(
                 action = MenuAction.BRIGHTNESS_DOWN,
                 iconRes = R.drawable.ic_brightness_down,
                 title = "Brightness Down",
             ),
-            MenuItemModel(
+            QuickBallMenuItemModel(
                 action = MenuAction.TORCH_TOGGLE,
                 iconRes = R.drawable.ic_torch,
                 title = "Torch",
             ),
 
             // Volume & Sound
-            MenuItemModel(
+            QuickBallMenuItemModel(
                 action = MenuAction.VOLUME_UP,
                 iconRes = R.drawable.ic_volume_up,
                 title = "Volume Up",
             ),
-            MenuItemModel(
+            QuickBallMenuItemModel(
                 action = MenuAction.VOLUME_DOWN,
                 iconRes = R.drawable.ic_volume_down,
                 title = "Volume Down",
             ),
-            MenuItemModel(
+            QuickBallMenuItemModel(
                 action = MenuAction.SILENT_TOGGLE,
                 iconRes = R.drawable.ic_silent,
                 title = "Silent",
             ),
-            MenuItemModel(
+            QuickBallMenuItemModel(
                 action = MenuAction.VIBRATE_TOGGLE,
                 iconRes = R.drawable.ic_vibrate,
                 title = "Vibration",
             ),
 
             // Connectivity
-            MenuItemModel(
+            QuickBallMenuItemModel(
                 action = MenuAction.WIFI_TOGGLE,
                 iconRes = R.drawable.ic_wifi,
                 title = "Wi-Fi",
             ),
-            MenuItemModel(
+            QuickBallMenuItemModel(
                 action = MenuAction.BLUETOOTH_TOGGLE,
                 iconRes = R.drawable.ic_bluetooth,
                 title = "Bluetooth",
             ),
-            MenuItemModel(
+            QuickBallMenuItemModel(
                 action = MenuAction.MOBILE_DATA_TOGGLE,
                 iconRes = R.drawable.ic_mobile_data,
                 title = "Mobile Data",
             ),
 
             // Utilities
-            MenuItemModel(
+            QuickBallMenuItemModel(
                 action = MenuAction.SCREENSHOT,
                 iconRes = R.drawable.ic_screenshot,
                 title = "Screenshot",
             ),
-            MenuItemModel(
+            QuickBallMenuItemModel(
                 action = MenuAction.LOCK_SCREEN,
                 iconRes = R.drawable.ic_lock,
                 title = "Lock Screen",
             )
         )
         
-        fun getMenuItemByAction(action: MenuAction): MenuItemModel? {
+        fun getMenuItemByAction(action: MenuAction): QuickBallMenuItemModel? {
             return getAllMenuItems().find { it.action == action }
         }
     }

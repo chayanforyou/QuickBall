@@ -6,7 +6,7 @@ import androidx.core.content.edit
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import io.github.chayanforyou.quickball.domain.handlers.MenuAction
-import io.github.chayanforyou.quickball.domain.models.MenuItemModel
+import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
 
 object PreferenceManager {
     private const val PREFS_NAME = "quick_ball_prefs"
@@ -21,16 +21,16 @@ object PreferenceManager {
     }
 
     fun isQuickBallEnabled(context: Context): Boolean {
-        val prefs = getPreferences(context)
-        return prefs.getBoolean(KEY_QUICK_BALL_ENABLED, false)
+        return getPreferences(context).getBoolean(KEY_QUICK_BALL_ENABLED, false)
     }
 
     fun setQuickBallEnabled(context: Context, enabled: Boolean) {
-        val prefs = getPreferences(context)
-        prefs.edit { putBoolean(KEY_QUICK_BALL_ENABLED, enabled) }
+        getPreferences(context).edit { 
+            putBoolean(KEY_QUICK_BALL_ENABLED, enabled) 
+        }
     }
     
-    fun getSelectedMenuItems(context: Context): List<MenuItemModel> {
+    fun getSelectedMenuItems(context: Context): List<QuickBallMenuItemModel> {
         val prefs = getPreferences(context)
         val json = prefs.getString(KEY_SELECTED_MENU_ITEMS, null)
         
@@ -38,21 +38,27 @@ object PreferenceManager {
             getDefaultSelectedItems()
         } else {
             try {
-                val type = object : TypeToken<List<MenuItemModel>>() {}.type
-                gson.fromJson<List<MenuItemModel>>(json, type) ?: getDefaultSelectedItems()
-            } catch (_: Exception) {
+                val type = object : TypeToken<List<QuickBallMenuItemModel>>() {}.type
+                gson.fromJson<List<QuickBallMenuItemModel>>(json, type) ?: getDefaultSelectedItems()
+            } catch (e: Exception) {
+                android.util.Log.w("PreferenceManager", "Failed to deserialize menu items", e)
                 getDefaultSelectedItems()
             }
         }
     }
     
-    fun updateMenuItemOrder(context: Context, reorderedItems: List<MenuItemModel>) {
-        val prefs = getPreferences(context)
-        val json = gson.toJson(reorderedItems)
-        prefs.edit { putString(KEY_SELECTED_MENU_ITEMS, json) }
+    fun updateMenuItemOrder(context: Context, reorderedItems: List<QuickBallMenuItemModel>) {
+        try {
+            val json = gson.toJson(reorderedItems)
+            getPreferences(context).edit { 
+                putString(KEY_SELECTED_MENU_ITEMS, json) 
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("PreferenceManager", "Failed to save menu items", e)
+        }
     }
     
-    private fun getDefaultSelectedItems(): List<MenuItemModel> {
+    private fun getDefaultSelectedItems(): List<QuickBallMenuItemModel> {
         val defaultActions = listOf(
             MenuAction.VOLUME_UP,
             MenuAction.VOLUME_DOWN,
@@ -62,58 +68,29 @@ object PreferenceManager {
         )
         
         return defaultActions.mapNotNull { action ->
-            MenuItemModel.getMenuItemByAction(action)
+            QuickBallMenuItemModel.getMenuItemByAction(action)
         }
     }
     
-    // ==================== APP SELECTION PREFERENCES ====================
-    
-    /**
-     * Save a set of selected app package names
-     */
     fun saveSelectedApps(context: Context, selectedApps: Set<String>) {
-        val prefs = getPreferences(context)
-        prefs.edit { putStringSet(KEY_SELECTED_APPS, selectedApps) }
+        getPreferences(context).edit { 
+            putStringSet(KEY_SELECTED_APPS, selectedApps) 
+        }
     }
     
-    /**
-     * Get the set of selected app package names
-     */
     fun getSelectedApps(context: Context): Set<String> {
-        val prefs = getPreferences(context)
-        return prefs.getStringSet(KEY_SELECTED_APPS, emptySet()) ?: emptySet()
+        return getPreferences(context).getStringSet(KEY_SELECTED_APPS, emptySet()) ?: emptySet()
     }
     
-    /**
-     * Add a single app to selected apps
-     */
     fun addSelectedApp(context: Context, packageName: String) {
         val currentSelected = getSelectedApps(context).toMutableSet()
         currentSelected.add(packageName)
         saveSelectedApps(context, currentSelected)
     }
     
-    /**
-     * Remove a single app from selected apps
-     */
     fun removeSelectedApp(context: Context, packageName: String) {
         val currentSelected = getSelectedApps(context).toMutableSet()
         currentSelected.remove(packageName)
         saveSelectedApps(context, currentSelected)
-    }
-    
-    /**
-     * Check if an app is selected
-     */
-    fun isAppSelected(context: Context, packageName: String): Boolean {
-        return getSelectedApps(context).contains(packageName)
-    }
-    
-    /**
-     * Clear all selected apps
-     */
-    fun clearAllSelectedApps(context: Context) {
-        val prefs = getPreferences(context)
-        prefs.edit { remove(KEY_SELECTED_APPS) }
     }
 }

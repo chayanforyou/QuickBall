@@ -23,14 +23,14 @@ import androidx.core.content.ContextCompat
 import io.github.chayanforyou.quickball.R
 import io.github.chayanforyou.quickball.domain.PreferenceManager
 import io.github.chayanforyou.quickball.domain.handlers.MenuAction
-import io.github.chayanforyou.quickball.domain.handlers.MenuActionHandler
-import io.github.chayanforyou.quickball.ui.floating.FloatingActionMenu.MenuItemClickListener
+import io.github.chayanforyou.quickball.domain.handlers.QuickBallMenuActionHandler
+import io.github.chayanforyou.quickball.ui.floating.QuickBallFloatingMenu.MenuItemClickListener
 import io.github.chayanforyou.quickball.helpers.AnimationHelper
 import io.github.chayanforyou.quickball.utils.WidgetUtil.dp2px
 
-class FloatingActionButton(
+class QuickBallFloatingButton(
     private val context: Context,
-    private val menuActionHandler: MenuActionHandler? = null
+    private val menuActionHandler: QuickBallMenuActionHandler? = null
 ) {
 
     companion object {
@@ -41,7 +41,7 @@ class FloatingActionButton(
     private val windowManager: WindowManager by lazy { context.getSystemService(Context.WINDOW_SERVICE) as WindowManager }
     private var floatingBall: View? = null
     private var menuOverlay: View? = null
-    private var floatingMenu: FloatingActionMenu? = null
+    private var floatingMenu: QuickBallFloatingMenu? = null
 
     // Ball properties
     private val ballSize by lazy { dp2px(44f) }
@@ -66,16 +66,16 @@ class FloatingActionButton(
     private var onDragStateChangedListener: ((Boolean) -> Unit)? = null
     private var onMenuStateChangedListener: ((Boolean) -> Unit)? = null
 
-    private fun getFloatingMenuItems(): List<FloatingActionMenu.Item> {
+    private fun getFloatingMenuItems(): List<QuickBallFloatingMenu.Item> {
         val selectedMenuItems = PreferenceManager.getSelectedMenuItems(context)
         
         return selectedMenuItems.map { menuItem ->
-            FloatingActionMenu.create(context, menuItem.iconRes, menuItem.action)
+            QuickBallFloatingMenu.create(context, menuItem.iconRes, menuItem.action)
         }
     }
 
     private val floatingBallTouchListener by lazy {
-        FloatingBallTouchListener(
+        QuickBallTouchListener(
             displayMetrics = displayMetrics,
             windowManager = windowManager,
             ballSize = ballSize,
@@ -408,31 +408,29 @@ class FloatingActionButton(
         }
     }
 
-    private fun updateMenuIcon(animDuration: Long = 100L) {
-        floatingBall?.let { ball ->
-            if (ball is FrameLayout) {
-                val imageView = ball.getChildAt(0) as? ImageView
-                imageView?.let { image ->
-                    val iconRes = if (isMenuOpen()) {
-                        R.drawable.ic_menu_close
-                    } else {
-                        R.drawable.ic_menu_open
-                    }
+    private fun updateMenuIcon(animDuration: Long = 120L) {
+        val imageView = (floatingBall as? FrameLayout)?.getChildAt(0) as? ImageView ?: return
+        val newIcon = if (isMenuOpen()) R.drawable.ic_menu_close else R.drawable.ic_menu_open
+        animateIconChange(imageView, newIcon, animDuration)
+    }
 
-                    // Rotating animation (counter-clockwise)
-                    ObjectAnimator.ofFloat(image, View.ROTATION, 0f, -90f).apply {
-                        duration = animDuration
-                        interpolator = DecelerateInterpolator()
-                        doOnEnd {
-                            image.setImageResource(iconRes)
-                            ObjectAnimator.ofFloat(image, View.ROTATION, -90f, 0f).apply {
-                                duration = animDuration
-                            }.start()
-                        }
-                    }.start()
-                }
+    private fun animateIconChange(
+        imageView: ImageView,
+        newIconRes: Int,
+        duration: Long,
+        reverseAngle: Float = -90f
+    ) {
+        ObjectAnimator.ofFloat(imageView, View.ROTATION, 0f, reverseAngle).apply {
+            this.duration = duration
+            interpolator = DecelerateInterpolator()
+            doOnEnd {
+                imageView.setImageResource(newIconRes)
+                ObjectAnimator.ofFloat(imageView, View.ROTATION, reverseAngle, 0f).apply {
+                    this.duration = duration
+                    interpolator = DecelerateInterpolator()
+                }.start()
             }
-        }
+        }.start()
     }
 
     private fun isBallOnLeftSide(): Boolean {
@@ -474,19 +472,19 @@ class FloatingActionButton(
         val endAngle = getMenuEndAngle()
         val menuItems = if (isBallOnLeftSide) getFloatingMenuItems() else getFloatingMenuItems().reversed()
         
-        floatingMenu = FloatingActionMenu.attached(
+        floatingMenu = QuickBallFloatingMenu.attached(
             actionView = floatingBall!!,
             startAngle = startAngle,
             endAngle = endAngle,
             menuItems = menuItems,
             animationHelper = AnimationHelper(),
-            stateChangeListener = object : FloatingActionMenu.MenuStateChangeListener {
-                override fun onMenuOpened(menu: FloatingActionMenu) {
+            stateChangeListener = object : QuickBallFloatingMenu.MenuStateChangeListener {
+                override fun onMenuOpened(menu: QuickBallFloatingMenu) {
                     floatingBall?.post { updateMenuIcon() }
                     onMenuStateChangedListener?.invoke(true)
                 }
 
-                override fun onMenuClosed(menu: FloatingActionMenu) {
+                override fun onMenuClosed(menu: QuickBallFloatingMenu) {
                     hideMenuOverlay()
                     floatingBall?.post { updateMenuIcon() }
                     onMenuStateChangedListener?.invoke(false)
@@ -527,7 +525,14 @@ class FloatingActionButton(
         onMenuStateChangedListener = listener
     }
 
-    private fun animateToPosition(fromX: Int, fromY: Int, toX: Int, toY: Int, animDuration: Long = 200, onComplete: () -> Unit) {
+    private fun animateToPosition(
+        fromX: Int,
+        fromY: Int,
+        toX: Int,
+        toY: Int,
+        animDuration: Long = 200,
+        onComplete: () -> Unit
+    ) {
         val layoutParams = floatingBall!!.layoutParams as WindowManager.LayoutParams
 
         ValueAnimator.ofFloat(0f, 1f).apply {

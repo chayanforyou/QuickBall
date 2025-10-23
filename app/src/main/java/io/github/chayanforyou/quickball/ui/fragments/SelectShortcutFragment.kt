@@ -10,8 +10,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.github.chayanforyou.quickball.databinding.FragmentSelectShortcutBinding
 import io.github.chayanforyou.quickball.domain.PreferenceManager
-import io.github.chayanforyou.quickball.domain.models.MenuItemModel
-import io.github.chayanforyou.quickball.ui.adapters.SelectShortcutAdapter
+import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
+import io.github.chayanforyou.quickball.ui.adapters.ShortcutSelectionAdapter
 import io.github.chayanforyou.quickball.ui.viewmodels.MenuSelectionViewModel
 
 class SelectShortcutFragment : Fragment() {
@@ -19,7 +19,7 @@ class SelectShortcutFragment : Fragment() {
     private var _binding: FragmentSelectShortcutBinding? = null
     private val binding get() = _binding!!
     
-    private lateinit var allItemAdapter: SelectShortcutAdapter
+    private lateinit var allItemAdapter: ShortcutSelectionAdapter
 
     private val viewModel: MenuSelectionViewModel by activityViewModels()
 
@@ -37,7 +37,7 @@ class SelectShortcutFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        val allMenuItems = MenuItemModel.getAllMenuItems()
+        val allMenuItems = QuickBallMenuItemModel.getAllMenuItems()
         val selectedActions = PreferenceManager.getSelectedMenuItems(requireContext())
             .mapTo(HashSet()) { it.action }
 
@@ -45,7 +45,7 @@ class SelectShortcutFragment : Fragment() {
             menuItem.copy(isSelected = menuItem.action in selectedActions)
         }
         
-        allItemAdapter = SelectShortcutAdapter(
+        allItemAdapter = ShortcutSelectionAdapter(
             menuItems = menuItems,
             onItemClick = { selectedMenuItem ->
                 handleMenuItemSelection(selectedMenuItem)
@@ -58,7 +58,7 @@ class SelectShortcutFragment : Fragment() {
         }
     }
 
-    private fun handleMenuItemSelection(selectedMenuItem: MenuItemModel) {
+    private fun handleMenuItemSelection(selectedMenuItem: QuickBallMenuItemModel) {
         viewModel.setSelectedMenuItem(selectedMenuItem)
         findNavController().navigateUp()
     }

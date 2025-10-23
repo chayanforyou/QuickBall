@@ -7,13 +7,13 @@ import android.view.View
 import android.view.WindowManager
 import kotlin.math.abs
 
-class FloatingBallTouchListener(
+class QuickBallTouchListener(
     private val displayMetrics: DisplayMetrics,
     private val windowManager: WindowManager,
     private val ballSize: Int,
     private val topBoundary: Int,
     private val bottomBoundary: Int,
-    private val floatingButton: FloatingActionButton
+    private val floatingButton: QuickBallFloatingButton
 ) : View.OnTouchListener {
 
     private var initialX = 0

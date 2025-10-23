@@ -20,7 +20,7 @@ import android.widget.Toast
 class QuickBallActionHandler(
     private val accessibilityService: AccessibilityService,
     private val onCloseMenu: (() -> Unit)? = null
-) : MenuActionHandler {
+) : QuickBallMenuActionHandler {
 
     companion object {
         private const val TAG = "QuickBallActionHandler"

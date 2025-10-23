@@ -3,17 +3,17 @@ package io.github.chayanforyou.quickball.ui.adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import io.github.chayanforyou.quickball.databinding.ItemSelectShortcutBinding
-import io.github.chayanforyou.quickball.domain.models.MenuItemModel
+import io.github.chayanforyou.quickball.databinding.ItemShortcutSelectionBinding
+import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
 
-class SelectShortcutAdapter(
-    private var menuItems: List<MenuItemModel>,
-    private val onItemClick: (MenuItemModel) -> Unit
-) : RecyclerView.Adapter<SelectShortcutAdapter.ViewHolder>() {
+class ShortcutSelectionAdapter(
+    private var menuItems: List<QuickBallMenuItemModel>,
+    private val onItemClick: (QuickBallMenuItemModel) -> Unit
+) : RecyclerView.Adapter<ShortcutSelectionAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val binding = ItemSelectShortcutBinding.inflate(inflater, parent, false)
+        val binding = ItemShortcutSelectionBinding.inflate(inflater, parent, false)
         return ViewHolder(binding)
     }
 
@@ -23,12 +23,11 @@ class SelectShortcutAdapter(
 
     override fun getItemCount(): Int = menuItems.size
 
-    inner class ViewHolder(private val binding: ItemSelectShortcutBinding) :
+    inner class ViewHolder(private val binding: ItemShortcutSelectionBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: MenuItemModel) = with(binding) {
+        fun bind(item: QuickBallMenuItemModel) = with(binding) {
             tvMenuTitle.text = item.title
-
             root.isEnabled = !item.isSelected
             root.alpha = if (item.isSelected) 0.5f else 1f
 

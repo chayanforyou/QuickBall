@@ -9,19 +9,19 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
-import io.github.chayanforyou.quickball.databinding.FragmentShortcutBinding
+import io.github.chayanforyou.quickball.databinding.FragmentShortcutSelectionBinding
 import io.github.chayanforyou.quickball.domain.PreferenceManager
-import io.github.chayanforyou.quickball.domain.models.MenuItemModel
-import io.github.chayanforyou.quickball.ui.adapters.MenuItemAdapter
+import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
+import io.github.chayanforyou.quickball.ui.adapters.QuickBallMenuItemAdapter
 import io.github.chayanforyou.quickball.helpers.MenuItemTouchHelper
 import io.github.chayanforyou.quickball.ui.viewmodels.MenuSelectionViewModel
 
-class ShortcutFragment : Fragment() {
+class ShortcutSelectionFragment : Fragment() {
 
-    private var _binding: FragmentShortcutBinding? = null
+    private var _binding: FragmentShortcutSelectionBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var menuItemAdapter: MenuItemAdapter
+    private lateinit var menuItemAdapter: QuickBallMenuItemAdapter
     private lateinit var itemTouchHelper: ItemTouchHelper
 
     private val viewModel: MenuSelectionViewModel by activityViewModels()
@@ -30,7 +30,7 @@ class ShortcutFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentShortcutBinding.inflate(inflater, container, false)
+        _binding = FragmentShortcutSelectionBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -52,7 +52,7 @@ class ShortcutFragment : Fragment() {
     private fun setupRecyclerView() {
         val menuItems = PreferenceManager.getSelectedMenuItems(requireContext())
 
-        menuItemAdapter = MenuItemAdapter(
+        menuItemAdapter = QuickBallMenuItemAdapter(
             menuItems = menuItems,
             onStartDrag = { viewHolder ->
                 itemTouchHelper.startDrag(viewHolder)
@@ -84,11 +84,11 @@ class ShortcutFragment : Fragment() {
     }
 
     private fun navigateToSelectShortcut() {
-        val action = ShortcutFragmentDirections.actionShortcutFragmentToSelectShortcutFragment()
+        val action = ShortcutSelectionFragmentDirections.actionShortcutSelectionFragmentToSelectShortcutFragment()
         findNavController().navigate(action)
     }
     
-    private fun updateMenuItem(newMenuItem: MenuItemModel) {
+    private fun updateMenuItem(newMenuItem: QuickBallMenuItemModel) {
         val currentPosition = viewModel.selectedPosition.value ?: return
         val currentItems = menuItemAdapter.getCurrentItems()
 

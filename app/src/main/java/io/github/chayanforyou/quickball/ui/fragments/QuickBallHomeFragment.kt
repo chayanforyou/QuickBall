@@ -18,14 +18,14 @@ import androidx.core.net.toUri
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import io.github.chayanforyou.quickball.core.QuickBallAccessibilityService
-import io.github.chayanforyou.quickball.databinding.FragmentHomeBinding
+import io.github.chayanforyou.quickball.core.QuickBallService
+import io.github.chayanforyou.quickball.databinding.FragmentQuickballHomeBinding
 import io.github.chayanforyou.quickball.domain.PreferenceManager
 import io.github.chayanforyou.quickball.utils.DialogUtil
 
-class HomeFragment : Fragment() {
+class QuickBallHomeFragment : Fragment() {
 
-    private var _binding: FragmentHomeBinding? = null
+    private var _binding: FragmentQuickballHomeBinding? = null
     private val binding get() = _binding!!
     private val handler = Handler(Looper.getMainLooper())
     private var currentPermission: PermissionType? = null
@@ -60,7 +60,7 @@ class HomeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        _binding = FragmentQuickballHomeBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -93,12 +93,12 @@ class HomeFragment : Fragment() {
         }
 
         binding.layoutShortcutsSelection.setOnClickListener {
-            val action = HomeFragmentDirections.actionHomeFragmentToShortcutFragment()
+            val action = QuickBallHomeFragmentDirections.actionQuickBallHomeFragmentToShortcutSelectionFragment()
             findNavController().navigate(action)
         }
 
         binding.layoutAutoHideSettings.setOnClickListener {
-            val action = HomeFragmentDirections.actionHomeFragmentToHideAutomaticallyFragment()
+            val action = QuickBallHomeFragmentDirections.actionQuickBallHomeFragmentToAutoHideSettingsFragment()
             findNavController().navigate(action)
         }
     }
@@ -107,16 +107,16 @@ class HomeFragment : Fragment() {
     private fun enableQuickBall() {
         requireContext().let { context ->
             PreferenceManager.setQuickBallEnabled(context, true)
-            context.startService(Intent(context, QuickBallAccessibilityService::class.java)
-                .setAction(QuickBallAccessibilityService.ACTION_ENABLE_QUICK_BALL))
+            context.startService(Intent(context, QuickBallService::class.java)
+                .setAction(QuickBallService.ACTION_ENABLE_QUICK_BALL))
         }
     }
 
     private fun disableQuickBall() {
         requireContext().let { context ->
             PreferenceManager.setQuickBallEnabled(context, false)
-            context.startService(Intent(context, QuickBallAccessibilityService::class.java)
-                .setAction(QuickBallAccessibilityService.ACTION_DISABLE_QUICK_BALL))
+            context.startService(Intent(context, QuickBallService::class.java)
+                .setAction(QuickBallService.ACTION_DISABLE_QUICK_BALL))
         }
     }
 
@@ -174,7 +174,7 @@ class HomeFragment : Fragment() {
     private fun openAccessibilitySettings() {
         try {
             val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
-                val key = ComponentName(requireContext().packageName, QuickBallAccessibilityService::class.java.name).flattenToString()
+                val key = ComponentName(requireContext().packageName, QuickBallService::class.java.name).flattenToString()
                 putExtra(":settings:fragment_args_key", key)
                 putExtra(":settings:show_fragment_args", bundleOf(":settings:fragment_args_key" to key))
             }

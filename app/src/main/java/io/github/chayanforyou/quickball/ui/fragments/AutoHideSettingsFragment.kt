@@ -8,26 +8,26 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import io.github.chayanforyou.quickball.databinding.FragmentHideAutomaticallyBinding
-import io.github.chayanforyou.quickball.domain.models.AppModel
-import io.github.chayanforyou.quickball.ui.adapters.AppListAdapter
+import io.github.chayanforyou.quickball.databinding.FragmentAutoHideSettingsBinding
+import io.github.chayanforyou.quickball.domain.models.InstalledAppModel
+import io.github.chayanforyou.quickball.ui.adapters.InstalledAppListAdapter
 import io.github.chayanforyou.quickball.domain.PreferenceManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class HideAutomaticallyFragment : Fragment() {
+class AutoHideSettingsFragment : Fragment() {
 
-    private var _binding: FragmentHideAutomaticallyBinding? = null
+    private var _binding: FragmentAutoHideSettingsBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var appListAdapter: AppListAdapter
+    private lateinit var appListAdapter: InstalledAppListAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentHideAutomaticallyBinding.inflate(inflater, container, false)
+        _binding = FragmentAutoHideSettingsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -62,8 +62,8 @@ class HideAutomaticallyFragment : Fragment() {
         }
     }
 
-    private fun setupRecyclerView(apps: List<AppModel>) {
-        appListAdapter = AppListAdapter(
+    private fun setupRecyclerView(apps: List<InstalledAppModel>) {
+        appListAdapter = InstalledAppListAdapter(
             apps = apps,
             onToggleChanged = { app, isSelected ->
                 updateAppSelectionState(app, isSelected)
@@ -76,7 +76,7 @@ class HideAutomaticallyFragment : Fragment() {
         }
     }
 
-    private fun loadInstalledApps(): List<AppModel> {
+    private fun loadInstalledApps(): List<InstalledAppModel> {
         val packageManager = requireContext().packageManager
         val currentPackage = requireContext().packageName
         val installedApps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
@@ -91,17 +91,17 @@ class HideAutomaticallyFragment : Fragment() {
                 val appName = packageManager.getApplicationLabel(appInfo).toString()
                 if (appName.isBlank() || appName.equals(appInfo.packageName, ignoreCase = true)) return@mapNotNull null
                 val icon = packageManager.getApplicationIcon(appInfo)
-                AppModel(
+                InstalledAppModel(
                     appName = appName,
                     packageName = appInfo.packageName,
                     icon = icon,
                     isSelected = selectedApps.contains(appInfo.packageName)
                 )
             }
-            .sortedWith(compareByDescending<AppModel> { it.isSelected }.thenBy { it.appName.lowercase() })
+            .sortedWith(compareByDescending<InstalledAppModel> { it.isSelected }.thenBy { it.appName.lowercase() })
     }
 
-    private fun updateAppSelectionState(app: AppModel, isSelected: Boolean) {
+    private fun updateAppSelectionState(app: InstalledAppModel, isSelected: Boolean) {
         if (isSelected) {
             PreferenceManager.addSelectedApp(requireContext(), app.packageName)
         } else {

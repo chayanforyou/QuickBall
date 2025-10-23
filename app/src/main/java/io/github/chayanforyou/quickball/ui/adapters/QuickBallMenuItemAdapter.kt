@@ -5,19 +5,19 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import io.github.chayanforyou.quickball.databinding.ItemMenuShortcutBinding
-import io.github.chayanforyou.quickball.domain.models.MenuItemModel
+import io.github.chayanforyou.quickball.databinding.ItemQuickballMenuShortcutBinding
+import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
 import java.util.Collections
 
-class MenuItemAdapter(
-    private var menuItems: List<MenuItemModel>,
+class QuickBallMenuItemAdapter(
+    private var menuItems: List<QuickBallMenuItemModel>,
     private val onStartDrag: (RecyclerView.ViewHolder) -> Unit,
     private val onItemClick: (Int) -> Unit,
-) : RecyclerView.Adapter<MenuItemAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<QuickBallMenuItemAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val binding = ItemMenuShortcutBinding.inflate(inflater, parent, false)
+        val binding = ItemQuickballMenuShortcutBinding.inflate(inflater, parent, false)
         return ViewHolder(binding)
     }
 
@@ -27,10 +27,10 @@ class MenuItemAdapter(
 
     override fun getItemCount(): Int = menuItems.size
 
-    fun getCurrentItems(): MutableList<MenuItemModel> = menuItems.toMutableList()
+    fun getCurrentItems(): MutableList<QuickBallMenuItemModel> = menuItems.toMutableList()
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateMenuItems(newMenuItems: List<MenuItemModel>) {
+    fun updateMenuItems(newMenuItems: List<QuickBallMenuItemModel>) {
         menuItems = newMenuItems
         notifyDataSetChanged()
     }
@@ -40,11 +40,11 @@ class MenuItemAdapter(
         notifyItemMoved(fromPosition, toPosition)
     }
 
-    inner class ViewHolder(private val binding: ItemMenuShortcutBinding) :
+    inner class ViewHolder(private val binding: ItemQuickballMenuShortcutBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         @SuppressLint("ClickableViewAccessibility")
-        fun bind(item: MenuItemModel) = with(binding) {
+        fun bind(item: QuickBallMenuItemModel) = with(binding) {
             ivMenuIcon.setImageResource(item.iconRes)
             tvMenuTitle.text = item.title
 

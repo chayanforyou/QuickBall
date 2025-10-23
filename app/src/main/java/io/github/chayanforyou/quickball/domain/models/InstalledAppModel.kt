@@ -2,7 +2,7 @@ package io.github.chayanforyou.quickball.domain.models
 
 import android.graphics.drawable.Drawable
 
-data class AppModel(
+data class InstalledAppModel(
     val packageName: String,
     val appName: String,
     val icon: Drawable,

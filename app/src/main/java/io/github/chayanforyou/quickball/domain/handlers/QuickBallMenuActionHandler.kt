@@ -1,6 +1,6 @@
 package io.github.chayanforyou.quickball.domain.handlers
 
-interface MenuActionHandler {
+interface QuickBallMenuActionHandler {
     fun onMenuAction(action: MenuAction)
 }
 

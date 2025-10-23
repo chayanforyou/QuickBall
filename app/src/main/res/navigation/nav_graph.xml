@@ -3,31 +3,31 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/HomeFragment">
+    app:startDestination="@id/QuickBallHomeFragment">
 
     <fragment
-        android:id="@+id/HomeFragment"
-        android:name="io.github.chayanforyou.quickball.ui.fragments.HomeFragment"
+        android:id="@+id/QuickBallHomeFragment"
+        android:name="io.github.chayanforyou.quickball.ui.fragments.QuickBallHomeFragment"
         android:label="@string/home_title"
-        tools:layout="@layout/fragment_home">
+        tools:layout="@layout/fragment_quickball_home">
 
         <action
-            android:id="@+id/action_HomeFragment_to_ShortcutFragment"
-            app:destination="@id/ShortcutFragment" />
+            android:id="@+id/action_QuickBallHomeFragment_to_ShortcutSelectionFragment"
+            app:destination="@id/ShortcutSelectionFragment" />
 
         <action
-            android:id="@+id/action_HomeFragment_to_HideAutomaticallyFragment"
-            app:destination="@id/HideAutomaticallyFragment" />
+            android:id="@+id/action_QuickBallHomeFragment_to_AutoHideSettingsFragment"
+            app:destination="@id/AutoHideSettingsFragment" />
     </fragment>
 
     <fragment
-        android:id="@+id/ShortcutFragment"
-        android:name="io.github.chayanforyou.quickball.ui.fragments.ShortcutFragment"
+        android:id="@+id/ShortcutSelectionFragment"
+        android:name="io.github.chayanforyou.quickball.ui.fragments.ShortcutSelectionFragment"
         android:label="@string/shortcuts_title"
-        tools:layout="@layout/fragment_shortcut">
+        tools:layout="@layout/fragment_shortcut_selection">
 
         <action
-            android:id="@+id/action_ShortcutFragment_to_SelectShortcutFragment"
+            android:id="@+id/action_ShortcutSelectionFragment_to_SelectShortcutFragment"
             app:destination="@id/SelectShortcutFragment" />
     </fragment>
 
@@ -38,8 +38,8 @@
         tools:layout="@layout/fragment_select_shortcut" />
 
     <fragment
-        android:id="@+id/HideAutomaticallyFragment"
-        android:name="io.github.chayanforyou.quickball.ui.fragments.HideAutomaticallyFragment"
+        android:id="@+id/AutoHideSettingsFragment"
+        android:name="io.github.chayanforyou.quickball.ui.fragments.AutoHideSettingsFragment"
         android:label="@string/hide_automatically_title"
-        tools:layout="@layout/fragment_hide_automatically" />
+        tools:layout="@layout/fragment_auto_hide_settings" />
 </navigation>

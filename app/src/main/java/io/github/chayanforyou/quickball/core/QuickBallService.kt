@@ -13,16 +13,16 @@ import android.os.Looper
 import android.view.accessibility.AccessibilityEvent
 import io.github.chayanforyou.quickball.domain.PreferenceManager
 import io.github.chayanforyou.quickball.domain.handlers.QuickBallActionHandler
-import io.github.chayanforyou.quickball.ui.floating.FloatingActionButton
+import io.github.chayanforyou.quickball.ui.floating.QuickBallFloatingButton
 
-class QuickBallAccessibilityService : AccessibilityService() {
+class QuickBallService : AccessibilityService() {
 
     companion object {
         const val ACTION_ENABLE_QUICK_BALL = "io.github.chayanforyou.quickball.ENABLE_QUICK_BALL"
         const val ACTION_DISABLE_QUICK_BALL = "io.github.chayanforyou.quickball.DISABLE_QUICK_BALL"
     }
 
-    private var floatingBall: FloatingActionButton? = null
+    private var floatingBall: QuickBallFloatingButton? = null
     private var isDragging = false
     private var lastPackageName: String? = null
     private val ignoredPackages = setOf("com.android.systemui", "android")
@@ -87,7 +87,7 @@ class QuickBallAccessibilityService : AccessibilityService() {
             floatingBall?.takeIf { it.isMenuOpen() }?.forceStash()
         }
 
-        floatingBall = FloatingActionButton(this, actionHandler).apply {
+        floatingBall = QuickBallFloatingButton(this, actionHandler).apply {
             initialize()
             setOnStashStateChangedListener(::onStashStateChanged)
             setOnDragStateChangedListener(::onDragStateChanged)

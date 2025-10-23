@@ -9,7 +9,7 @@ import android.graphics.Point
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.OvershootInterpolator
-import io.github.chayanforyou.quickball.ui.floating.FloatingActionMenu
+import io.github.chayanforyou.quickball.ui.floating.QuickBallFloatingMenu
 
 class AnimationHelper {
 
@@ -21,15 +21,15 @@ class AnimationHelper {
     private enum class ActionType { OPENING, CLOSING }
 
     private var animating = false
-    private var menu: FloatingActionMenu? = null
+    private var menu: QuickBallFloatingMenu? = null
 
-    fun setMenu(menu: FloatingActionMenu) {
+    fun setMenu(menu: QuickBallFloatingMenu) {
         this.menu = menu
     }
 
     fun animateMenuOpening(center: Point) {
         val currentMenu = menu
-            ?: throw NullPointerException("Can't animate without a valid FloatingActionMenu.")
+            ?: throw NullPointerException("Can't animate without a valid QuickBallFloatingMenu.")
 
         setAnimating(true)
 
@@ -93,7 +93,7 @@ class AnimationHelper {
 
     fun animateMenuClosing(center: Point) {
         val currentMenu = menu
-            ?: throw NullPointerException("Can't animate without a valid FloatingActionMenu.")
+            ?: throw NullPointerException("Can't animate without a valid QuickBallFloatingMenu.")
 
         setAnimating(true)
 
@@ -160,7 +160,7 @@ class AnimationHelper {
     private var animationCompletionListener: (() -> Unit)? = null
 
     private inner class SubActionItemAnimationListener(
-        private val subActionItem: FloatingActionMenu.Item,
+        private val subActionItem: QuickBallFloatingMenu.Item,
         private val actionType: ActionType
     ) : Animator.AnimatorListener {
 
@@ -177,7 +177,7 @@ class AnimationHelper {
         override fun onAnimationRepeat(animation: Animator) {}
 
         private fun restoreSubActionViewAfterAnimation(
-            subActionItem: FloatingActionMenu.Item,
+            subActionItem: QuickBallFloatingMenu.Item,
             actionType: ActionType
         ) {
             when (actionType) {

@@ -21,7 +21,7 @@ import io.github.chayanforyou.quickball.helpers.AnimationHelper
 import io.github.chayanforyou.quickball.utils.WidgetUtil.dp2px
 import kotlin.math.abs
 
-class FloatingActionMenu(
+class QuickBallFloatingMenu(
     private val mainActionView: View,
     private val startAngle: Int,
     private val endAngle: Int,
@@ -238,8 +238,8 @@ class FloatingActionMenu(
     }
 
     interface MenuStateChangeListener {
-        fun onMenuOpened(menu: FloatingActionMenu)
-        fun onMenuClosed(menu: FloatingActionMenu)
+        fun onMenuOpened(menu: QuickBallFloatingMenu)
+        fun onMenuClosed(menu: QuickBallFloatingMenu)
     }
     
     interface MenuItemClickListener {
@@ -247,7 +247,7 @@ class FloatingActionMenu(
     }
 
     companion object {
-        private const val TAG = "FloatingActionMenu"
+        private const val TAG = "QuickBallFloatingMenu"
 
         private val sizeInPx by lazy { dp2px(52f) }
         private val margin by lazy { dp2px(14f) }
@@ -292,7 +292,7 @@ class FloatingActionMenu(
             animationHelper: AnimationHelper? = AnimationHelper(),
             stateChangeListener: MenuStateChangeListener? = null,
             menuItemClickListener: MenuItemClickListener? = null
-        ) = FloatingActionMenu(
+        ) = QuickBallFloatingMenu(
             mainActionView = actionView,
             startAngle = startAngle,
             endAngle = endAngle,

@@ -3,12 +3,12 @@ package io.github.chayanforyou.quickball.ui.viewmodels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import io.github.chayanforyou.quickball.domain.models.MenuItemModel
+import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
 
 class MenuSelectionViewModel : ViewModel() {
     
-    private val _selectedMenuItem = MutableLiveData<MenuItemModel?>()
-    val selectedMenuItem: LiveData<MenuItemModel?> = _selectedMenuItem
+    private val _selectedMenuItem = MutableLiveData<QuickBallMenuItemModel?>()
+    val selectedMenuItem: LiveData<QuickBallMenuItemModel?> = _selectedMenuItem
     
     private val _selectedPosition = MutableLiveData<Int>()
     val selectedPosition: LiveData<Int> = _selectedPosition
@@ -17,7 +17,7 @@ class MenuSelectionViewModel : ViewModel() {
         _selectedPosition.value = position
     }
     
-    fun setSelectedMenuItem(menuItem: MenuItemModel) {
+    fun setSelectedMenuItem(menuItem: QuickBallMenuItemModel) {
         _selectedMenuItem.value = menuItem
     }
     

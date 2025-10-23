@@ -2,10 +2,10 @@ package io.github.chayanforyou.quickball.helpers
 
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import io.github.chayanforyou.quickball.ui.adapters.MenuItemAdapter
+import io.github.chayanforyou.quickball.ui.adapters.QuickBallMenuItemAdapter
 
 class MenuItemTouchHelper(
-    private val adapter: MenuItemAdapter,
+    private val adapter: QuickBallMenuItemAdapter,
     private val onItemMoved: () -> Unit
 ) : ItemTouchHelper.Callback() {
 
