@@ -14,6 +14,7 @@ enum class MenuAction {
     VOLUME_UP,
     VOLUME_DOWN,
     SILENT_TOGGLE,
+    VIBRATE_TOGGLE,
 
     // Display
     BRIGHTNESS_UP,

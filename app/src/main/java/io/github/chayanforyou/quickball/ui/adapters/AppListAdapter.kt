@@ -23,23 +23,14 @@ class AppListAdapter(
 
     override fun getItemCount(): Int = apps.size
 
-    fun updateApps(newApps: List<AppModel>) {
-        apps = newApps
-        notifyDataSetChanged()
-    }
-
     inner class AppListViewHolder(private val binding: ItemAppBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(app: AppModel) = with(binding) {
             ivAppIcon.setImageDrawable(app.icon)
             tvAppName.text = app.appName
-            
-            // Clear listener before setting checked state to avoid triggering callback
-            switchSelect.setOnCheckedChangeListener(null)
             switchSelect.isChecked = app.isSelected
-            
-            // Set listener after setting the checked state
+
             switchSelect.setOnCheckedChangeListener { _, isChecked ->
                 onToggleChanged(app, isChecked)
             }

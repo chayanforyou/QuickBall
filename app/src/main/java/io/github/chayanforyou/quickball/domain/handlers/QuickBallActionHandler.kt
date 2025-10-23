@@ -2,6 +2,7 @@ package io.github.chayanforyou.quickball.domain.handlers
 
 import android.accessibilityservice.AccessibilityService
 import android.annotation.SuppressLint
+import android.app.NotificationManager
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.content.Intent
@@ -65,6 +66,7 @@ class QuickBallActionHandler(
             MenuAction.BLUETOOTH_TOGGLE -> toggleBluetooth()
             MenuAction.MOBILE_DATA_TOGGLE -> toggleMobileData()
             MenuAction.SILENT_TOGGLE -> toggleSilentMode()
+            MenuAction.VIBRATE_TOGGLE -> toggleVibrateMode()
             MenuAction.TORCH_TOGGLE -> toggleTorch()
             MenuAction.HOME -> performHomeAction()
             MenuAction.BACK -> performBackAction()
@@ -161,9 +163,53 @@ class QuickBallActionHandler(
 
     // -------------------- Silent Mode --------------------
     private fun toggleSilentMode() {
-        val mode = audioManager.ringerMode
-        audioManager.ringerMode =
-            if (mode == AudioManager.RINGER_MODE_NORMAL) AudioManager.RINGER_MODE_SILENT else AudioManager.RINGER_MODE_NORMAL
+        val context = accessibilityService.applicationContext
+        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+            !notificationManager.isNotificationPolicyAccessGranted
+        ) {
+            val intent = Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            runDelayed { context.startActivity(intent) }
+            showToast("Grant Do Not Disturb access for Silent mode")
+            return
+        }
+
+        val newMode = when (audioManager.ringerMode) {
+            AudioManager.RINGER_MODE_NORMAL -> AudioManager.RINGER_MODE_SILENT
+            AudioManager.RINGER_MODE_SILENT -> AudioManager.RINGER_MODE_NORMAL
+            else -> AudioManager.RINGER_MODE_NORMAL
+        }
+
+        runDelayed {
+            try {
+                audioManager.ringerMode = newMode
+            } catch (e: SecurityException) {
+                Log.e(TAG, "Failed to toggle silent mode", e)
+            }
+        }
+    }
+
+    private fun toggleVibrateMode() {
+        val context = accessibilityService.applicationContext
+        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
+        val newMode = when (audioManager.ringerMode) {
+            AudioManager.RINGER_MODE_NORMAL -> AudioManager.RINGER_MODE_VIBRATE
+            AudioManager.RINGER_MODE_VIBRATE -> AudioManager.RINGER_MODE_NORMAL
+            else -> AudioManager.RINGER_MODE_NORMAL
+        }
+
+        runDelayed {
+            try {
+                audioManager.ringerMode = newMode
+            } catch (e: SecurityException) {
+                Log.e(TAG, "Failed to toggle vibrate mode", e)
+            }
+        }
     }
 
     // -------------------- Torch --------------------
@@ -191,9 +237,11 @@ class QuickBallActionHandler(
 
         when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
-                val panelIntent = Intent(Settings.Panel.ACTION_WIFI)
-                panelIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                context.startActivity(panelIntent)
+                runDelayed {
+                    context.startActivity(Intent(Settings.Panel.ACTION_WIFI).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    })
+                }
             }
             else -> {
                 runDelayed {
@@ -209,9 +257,11 @@ class QuickBallActionHandler(
 
         when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-                val intent = Intent(Settings.ACTION_BLUETOOTH_SETTINGS)
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                context.startActivity(intent)
+                runDelayed {
+                    context.startActivity(Intent(Settings.ACTION_BLUETOOTH_SETTINGS).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    })
+                }
             }
             else -> {
                 @SuppressLint("MissingPermission")
@@ -226,9 +276,11 @@ class QuickBallActionHandler(
         val context = accessibilityService.applicationContext
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val intent = Intent(Settings.ACTION_DATA_ROAMING_SETTINGS)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            context.startActivity(intent)
+            runDelayed {
+                context.startActivity(Intent(Settings.ACTION_DATA_ROAMING_SETTINGS).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                })
+            }
         } else {
             showToast("Mobile data toggle not supported on this device",)
         }

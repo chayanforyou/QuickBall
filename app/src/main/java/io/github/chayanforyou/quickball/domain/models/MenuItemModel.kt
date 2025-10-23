@@ -16,17 +16,17 @@ data class MenuItemModel(
             // Navigation
             MenuItemModel(
                 action = MenuAction.HOME,
-                iconRes = R.drawable.ic_android,
+                iconRes = R.drawable.ic_home,
                 title = "Home",
             ),
             MenuItemModel(
                 action = MenuAction.BACK,
-                iconRes = R.drawable.ic_android,
+                iconRes = R.drawable.ic_back,
                 title = "Back",
             ),
             MenuItemModel(
                 action = MenuAction.RECENT,
-                iconRes = R.drawable.ic_android,
+                iconRes = R.drawable.ic_recent,
                 title = "Recent Apps",
             ),
 
@@ -43,7 +43,7 @@ data class MenuItemModel(
             ),
             MenuItemModel(
                 action = MenuAction.TORCH_TOGGLE,
-                iconRes = R.drawable.ic_android,
+                iconRes = R.drawable.ic_torch,
                 title = "Torch",
             ),
 
@@ -60,24 +60,29 @@ data class MenuItemModel(
             ),
             MenuItemModel(
                 action = MenuAction.SILENT_TOGGLE,
-                iconRes = R.drawable.ic_android,
-                title = "Silent Mode",
+                iconRes = R.drawable.ic_silent,
+                title = "Silent",
+            ),
+            MenuItemModel(
+                action = MenuAction.VIBRATE_TOGGLE,
+                iconRes = R.drawable.ic_vibrate,
+                title = "Vibration",
             ),
 
             // Connectivity
             MenuItemModel(
                 action = MenuAction.WIFI_TOGGLE,
-                iconRes = R.drawable.ic_android,
+                iconRes = R.drawable.ic_wifi,
                 title = "Wi-Fi",
             ),
             MenuItemModel(
                 action = MenuAction.BLUETOOTH_TOGGLE,
-                iconRes = R.drawable.ic_android,
+                iconRes = R.drawable.ic_bluetooth,
                 title = "Bluetooth",
             ),
             MenuItemModel(
                 action = MenuAction.MOBILE_DATA_TOGGLE,
-                iconRes = R.drawable.ic_android,
+                iconRes = R.drawable.ic_mobile_data,
                 title = "Mobile Data",
             ),
 
