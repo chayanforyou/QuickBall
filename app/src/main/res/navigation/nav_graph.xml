@@ -12,8 +12,8 @@
         tools:layout="@layout/fragment_quickball_home">
 
         <action
-            android:id="@+id/action_QuickBallHomeFragment_to_ShortcutSelectionFragment"
-            app:destination="@id/ShortcutSelectionFragment" />
+            android:id="@+id/action_QuickBallHomeFragment_to_ShortcutMenuFragment"
+            app:destination="@id/ShortcutMenuFragment" />
 
         <action
             android:id="@+id/action_QuickBallHomeFragment_to_AutoHideSettingsFragment"
@@ -21,21 +21,21 @@
     </fragment>
 
     <fragment
-        android:id="@+id/ShortcutSelectionFragment"
-        android:name="io.github.chayanforyou.quickball.ui.fragments.ShortcutSelectionFragment"
+        android:id="@+id/ShortcutMenuFragment"
+        android:name="io.github.chayanforyou.quickball.ui.fragments.ShortcutMenuFragment"
         android:label="@string/shortcuts_title"
-        tools:layout="@layout/fragment_shortcut_selection">
+        tools:layout="@layout/fragment_shortcut_menu">
 
         <action
-            android:id="@+id/action_ShortcutSelectionFragment_to_SelectShortcutFragment"
-            app:destination="@id/SelectShortcutFragment" />
+            android:id="@+id/action_ShortcutMenuFragment_to_ShortcutSelectionFragment"
+            app:destination="@id/ShortcutSelectionFragment" />
     </fragment>
 
     <fragment
-        android:id="@+id/SelectShortcutFragment"
-        android:name="io.github.chayanforyou.quickball.ui.fragments.SelectShortcutFragment"
+        android:id="@+id/ShortcutSelectionFragment"
+        android:name="io.github.chayanforyou.quickball.ui.fragments.ShortcutSelectionFragment"
         android:label="@string/shortcuts_title"
-        tools:layout="@layout/fragment_select_shortcut" />
+        tools:layout="@layout/fragment_shortcut_selection" />
 
     <fragment
         android:id="@+id/AutoHideSettingsFragment"

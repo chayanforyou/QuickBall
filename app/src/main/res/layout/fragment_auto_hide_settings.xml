@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.fragments.HideAutomaticallyFragment">
+    tools:context=".ui.fragments.AutoHideSettingsFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_apps"
@@ -18,7 +18,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:listitem="@layout/item_app" />
+        tools:listitem="@layout/item_installed_app" />
 
     <ProgressBar
         android:id="@+id/progress_loading"

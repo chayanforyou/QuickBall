@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="@dimen/padding"
-    tools:context=".ui.fragments.HomeFragment">
+    tools:context=".ui.fragments.QuickBallHomeFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_quickball_toggle"
@@ -32,7 +32,6 @@
             android:layout_height="wrap_content"
             android:contentDescription="@string/enable_quick_ball"
             android:minHeight="24dp"
-            android:scaleY="0.95"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -138,5 +137,31 @@
             app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- Footer -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/made_by"
+            android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
+
+        <TextView
+            android:id="@+id/tv_version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:alpha="0.7"
+            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+            tools:text="Version: 1.0.0" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

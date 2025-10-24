@@ -7,22 +7,19 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.github.chayanforyou.quickball.databinding.FragmentShortcutSelectionBinding
 import io.github.chayanforyou.quickball.domain.PreferenceManager
 import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
-import io.github.chayanforyou.quickball.ui.adapters.QuickBallMenuItemAdapter
-import io.github.chayanforyou.quickball.helpers.MenuItemTouchHelper
+import io.github.chayanforyou.quickball.ui.adapters.ShortcutSelectionAdapter
 import io.github.chayanforyou.quickball.ui.viewmodels.MenuSelectionViewModel
 
 class ShortcutSelectionFragment : Fragment() {
 
     private var _binding: FragmentShortcutSelectionBinding? = null
     private val binding get() = _binding!!
-
-    private lateinit var menuItemAdapter: QuickBallMenuItemAdapter
-    private lateinit var itemTouchHelper: ItemTouchHelper
+    
+    private lateinit var allItemAdapter: ShortcutSelectionAdapter
 
     private val viewModel: MenuSelectionViewModel by activityViewModels()
 
@@ -37,66 +34,33 @@ class ShortcutSelectionFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
-        setupViewModelObservers()
-    }
-    
-    private fun setupViewModelObservers() {
-        viewModel.selectedMenuItem.observe(viewLifecycleOwner) { selectedMenuItem ->
-            selectedMenuItem?.let { menuItem ->
-                updateMenuItem(menuItem)
-                viewModel.clearSelectedMenuItem()
-            }
-        }
     }
 
     private fun setupRecyclerView() {
-        val menuItems = PreferenceManager.getSelectedMenuItems(requireContext())
+        val allMenuItems = QuickBallMenuItemModel.getAllMenuItems()
+        val selectedActions = PreferenceManager.getSelectedMenuItems(requireContext())
+            .mapTo(HashSet()) { it.action }
 
-        menuItemAdapter = QuickBallMenuItemAdapter(
+        val menuItems = allMenuItems.map { menuItem ->
+            menuItem.copy(isSelected = menuItem.action in selectedActions)
+        }
+        
+        allItemAdapter = ShortcutSelectionAdapter(
             menuItems = menuItems,
-            onStartDrag = { viewHolder ->
-                itemTouchHelper.startDrag(viewHolder)
-            },
-            onItemClick = { position ->
-                viewModel.setSelectedPosition(position)
-                navigateToSelectShortcut()
+            onItemClick = { selectedMenuItem ->
+                handleMenuItemSelection(selectedMenuItem)
             }
         )
 
-        binding.rvMenuItems.apply {
+        binding.rvAllMenuItems.apply {
             layoutManager = LinearLayoutManager(requireContext())
-            adapter = menuItemAdapter
+            adapter = allItemAdapter
         }
-
-        val touchHelperCallback = MenuItemTouchHelper(
-            adapter = menuItemAdapter,
-            onItemMoved = {
-                saveMenuItemOrder()
-            }
-        )
-        itemTouchHelper = ItemTouchHelper(touchHelperCallback)
-        itemTouchHelper.attachToRecyclerView(binding.rvMenuItems)
     }
 
-    private fun saveMenuItemOrder() {
-        val reorderedItems = menuItemAdapter.getCurrentItems()
-        PreferenceManager.updateMenuItemOrder(requireContext(), reorderedItems)
-    }
-
-    private fun navigateToSelectShortcut() {
-        val action = ShortcutSelectionFragmentDirections.actionShortcutSelectionFragmentToSelectShortcutFragment()
-        findNavController().navigate(action)
-    }
-    
-    private fun updateMenuItem(newMenuItem: QuickBallMenuItemModel) {
-        val currentPosition = viewModel.selectedPosition.value ?: return
-        val currentItems = menuItemAdapter.getCurrentItems()
-
-        if (currentPosition in currentItems.indices) {
-            currentItems[currentPosition] = newMenuItem
-            PreferenceManager.updateMenuItemOrder(requireContext(), currentItems)
-            menuItemAdapter.updateMenuItems(currentItems)
-        }
+    private fun handleMenuItemSelection(selectedMenuItem: QuickBallMenuItemModel) {
+        viewModel.setSelectedMenuItem(selectedMenuItem)
+        findNavController().navigateUp()
     }
 
     override fun onDestroyView() {
