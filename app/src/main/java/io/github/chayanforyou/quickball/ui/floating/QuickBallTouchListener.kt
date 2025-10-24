@@ -7,13 +7,13 @@ import android.view.View
 import android.view.WindowManager
 import kotlin.math.abs
 
-class FloatingBallTouchListener(
+class QuickBallTouchListener(
     private val displayMetrics: DisplayMetrics,
     private val windowManager: WindowManager,
     private val ballSize: Int,
     private val topBoundary: Int,
     private val bottomBoundary: Int,
-    private val floatingButton: FloatingActionButton
+    private val floatingButton: QuickBallFloatingButton
 ) : View.OnTouchListener {
 
     private var initialX = 0
@@ -51,7 +51,7 @@ class FloatingBallTouchListener(
 
                 if (abs(deltaX) > 10 || abs(deltaY) > 10 && !isDragging) {
                     isDragging = true
-                    floatingButton.onDragStateChanged(true)
+                    floatingButton.setDragging(true)
                 }
 
                 if (isDragging) {
@@ -62,7 +62,7 @@ class FloatingBallTouchListener(
 
             MotionEvent.ACTION_UP -> {
                 if (isDragging) {
-                    floatingButton.onDragStateChanged(false)
+                    floatingButton.setDragging(false)
                     floatingButton.snapToEdge(view)
                 } else {
                     floatingButton.handleBallClick()

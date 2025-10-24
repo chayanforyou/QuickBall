@@ -17,17 +17,17 @@ import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import io.github.chayanforyou.quickball.R
 import io.github.chayanforyou.quickball.domain.handlers.MenuAction
-import io.github.chayanforyou.quickball.utils.AnimationManager
+import io.github.chayanforyou.quickball.helpers.AnimationHelper
 import io.github.chayanforyou.quickball.utils.WidgetUtil.dp2px
 import kotlin.math.abs
 
-class FloatingActionMenu(
+class QuickBallFloatingMenu(
     private val mainActionView: View,
     private val startAngle: Int,
     private val endAngle: Int,
     private val radius: Float,
     private val subActionItems: List<Item> = mutableListOf(),
-    private val animationManager: AnimationManager? = null,
+    private val animationHelper: AnimationHelper? = null,
     private var stateChangeListener: MenuStateChangeListener? = null,
     private var menuItemClickListener: MenuItemClickListener? = null,
 ) {
@@ -40,7 +40,7 @@ class FloatingActionMenu(
     private val individualMenuItems = mutableMapOf<Item, WindowManager.LayoutParams>()
 
     init {
-        animationManager?.setMenu(this)
+        animationHelper?.setMenu(this)
         subActionItems.forEach { item ->
             item.view.setOnClickListener {
                 item.action?.let { action ->
@@ -55,15 +55,15 @@ class FloatingActionMenu(
 
     fun isOpen(): Boolean = isOpen
 
-    fun isAnimating(): Boolean = animationManager?.isAnimating() == true
+    fun isAnimating(): Boolean = animationHelper?.isAnimating() == true
 
     fun open(animated: Boolean) {
         if (isOpen) return // Already open
-        if (animated && animationManager?.isAnimating() == true) return
+        if (animated && animationHelper?.isAnimating() == true) return
         
         val center = calculateItemPositions()
 
-        if (animated && animationManager != null) {
+        if (animated && animationHelper != null) {
             // Validate all items are detached before animating
             subActionItems.forEach { item ->
                 if (item.view.parent != null) {
@@ -74,7 +74,7 @@ class FloatingActionMenu(
             subActionItems.forEach { item ->
                 addIndividualMenuItem(item, center.x - item.width / 2, center.y - item.height / 2)
             }
-            animationManager.animateMenuOpening(center)
+            animationHelper.animateMenuOpening(center)
         } else {
             subActionItems.forEach { item ->
                 addIndividualMenuItem(item, item.x, item.y)
@@ -87,10 +87,10 @@ class FloatingActionMenu(
 
     fun close(animated: Boolean) {
         if (!isOpen) return // Already closed
-        if (animated && animationManager?.isAnimating() == true) return
+        if (animated && animationHelper?.isAnimating() == true) return
 
-        if (animated && animationManager != null) {
-            animationManager.animateMenuClosing(getActionViewCenter())
+        if (animated && animationHelper != null) {
+            animationHelper.animateMenuClosing(getActionViewCenter())
         } else {
             subActionItems.forEach { removeIndividualMenuItem(it) }
         }
@@ -102,7 +102,7 @@ class FloatingActionMenu(
     fun toggle(animated: Boolean) = if (isOpen) close(animated) else open(animated)
 
     fun setAnimationCompletionListener(listener: (() -> Unit)?) {
-        animationManager?.setAnimationCompletionListener(listener)
+        animationHelper?.setAnimationCompletionListener(listener)
     }
 
     inline fun doOnAnimationEnd(
@@ -238,8 +238,8 @@ class FloatingActionMenu(
     }
 
     interface MenuStateChangeListener {
-        fun onMenuOpened(menu: FloatingActionMenu)
-        fun onMenuClosed(menu: FloatingActionMenu)
+        fun onMenuOpened(menu: QuickBallFloatingMenu)
+        fun onMenuClosed(menu: QuickBallFloatingMenu)
     }
     
     interface MenuItemClickListener {
@@ -247,7 +247,7 @@ class FloatingActionMenu(
     }
 
     companion object {
-        private const val TAG = "FloatingActionMenu"
+        private const val TAG = "QuickBallFloatingMenu"
 
         private val sizeInPx by lazy { dp2px(52f) }
         private val margin by lazy { dp2px(14f) }
@@ -289,16 +289,16 @@ class FloatingActionMenu(
             endAngle: Int = 240,
             radius: Float = 94f,
             menuItems: List<Item> = emptyList(),
-            animationManager: AnimationManager? = AnimationManager(),
+            animationHelper: AnimationHelper? = AnimationHelper(),
             stateChangeListener: MenuStateChangeListener? = null,
             menuItemClickListener: MenuItemClickListener? = null
-        ) = FloatingActionMenu(
+        ) = QuickBallFloatingMenu(
             mainActionView = actionView,
             startAngle = startAngle,
             endAngle = endAngle,
             radius = radius,
             subActionItems = menuItems,
-            animationManager = animationManager,
+            animationHelper = animationHelper,
             stateChangeListener = stateChangeListener,
             menuItemClickListener = menuItemClickListener
         )

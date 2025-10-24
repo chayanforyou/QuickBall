@@ -1,4 +1,4 @@
-package io.github.chayanforyou.quickball.utils
+package io.github.chayanforyou.quickball.helpers
 
 import android.animation.Animator
 import android.animation.AnimatorSet
@@ -9,9 +9,9 @@ import android.graphics.Point
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.OvershootInterpolator
-import io.github.chayanforyou.quickball.ui.floating.FloatingActionMenu
+import io.github.chayanforyou.quickball.ui.floating.QuickBallFloatingMenu
 
-class AnimationManager {
+class AnimationHelper {
 
     companion object {
         private const val DURATION = 300L
@@ -21,15 +21,15 @@ class AnimationManager {
     private enum class ActionType { OPENING, CLOSING }
 
     private var animating = false
-    private var menu: FloatingActionMenu? = null
+    private var menu: QuickBallFloatingMenu? = null
 
-    fun setMenu(menu: FloatingActionMenu) {
+    fun setMenu(menu: QuickBallFloatingMenu) {
         this.menu = menu
     }
 
     fun animateMenuOpening(center: Point) {
         val currentMenu = menu
-            ?: throw NullPointerException("AnimationHandler cannot animate without a valid FloatingActionMenu.")
+            ?: throw NullPointerException("Can't animate without a valid QuickBallFloatingMenu.")
 
         setAnimating(true)
 
@@ -39,7 +39,7 @@ class AnimationManager {
 
             // Enable hardware acceleration for smooth animations
             item.view.setLayerType(View.LAYER_TYPE_HARDWARE, null)
-            
+
             item.view.scaleX = 0f
             item.view.scaleY = 0f
             item.view.alpha = 0f
@@ -54,7 +54,7 @@ class AnimationManager {
             val positionAnimator = ValueAnimator.ofFloat(0f, 1f)
             positionAnimator.duration = DURATION
             positionAnimator.interpolator = OvershootInterpolator(0.9f)
-            
+
             // Use throttled updates to prevent frame drops
             positionAnimator.addUpdateListener { anim ->
                 val progress = anim.animatedValue as Float
@@ -93,7 +93,7 @@ class AnimationManager {
 
     fun animateMenuClosing(center: Point) {
         val currentMenu = menu
-            ?: throw NullPointerException("AnimationHandler cannot animate without a valid FloatingActionMenu.")
+            ?: throw NullPointerException("Can't animate without a valid QuickBallFloatingMenu.")
 
         setAnimating(true)
 
@@ -111,7 +111,7 @@ class AnimationManager {
             val positionAnimator = ValueAnimator.ofFloat(0f, 1f)
             positionAnimator.duration = DURATION
             positionAnimator.interpolator = AccelerateDecelerateInterpolator()
-            
+
             // Use throttled updates to prevent frame drops
             positionAnimator.addUpdateListener { anim ->
                 val progress = anim.animatedValue as Float
@@ -152,15 +152,15 @@ class AnimationManager {
     fun setAnimating(animating: Boolean) {
         this.animating = animating
     }
-    
+
     fun setAnimationCompletionListener(listener: (() -> Unit)?) {
         this.animationCompletionListener = listener
     }
-    
+
     private var animationCompletionListener: (() -> Unit)? = null
 
     private inner class SubActionItemAnimationListener(
-        private val subActionItem: FloatingActionMenu.Item,
+        private val subActionItem: QuickBallFloatingMenu.Item,
         private val actionType: ActionType
     ) : Animator.AnimatorListener {
 
@@ -177,7 +177,7 @@ class AnimationManager {
         override fun onAnimationRepeat(animation: Animator) {}
 
         private fun restoreSubActionViewAfterAnimation(
-            subActionItem: FloatingActionMenu.Item,
+            subActionItem: QuickBallFloatingMenu.Item,
             actionType: ActionType
         ) {
             when (actionType) {

@@ -1,4 +1,4 @@
-package io.github.chayanforyou.quickball.ui
+package io.github.chayanforyou.quickball.utils
 
 import android.content.Context
 import com.google.android.material.dialog.MaterialAlertDialogBuilder

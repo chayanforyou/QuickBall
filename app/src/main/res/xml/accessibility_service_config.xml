@@ -3,5 +3,5 @@
     android:accessibilityEventTypes="typeWindowContentChanged|typeWindowsChanged|typeWindowStateChanged"
     android:accessibilityFeedbackType="feedbackGeneric"
     android:accessibilityFlags="flagDefault"
-    android:canRequestTouchExplorationMode="false"
+    android:canRetrieveWindowContent="true"
     android:description="@string/accessibility_service_description" />

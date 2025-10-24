@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/QuickBallHomeFragment">
+
+    <fragment
+        android:id="@+id/QuickBallHomeFragment"
+        android:name="io.github.chayanforyou.quickball.ui.fragments.QuickBallHomeFragment"
+        android:label="@string/home_title"
+        tools:layout="@layout/fragment_quickball_home">
+
+        <action
+            android:id="@+id/action_QuickBallHomeFragment_to_ShortcutSelectionFragment"
+            app:destination="@id/ShortcutSelectionFragment" />
+
+        <action
+            android:id="@+id/action_QuickBallHomeFragment_to_AutoHideSettingsFragment"
+            app:destination="@id/AutoHideSettingsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/ShortcutSelectionFragment"
+        android:name="io.github.chayanforyou.quickball.ui.fragments.ShortcutSelectionFragment"
+        android:label="@string/shortcuts_title"
+        tools:layout="@layout/fragment_shortcut_selection">
+
+        <action
+            android:id="@+id/action_ShortcutSelectionFragment_to_SelectShortcutFragment"
+            app:destination="@id/SelectShortcutFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/SelectShortcutFragment"
+        android:name="io.github.chayanforyou.quickball.ui.fragments.SelectShortcutFragment"
+        android:label="@string/shortcuts_title"
+        tools:layout="@layout/fragment_select_shortcut" />
+
+    <fragment
+        android:id="@+id/AutoHideSettingsFragment"
+        android:name="io.github.chayanforyou.quickball.ui.fragments.AutoHideSettingsFragment"
+        android:label="@string/hide_automatically_title"
+        tools:layout="@layout/fragment_auto_hide_settings" />
+</navigation>

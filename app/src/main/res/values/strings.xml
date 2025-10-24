@@ -1,34 +1,59 @@
 <resources>
-    <string name="app_name">QuickBall</string>
-    
+    <string name="app_name">Quick Ball</string>
+
     <!-- Accessibility Service (for AndroidManifest.xml) -->
     <string name="accessibility_service_description">QuickBall floating ball service that provides a floating ball overlay on your screen for quick access to features.</string>
-    
-    <!-- Main Activity -->
-    <string name="enable_quick_ball">Enable Quick Ball</string>
-    
+
+    <!-- Home Fragment -->
+    <string name="home_title">Quick ball</string>
+    <string name="enable_quick_ball">Turn on Quick ball</string>
+    <string name="settings_label">Settings</string>
+
+    <!-- Shortcut -->
+    <string name="shortcuts_title">Select shortcuts</string>
+    <string name="shortcut_description">Shortcut description.</string>
+
+    <!-- Hide Automatically -->
+    <string name="hide_automatically_title">Hide automatically</string>
+    <string name="hide_automatically_description">Hide Quick ball in selected apps.</string>
+
     <!-- Accessibility Permission -->
     <string name="accessibility_permission_title">Accessibility Service</string>
     <string name="accessibility_permission_description">Allows QuickBall to display floating overlay,\ncontrol volume, and lock your device</string>
     <string name="accessibility_permission_status">Accessibility permission status</string>
-    
+
     <!-- System Settings Permission -->
     <string name="system_settings_title">Modify System Settings</string>
     <string name="system_settings_description">Allows QuickBall to adjust screen brightness</string>
     <string name="system_settings_permission_status">System settings permission status</string>
-    
+
     <!-- Device Admin Permission -->
     <string name="device_admin_title">Device Administrator</string>
     <string name="device_admin_description">Required for screen lock on older Android versions</string>
     <string name="device_admin_permission_status">Device admin permission status</string>
-    
+
     <!-- Permission Dialog Messages -->
     <string name="accessibility_dialog_title">Accessibility Permission Required</string>
     <string name="accessibility_dialog_message">QuickBall requires an accessibility service for its core functionality, to display a floating ball overlay and perform system actions like volume control, brightness adjustment, and screen lock.\n\nThe accessibility service is essential for the app to work properly and provide quick access to device controls from anywhere on your screen.\n\nIt never collects or shares any data! It is focused on privacy and the app does not send any network requests.</string>
-    
+
     <string name="system_settings_dialog_title">System Settings Permission Required</string>
     <string name="system_settings_dialog_message">QuickBall requires system settings permission to modify screen brightness levels in order to provide brightness control features.\n\nThis permission is needed for the brightness up and down controls in the floating ball menu to work properly.\n\nIt never collects or shares any data! It is focused on privacy and the app does not send any network requests.</string>
-    
+
     <string name="dialog_button_quit">Quit</string>
     <string name="dialog_button_accept">Accept</string>
+
+    <!-- Select Shortcuts Fragment -->
+    <string name="select_shortcuts_instructions">Drag the shortcuts to reorder them as they will appear in the floating menu.</string>
+    <string name="selected_shortcuts_header">Floating Menu Shortcuts</string>
+    <string name="drag_to_reorder_hint">Drag items to reorder them</string>
+    <string name="menu_icon_description">Menu item icon</string>
+    <string name="drag_handle_description">Drag to reorder</string>
+    
+    <!-- Select Shortcut Fragment -->
+    <string name="select_shortcut_title">Select Shortcut</string>
+    <string name="select_shortcut_description">Choose a shortcut to replace the current one</string>
+    
+    <!-- Hide Automatically Fragment -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="app_icon">App icon</string>
 </resources>
