@@ -14,6 +14,7 @@ import android.view.accessibility.AccessibilityEvent
 import io.github.chayanforyou.quickball.domain.PreferenceManager
 import io.github.chayanforyou.quickball.domain.handlers.QuickBallActionHandler
 import io.github.chayanforyou.quickball.ui.floating.QuickBallFloatingButton
+import io.github.chayanforyou.quickball.utils.ToastUtil
 
 class QuickBallService : AccessibilityService() {
 
@@ -76,15 +77,21 @@ class QuickBallService : AccessibilityService() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         hideBall()
         unregisterReceiverSafe(screenReceiver)
         stashHandler.removeCallbacksAndMessages(null)
+        ToastUtil.destroy()
+        super.onDestroy()
     }
 
     private fun initializeFloatingBall() {
         val actionHandler = QuickBallActionHandler(this) {
-            floatingBall?.takeIf { it.isMenuOpen() }?.forceStash()
+            floatingBall?.let { ball ->
+                if (ball.isMenuOpen()) {
+                    ball.hideMenu(false)
+                }
+                ball.stash()
+            }
         }
 
         floatingBall = QuickBallFloatingButton(this, actionHandler).apply {
@@ -96,20 +103,26 @@ class QuickBallService : AccessibilityService() {
     }
 
     private fun showBall() {
-        floatingBall?.show()
-        stashBall(false)
-        resetStashTimer()
+        floatingBall?.let { ball ->
+            if (!ball.isVisible()) {
+                ball.show()
+                stashBall(false)
+                resetStashTimer()
+            }
+        }
     }
 
     private fun hideBall() {
-        cancelStashTimer()
-        floatingBall?.hide()
+        floatingBall?.let { ball ->
+            ball.hide()
+            cancelStashTimer()
+        }
     }
 
     private fun stashBall(animated: Boolean = true) {
-        if (!isDragging && floatingBall?.isMenuOpen() != true) {
-            floatingBall?.stash(animated)
-        }
+        floatingBall?.takeIf { ball ->
+            !isDragging && !ball.isMenuOpen()
+        }?.stash(animated)
     }
 
     private fun unstashBall() {

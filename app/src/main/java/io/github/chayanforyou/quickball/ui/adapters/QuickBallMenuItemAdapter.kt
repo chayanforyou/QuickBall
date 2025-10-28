@@ -1,12 +1,16 @@
 package io.github.chayanforyou.quickball.ui.adapters
 
 import android.annotation.SuppressLint
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.R
+import com.google.android.material.color.MaterialColors
 import io.github.chayanforyou.quickball.databinding.ItemQuickballMenuShortcutBinding
 import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
+import io.github.chayanforyou.quickball.utils.getAppIcon
 import java.util.Collections
 
 class QuickBallMenuItemAdapter(
@@ -45,7 +49,17 @@ class QuickBallMenuItemAdapter(
 
         @SuppressLint("ClickableViewAccessibility")
         fun bind(item: QuickBallMenuItemModel) = with(binding) {
-            ivMenuIcon.setImageResource(item.iconRes)
+            when {
+                item.packageName != null -> {
+                    val appIcon = root.context.getAppIcon(item.packageName)
+                    ivMenuIcon.setImageDrawable(appIcon)
+                }
+                else -> {
+                    val tintColor = MaterialColors.getColor(ivMenuIcon, R.attr.colorOnSurface)
+                    ivMenuIcon.imageTintList = ColorStateList.valueOf(tintColor)
+                    ivMenuIcon.setImageResource(item.iconRes)
+                }
+            }
             tvMenuTitle.text = item.title
 
             ivDragHandle.setOnTouchListener { _, event ->

@@ -24,6 +24,7 @@ import io.github.chayanforyou.quickball.R
 import io.github.chayanforyou.quickball.domain.PreferenceManager
 import io.github.chayanforyou.quickball.domain.handlers.MenuAction
 import io.github.chayanforyou.quickball.domain.handlers.QuickBallMenuActionHandler
+import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
 import io.github.chayanforyou.quickball.ui.floating.QuickBallFloatingMenu.MenuItemClickListener
 import io.github.chayanforyou.quickball.helpers.AnimationHelper
 import io.github.chayanforyou.quickball.utils.WidgetUtil.dp2px
@@ -70,7 +71,7 @@ class QuickBallFloatingButton(
         val selectedMenuItems = PreferenceManager.getSelectedMenuItems(context)
         
         return selectedMenuItems.map { menuItem ->
-            QuickBallFloatingMenu.create(context, menuItem.iconRes, menuItem.action)
+            QuickBallFloatingMenu.create(context, menuItem)
         }
     }
 
@@ -491,9 +492,9 @@ class QuickBallFloatingButton(
                 }
             },
             menuItemClickListener = object : MenuItemClickListener {
-                override fun onMenuItemClick(action: MenuAction) {
-                    menuActionHandler?.onMenuAction(action)
-                    val shouldClose = when (action) {
+                override fun onMenuItemClick(menuItem: QuickBallMenuItemModel) {
+                    menuActionHandler?.onMenuAction(menuItem)
+                    val shouldClose = when (menuItem.action) {
                         MenuAction.VOLUME_UP,
                         MenuAction.VOLUME_DOWN,
                         MenuAction.BRIGHTNESS_UP,
@@ -587,20 +588,20 @@ class QuickBallFloatingButton(
         // Save the new position for current orientation
         savePositionForCurrentOrientation()
     }
-    
+
     fun handleBallClick() {
-        if (isStashed || isAnimatingStash) {
-            unstash()
-        } else {
-            // Only prepare overlay when opening menu, not when closing
-            if (floatingMenu?.isOpen() == false) {
-                ensureMenuCreated()
-                showMenuOverlay()
+        when {
+            isStashed -> unstash()
+            !isAnimatingStash -> {
+                floatingMenu?.takeUnless { it.isOpen() }?.let {
+                    ensureMenuCreated()
+                    showMenuOverlay()
+                }
+                floatingMenu?.toggle(true)
             }
-            floatingMenu?.toggle(true)
         }
     }
-    
+
     fun moveToLandscapePosition() {
         if (!isVisible || floatingBall == null) return
         

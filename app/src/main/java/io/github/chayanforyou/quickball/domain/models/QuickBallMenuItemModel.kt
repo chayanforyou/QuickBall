@@ -8,7 +8,8 @@ data class QuickBallMenuItemModel(
     val action: MenuAction,
     @DrawableRes val iconRes: Int,
     val title: String,
-    val isSelected: Boolean = false
+    val isSelected: Boolean = false,
+    val packageName: String? = null
 ) {
     companion object {
 
@@ -101,6 +102,19 @@ data class QuickBallMenuItemModel(
         
         fun getMenuItemByAction(action: MenuAction): QuickBallMenuItemModel? {
             return getAllMenuItems().find { it.action == action }
+        }
+        
+        fun createAppMenuItem(
+            appName: String,
+            packageName: String,
+            @DrawableRes iconRes: Int,
+        ): QuickBallMenuItemModel {
+            return QuickBallMenuItemModel(
+                action = MenuAction.LAUNCH_APP,
+                iconRes = iconRes,
+                title = appName,
+                packageName = packageName
+            )
         }
     }
 }

@@ -1,7 +1,6 @@
 package io.github.chayanforyou.quickball.domain.handlers
 
 import android.accessibilityservice.AccessibilityService
-import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
@@ -15,11 +14,12 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
-import android.widget.Toast
+import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
+import io.github.chayanforyou.quickball.utils.ToastUtil
 
 class QuickBallActionHandler(
     private val accessibilityService: AccessibilityService,
-    private val onCloseMenu: (() -> Unit)? = null
+    private val performStash: (() -> Unit)? = null
 ) : QuickBallMenuActionHandler {
 
     companion object {
@@ -36,9 +36,8 @@ class QuickBallActionHandler(
     private val handler = Handler(Looper.getMainLooper())
     private var torchOn = false
 
-
     private fun showToast(message: String) {
-        Toast.makeText(accessibilityService, message, Toast.LENGTH_SHORT).show()
+        ToastUtil.show(accessibilityService, message)
     }
 
     private inline fun runDelayed(
@@ -54,8 +53,8 @@ class QuickBallActionHandler(
         }, delayMillis)
     }
 
-    override fun onMenuAction(action: MenuAction) {
-        when (action) {
+    override fun onMenuAction(menuItem: QuickBallMenuItemModel) {
+        when (menuItem.action) {
             MenuAction.VOLUME_UP -> performVolumeUpAction()
             MenuAction.VOLUME_DOWN -> performVolumeDownAction()
             MenuAction.BRIGHTNESS_UP -> changeBrightness(true)
@@ -71,6 +70,7 @@ class QuickBallActionHandler(
             MenuAction.HOME -> performHomeAction()
             MenuAction.BACK -> performBackAction()
             MenuAction.RECENT -> performMenuAction()
+            MenuAction.LAUNCH_APP -> launchApp(menuItem.packageName)
         }
     }
 
@@ -95,6 +95,7 @@ class QuickBallActionHandler(
                 AudioManager.ADJUST_RAISE,
                 AudioManager.FLAG_PLAY_SOUND
             )
+            showToast("Volume: ${getVolumePercentage()}%")
         } catch (e: Exception) {
             Log.e(TAG, "Failed to perform volume up action", e)
         }
@@ -107,9 +108,16 @@ class QuickBallActionHandler(
                 AudioManager.ADJUST_LOWER,
                 AudioManager.FLAG_PLAY_SOUND
             )
+            showToast("Volume: ${getVolumePercentage()}%")
         } catch (e: Exception) {
             Log.e(TAG, "Failed to perform volume down action", e)
         }
+    }
+
+    private fun getVolumePercentage(): Int {
+        val currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+        val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+        return (currentVolume * 100) / maxVolume
     }
 
     // -------------------- Brightness --------------------
@@ -156,16 +164,22 @@ class QuickBallActionHandler(
                 Settings.System.SCREEN_BRIGHTNESS,
                 clampedBrightness
             )
+            showToast("Brightness: ${toPercentage(clampedBrightness)}%")
         } catch (e: Exception) {
             Log.e(TAG, "Failed to set brightness", e)
         }
+    }
+
+    private fun toPercentage(brightness: Int): Int {
+        return ((brightness - MIN_BRIGHTNESS) * 100) / (MAX_BRIGHTNESS - MIN_BRIGHTNESS)
     }
 
     // -------------------- Silent Mode --------------------
     private fun toggleSilentMode() {
         val context = accessibilityService.applicationContext
         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
             !notificationManager.isNotificationPolicyAccessGranted
@@ -187,12 +201,23 @@ class QuickBallActionHandler(
         runDelayed {
             try {
                 audioManager.ringerMode = newMode
+                showToast(getSilentModeText(newMode))
             } catch (e: SecurityException) {
                 Log.e(TAG, "Failed to toggle silent mode", e)
             }
         }
     }
 
+    private fun getSilentModeText(mode: Int): String {
+        return when (mode) {
+            AudioManager.RINGER_MODE_SILENT -> "Silent mode ON"
+            AudioManager.RINGER_MODE_NORMAL -> "Silent mode OFF"
+            else -> "Silent mode OFF"
+        }
+    }
+
+
+    // -------------------- Vibration Mode --------------------
     private fun toggleVibrateMode() {
         val context = accessibilityService.applicationContext
         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -206,22 +231,34 @@ class QuickBallActionHandler(
         runDelayed {
             try {
                 audioManager.ringerMode = newMode
+                showToast(getVibrationModeText(newMode))
             } catch (e: SecurityException) {
                 Log.e(TAG, "Failed to toggle vibrate mode", e)
             }
         }
     }
 
+    private fun getVibrationModeText(mode: Int): String {
+        return when (mode) {
+            AudioManager.RINGER_MODE_VIBRATE -> "Vibration mode ON"
+            AudioManager.RINGER_MODE_NORMAL -> "Vibration mode OFF"
+            else -> "Vibration mode OFF"
+        }
+    }
+
     // -------------------- Torch --------------------
     private fun toggleTorch() {
         try {
-            val cameraManager = accessibilityService.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+            val cameraManager =
+                accessibilityService.getSystemService(Context.CAMERA_SERVICE) as CameraManager
             val cameraId = cameraManager.cameraIdList.firstOrNull {
-                cameraManager.getCameraCharacteristics(it).get(CameraCharacteristics.FLASH_INFO_AVAILABLE) == true
+                cameraManager.getCameraCharacteristics(it)
+                    .get(CameraCharacteristics.FLASH_INFO_AVAILABLE) == true
             } ?: return
             torchOn = !torchOn
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 cameraManager.setTorchMode(cameraId, torchOn)
+                showToast(getTorchText(torchOn))
             } else {
                 showToast("Torch is not supported on this device.")
             }
@@ -230,42 +267,37 @@ class QuickBallActionHandler(
         }
     }
 
+    private fun getTorchText(isOn: Boolean): String {
+        return if (isOn) "Torch ON" else "Torch OFF"
+    }
+
     // -------------------- Connectivity --------------------
     private fun toggleWifi() {
         val context = accessibilityService.applicationContext
         val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
 
-        when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
-                runDelayed {
-                    context.startActivity(Intent(Settings.Panel.ACTION_WIFI).apply {
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    })
-                }
-            }
-            else -> {
-                runDelayed {
-                    wifiManager.isWifiEnabled = !wifiManager.isWifiEnabled
-                }
+        runDelayed {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                context.startActivity(Intent(Settings.Panel.ACTION_WIFI).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                })
+            } else {
+                @Suppress("DEPRECATION")
+                wifiManager.isWifiEnabled = !wifiManager.isWifiEnabled
             }
         }
     }
 
     private fun toggleBluetooth() {
         val context = accessibilityService.applicationContext
-        val adapter = BluetoothAdapter.getDefaultAdapter() ?: return
-
-        when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-                runDelayed {
-                    context.startActivity(Intent(Settings.ACTION_BLUETOOTH_SETTINGS).apply {
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    })
-                }
-            }
-            else -> {
-                @SuppressLint("MissingPermission")
-                runDelayed {
+        runDelayed {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                context.startActivity(Intent(Settings.ACTION_BLUETOOTH_SETTINGS).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                })
+            } else {
+                @Suppress("DEPRECATION", "MissingPermission")
+                BluetoothAdapter.getDefaultAdapter()?.let { adapter ->
                     if (adapter.isEnabled) adapter.disable() else adapter.enable()
                 }
             }
@@ -282,14 +314,14 @@ class QuickBallActionHandler(
                 })
             }
         } else {
-            showToast("Mobile data toggle not supported on this device",)
+            showToast("Mobile data toggle not supported on this device")
         }
     }
 
     // -------------------- Screenshot --------------------
     private fun performScreenshotAction() {
         try {
-            onCloseMenu?.invoke()
+            performStash?.invoke()
             runDelayed {
                 takeScreenshot()
             }
@@ -316,6 +348,26 @@ class QuickBallActionHandler(
             accessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_LOCK_SCREEN)
         } else {
             showToast("Lock screen not supported on this device.")
+        }
+    }
+
+    // -------------------- App Launch --------------------
+    private fun launchApp(packageName: String?) {
+        if (packageName.isNullOrBlank()) {
+            Log.w(TAG, "Cannot launch app - package name is null or empty")
+            return
+        }
+
+        try {
+            accessibilityService.packageManager
+                .getLaunchIntentForPackage(packageName)
+                ?.apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
+                ?.let { intent ->
+                    performStash?.invoke()
+                    runDelayed { accessibilityService.startActivity(intent) }
+                } ?: showToast("App not found or cannot be launched")
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to launch app: $packageName", e)
         }
     }
 }

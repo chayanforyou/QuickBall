@@ -5,29 +5,33 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
-import io.github.chayanforyou.quickball.databinding.FragmentAutoHideSettingsBinding
+import io.github.chayanforyou.quickball.databinding.FragmentSelectAppsBinding
 import io.github.chayanforyou.quickball.domain.models.InstalledAppModel
-import io.github.chayanforyou.quickball.ui.adapters.InstalledAppListAdapter
-import io.github.chayanforyou.quickball.domain.PreferenceManager
+import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
+import io.github.chayanforyou.quickball.ui.adapters.SelectAppListAdapter
+import io.github.chayanforyou.quickball.ui.viewmodels.MenuSelectionViewModel
 import io.github.chayanforyou.quickball.utils.loadInstalledApps
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class AutoHideSettingsFragment : Fragment() {
+class SelectAppsFragment : Fragment() {
 
-    private var _binding: FragmentAutoHideSettingsBinding? = null
+    private var _binding: FragmentSelectAppsBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var appListAdapter: InstalledAppListAdapter
+    private lateinit var appListAdapter: SelectAppListAdapter
+    private val viewModel: MenuSelectionViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentAutoHideSettingsBinding.inflate(inflater, container, false)
+        _binding = FragmentSelectAppsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -51,7 +55,7 @@ class AutoHideSettingsFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 val apps = withContext(Dispatchers.IO) {
-                    requireContext().loadInstalledApps(sortBySelectedFirst = true)
+                    requireContext().loadInstalledApps()
                 }
 
                 setupRecyclerView(apps)
@@ -63,10 +67,10 @@ class AutoHideSettingsFragment : Fragment() {
     }
 
     private fun setupRecyclerView(apps: List<InstalledAppModel>) {
-        appListAdapter = InstalledAppListAdapter(
+        appListAdapter = SelectAppListAdapter(
             apps = apps,
-            onToggleChanged = { app, isSelected ->
-                updateAppSelectionState(app, isSelected)
+            onAppSelect = { app ->
+                handleAppSelection(app)
             }
         )
 
@@ -77,12 +81,16 @@ class AutoHideSettingsFragment : Fragment() {
     }
 
 
-    private fun updateAppSelectionState(app: InstalledAppModel, isSelected: Boolean) {
-        if (isSelected) {
-            PreferenceManager.addSelectedApp(requireContext(), app.packageName)
-        } else {
-            PreferenceManager.removeSelectedApp(requireContext(), app.packageName)
-        }
+    private fun handleAppSelection(selectedApp: InstalledAppModel) {
+        val appMenuItem = QuickBallMenuItemModel.createAppMenuItem(
+            appName = selectedApp.appName,
+            packageName = selectedApp.packageName,
+            iconRes = android.R.drawable.sym_def_app_icon,
+        )
+        viewModel.setSelectedMenuItem(appMenuItem)
+        // Navigate back to ShortcutMenuFragment
+        val action = SelectAppsFragmentDirections.actionSelectAppsFragmentToShortcutMenuFragment()
+        findNavController().navigate(action)
     }
 
     override fun onDestroyView() {

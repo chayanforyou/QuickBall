@@ -34,6 +34,7 @@ class ShortcutSelectionFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
+        setupClickListeners()
     }
 
     private fun setupRecyclerView() {
@@ -55,6 +56,13 @@ class ShortcutSelectionFragment : Fragment() {
         binding.rvAllMenuItems.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = allItemAdapter
+        }
+    }
+
+    private fun setupClickListeners() {
+        binding.layoutSelectApp.setOnClickListener {
+            val action = ShortcutSelectionFragmentDirections.actionShortcutSelectionFragmentToSelectAppsFragment()
+            findNavController().navigate(action)
         }
     }
 

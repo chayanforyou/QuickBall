@@ -1,6 +1,7 @@
 package io.github.chayanforyou.quickball.ui.floating
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Path
 import android.graphics.PathMeasure
 import android.graphics.PixelFormat
@@ -15,10 +16,13 @@ import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
+import com.google.android.material.color.MaterialColors
 import io.github.chayanforyou.quickball.R
 import io.github.chayanforyou.quickball.domain.handlers.MenuAction
+import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
 import io.github.chayanforyou.quickball.helpers.AnimationHelper
 import io.github.chayanforyou.quickball.utils.WidgetUtil.dp2px
+import io.github.chayanforyou.quickball.utils.getAppIcon
 import kotlin.math.abs
 
 class QuickBallFloatingMenu(
@@ -43,8 +47,8 @@ class QuickBallFloatingMenu(
         animationHelper?.setMenu(this)
         subActionItems.forEach { item ->
             item.view.setOnClickListener {
-                item.action?.let { action ->
-                    menuItemClickListener?.onMenuItemClick(action)
+                item.menuItem?.let { menuItem ->
+                    menuItemClickListener?.onMenuItemClick(menuItem)
                 }
             }
         }
@@ -226,7 +230,7 @@ class QuickBallFloatingMenu(
     }
 
     // ---------- Data Class ----------
-    data class Item(val view: View, val action: MenuAction? = null) {
+    data class Item(val view: View, val action: MenuAction? = null, val menuItem: QuickBallMenuItemModel? = null) {
         var x: Int = 0
         var y: Int = 0
         
@@ -243,7 +247,7 @@ class QuickBallFloatingMenu(
     }
     
     interface MenuItemClickListener {
-        fun onMenuItemClick(action: MenuAction)
+        fun onMenuItemClick(menuItem: QuickBallMenuItemModel)
     }
 
     companion object {
@@ -254,11 +258,18 @@ class QuickBallFloatingMenu(
 
         fun create(
             context: Context,
-            resId: Int,
-            action: MenuAction? = null,
+            menuItem: QuickBallMenuItemModel,
         ): Item {
             val imageView = ImageView(context).apply {
-                setImageResource(resId)
+                when {
+                    menuItem.packageName != null -> {
+                        val appIcon = context.getAppIcon(menuItem.packageName)
+                        setImageDrawable(appIcon)
+                    }
+                    else -> {
+                        setImageResource(menuItem.iconRes)
+                    }
+                }
                 layoutParams = FrameLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT,
@@ -269,7 +280,8 @@ class QuickBallFloatingMenu(
             }
 
             return Item(
-                action = action,
+                action = menuItem.action,
+                menuItem = menuItem,
                 view = FrameLayout(context).apply {
                     layoutParams = FrameLayout.LayoutParams(sizeInPx, sizeInPx)
                     background = ContextCompat.getDrawable(

@@ -1,7 +1,9 @@
 package io.github.chayanforyou.quickball.domain.handlers
 
+import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
+
 interface QuickBallMenuActionHandler {
-    fun onMenuAction(action: MenuAction)
+    fun onMenuAction(menuItem: QuickBallMenuItemModel)
 }
 
 enum class MenuAction {
@@ -28,5 +30,8 @@ enum class MenuAction {
 
     // Utilities
     SCREENSHOT,
-    LOCK_SCREEN
+    LOCK_SCREEN,
+    
+    // Apps
+    LAUNCH_APP
 }
