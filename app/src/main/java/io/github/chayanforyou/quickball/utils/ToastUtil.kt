@@ -37,7 +37,10 @@ object ToastUtil {
                 setTextColor(Color.WHITE)
                 textSize = 14f
                 gravity = Gravity.CENTER
-                background = createBackground()
+                background = GradientDrawable().apply {
+                    cornerRadius = 80f
+                    setColor(Color.argb(0xBF, 0x2C, 0x2C, 0x2C))
+                }
             }
 
             val params = WindowManager.LayoutParams().apply {
@@ -67,21 +70,20 @@ object ToastUtil {
 
         textView.apply {
             text = message
-            background = createBackground()
             visibility = View.VISIBLE
         }
 
         runnable = Runnable {
-            textView.visibility = View.GONE
+            textView.animate()
+                .alpha(0f)
+                .setDuration(300L)
+                .withEndAction {
+                    textView.visibility = View.GONE
+                    textView.alpha = 1f
+                }
+                .start()
         }
-        handler.postDelayed(runnable!!, 1500L)
-    }
-
-    private fun createBackground(): GradientDrawable {
-        return GradientDrawable().apply {
-            cornerRadius = 80f
-            setColor(Color.argb(0xBF, 0x2C, 0x2C, 0x2C))
-        }
+        handler.postDelayed(runnable!!, 1200L)
     }
 
     fun destroy() {

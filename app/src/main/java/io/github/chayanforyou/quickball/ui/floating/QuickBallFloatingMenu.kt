@@ -1,7 +1,6 @@
 package io.github.chayanforyou.quickball.ui.floating
 
 import android.content.Context
-import android.content.res.ColorStateList
 import android.graphics.Path
 import android.graphics.PathMeasure
 import android.graphics.PixelFormat
@@ -16,7 +15,6 @@ import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
-import com.google.android.material.color.MaterialColors
 import io.github.chayanforyou.quickball.R
 import io.github.chayanforyou.quickball.domain.handlers.MenuAction
 import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel

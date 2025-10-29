@@ -39,7 +39,6 @@ class AnimationHelper {
 
             // Enable hardware acceleration for smooth animations
             item.view.setLayerType(View.LAYER_TYPE_HARDWARE, null)
-
             item.view.scaleX = 0f
             item.view.scaleY = 0f
             item.view.alpha = 0f
@@ -189,8 +188,6 @@ class AnimationHelper {
                     subActionItem.view.scaleX = 1f
                     subActionItem.view.scaleY = 1f
                     subActionItem.view.alpha = 1f
-                    
-                    // Disable hardware layer after animation to free memory
                     subActionItem.view.setLayerType(View.LAYER_TYPE_NONE, null)
 
                     menu?.updateIndividualMenuItemPosition(subActionItem, subActionItem.x, subActionItem.y)
@@ -201,8 +198,6 @@ class AnimationHelper {
                     subActionItem.view.alpha = 0f
                     subActionItem.view.scaleX = 0f
                     subActionItem.view.scaleY = 0f
-                    
-                    // Disable hardware layer before removal
                     subActionItem.view.setLayerType(View.LAYER_TYPE_NONE, null)
 
                     subActionItem.view.post {

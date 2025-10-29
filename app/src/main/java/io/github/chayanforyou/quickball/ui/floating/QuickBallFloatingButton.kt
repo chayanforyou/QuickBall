@@ -25,8 +25,8 @@ import io.github.chayanforyou.quickball.domain.PreferenceManager
 import io.github.chayanforyou.quickball.domain.handlers.MenuAction
 import io.github.chayanforyou.quickball.domain.handlers.QuickBallMenuActionHandler
 import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
-import io.github.chayanforyou.quickball.ui.floating.QuickBallFloatingMenu.MenuItemClickListener
 import io.github.chayanforyou.quickball.helpers.AnimationHelper
+import io.github.chayanforyou.quickball.ui.floating.QuickBallFloatingMenu.MenuItemClickListener
 import io.github.chayanforyou.quickball.utils.WidgetUtil.dp2px
 
 class QuickBallFloatingButton(
