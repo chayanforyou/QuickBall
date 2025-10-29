@@ -49,7 +49,7 @@ class QuickBallTouchListener(
                 val deltaX = (event.rawX - initialTouchX).toInt()
                 val deltaY = (event.rawY - initialTouchY).toInt()
 
-                if (abs(deltaX) > 10 || abs(deltaY) > 10 && !isDragging) {
+                if ((abs(deltaX) > 10 || abs(deltaY) > 10) && !isDragging) {
                     isDragging = true
                     floatingButton.setDragging(true)
                 }
