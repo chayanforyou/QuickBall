@@ -252,7 +252,11 @@ class QuickBallFloatingButton(
         hideMenu(false)
 
         try {
-            windowManager.removeView(floatingBall)
+            floatingBall?.let { ball ->
+                if (ball.parent != null) {
+                    windowManager.removeView(ball)
+                }
+            }
             menuOverlay?.let { overlay ->
                 if (overlay.parent != null) {
                     windowManager.removeView(overlay)
