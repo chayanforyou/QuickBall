@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.elevation.SurfaceColors
-import io.github.chayanforyou.quickball.databinding.SheetDokiTutorialBinding
+import io.github.chayanforyou.quickball.databinding.SheetOptimizationRemoverBinding
 
 class OptimizationRemoverSheet : BottomSheetDialogFragment() {
 
@@ -17,7 +17,7 @@ class OptimizationRemoverSheet : BottomSheetDialogFragment() {
         }
     }
 
-    private var _binding: SheetDokiTutorialBinding? = null
+    private var _binding: SheetOptimizationRemoverBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -25,7 +25,7 @@ class OptimizationRemoverSheet : BottomSheetDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = SheetDokiTutorialBinding.inflate(inflater, container, false)
+        _binding = SheetOptimizationRemoverBinding.inflate(inflater, container, false)
         return binding.root
     }
 
