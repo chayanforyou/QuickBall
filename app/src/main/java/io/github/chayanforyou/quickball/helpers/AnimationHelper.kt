@@ -1,6 +1,7 @@
 package io.github.chayanforyou.quickball.helpers
 
 import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
@@ -15,205 +16,187 @@ class AnimationHelper {
 
     companion object {
         private const val DURATION = 300L
-        private const val LAG_BETWEEN_ITEMS = 5
-        private val INTERP_OVERSHOOT by lazy { OvershootInterpolator(0.9f) }
-        private val INTERP_ACCEL by lazy { AccelerateDecelerateInterpolator() }
+        private const val LAG_BETWEEN_ITEMS = 5L
+        private val INTERP_OVERSHOOT = OvershootInterpolator(0.9f)
+        private val INTERP_ACCEL = AccelerateDecelerateInterpolator()
     }
 
     private enum class ActionType { OPENING, CLOSING }
 
     private var animating = false
     private var menu: QuickBallFloatingMenu? = null
+    private var animationCompletionListener: (() -> Unit)? = null
 
     fun setMenu(menu: QuickBallFloatingMenu) {
         this.menu = menu
     }
 
     fun animateMenuOpening(center: Point) {
-        val currentMenu = menu
-            ?: throw NullPointerException("Can't animate without a valid QuickBallFloatingMenu.")
+        val currentMenu = menu ?: return
+        if (animating) return
 
         setAnimating(true)
+        val subItems = currentMenu.getSubActionItems()
+        if (subItems.isEmpty()) {
+            setAnimating(false)
+            return
+        }
 
-        var lastAnimation: Animator? = null
-        for (i in currentMenu.getSubActionItems().indices) {
-            val item = currentMenu.getSubActionItems()[i]
+        val animations = ArrayList<Animator>(subItems.size)
+        subItems.forEachIndexed { i, item ->
+            item.view.apply {
+                setLayerType(View.LAYER_TYPE_HARDWARE, null)
+                scaleX = 0f
+                scaleY = 0f
+                alpha = 0f
+            }
 
-            // Enable hardware acceleration for smooth animations
-            item.view.setLayerType(View.LAYER_TYPE_HARDWARE, null)
-            item.view.scaleX = 0f
-            item.view.scaleY = 0f
-            item.view.alpha = 0f
-
-            // For individual menu items, we animate from center to final position
             val startX = center.x - item.width / 2
             val startY = center.y - item.height / 2
             val endX = item.x
             val endY = item.y
 
-            // Create position animator with throttled updates
-            val positionAnimator = ValueAnimator.ofFloat(0f, 1f)
-            positionAnimator.duration = DURATION
-            positionAnimator.interpolator = INTERP_OVERSHOOT
-
-            // Use throttled updates to prevent frame drops
-            positionAnimator.addUpdateListener { anim ->
-                val progress = anim.animatedValue as Float
-                val currentX = (startX + (endX - startX) * progress).toInt()
-                val currentY = (startY + (endY - startY) * progress).toInt()
-                menu?.updateIndividualMenuItemPosition(item, currentX, currentY)
+            val positionAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
+                duration = DURATION
+                interpolator = INTERP_OVERSHOOT
+                addUpdateListener {
+                    val p = it.animatedValue as Float
+                    currentMenu.updateIndividualMenuItemPosition(
+                        item,
+                        (startX + (endX - startX) * p).toInt(),
+                        (startY + (endY - startY) * p).toInt()
+                    )
+                }
             }
 
-            // Create visual effects animator (keep rotation as before)
-            val pvhR = PropertyValuesHolder.ofFloat(View.ROTATION, 720f)
-            val pvhsX = PropertyValuesHolder.ofFloat(View.SCALE_X, 1f)
-            val pvhsY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f)
-            val pvhA = PropertyValuesHolder.ofFloat(View.ALPHA, 1f)
+            val visualAnimator = ObjectAnimator.ofPropertyValuesHolder(
+                item.view,
+                PropertyValuesHolder.ofFloat(View.ROTATION, 720f),
+                PropertyValuesHolder.ofFloat(View.SCALE_X, 1f),
+                PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f),
+                PropertyValuesHolder.ofFloat(View.ALPHA, 1f)
+            ).apply {
+                duration = DURATION
+                interpolator = INTERP_OVERSHOOT
+            }
 
-            val visualAnimation = ObjectAnimator.ofPropertyValuesHolder(item.view, pvhR, pvhsX, pvhsY, pvhA)
-            visualAnimation.duration = DURATION
-            visualAnimation.interpolator = INTERP_OVERSHOOT
-
-            // Combine animations
-            val animation = AnimatorSet().apply {
-                playTogether(positionAnimator, visualAnimation)
+            AnimatorSet().apply {
+                playTogether(positionAnimator, visualAnimator)
+                startDelay = (subItems.size - i) * LAG_BETWEEN_ITEMS
                 addListener(SubActionItemAnimationListener(item, ActionType.OPENING))
+                animations += this
             }
-
-            if (i == 0) {
-                lastAnimation = animation
-            }
-
-            // Put a slight lag between each of the menu items to make it asymmetric
-            animation.startDelay = ((currentMenu.getSubActionItems().size - i) * LAG_BETWEEN_ITEMS).toLong()
-            animation.start()
         }
 
-        lastAnimation?.addListener(LastAnimationListener())
+        AnimatorSet().apply {
+            playTogether(animations)
+            addListener(LastAnimationListener())
+            start()
+        }
     }
 
     fun animateMenuClosing(center: Point) {
-        val currentMenu = menu
-            ?: throw NullPointerException("Can't animate without a valid QuickBallFloatingMenu.")
+        val currentMenu = menu ?: return
+        if (animating) return
 
         setAnimating(true)
+        val subItems = currentMenu.getSubActionItems()
+        if (subItems.isEmpty()) {
+            setAnimating(false)
+            return
+        }
 
-        var lastAnimation: Animator? = null
-        for (i in currentMenu.getSubActionItems().indices) {
-            val item = currentMenu.getSubActionItems()[i]
-
-            // For individual menu items, we animate from current position to center
+        val animations = ArrayList<Animator>(subItems.size)
+        subItems.forEachIndexed { i, item ->
             val startX = item.x
             val startY = item.y
             val endX = center.x - item.width / 2
             val endY = center.y - item.height / 2
 
-            // Create position animator with throttled updates
-            val positionAnimator = ValueAnimator.ofFloat(0f, 1f)
-            positionAnimator.duration = DURATION
-            positionAnimator.interpolator = INTERP_ACCEL
-
-            // Use throttled updates to prevent frame drops
-            positionAnimator.addUpdateListener { anim ->
-                val progress = anim.animatedValue as Float
-                val currentX = (startX + (endX - startX) * progress).toInt()
-                val currentY = (startY + (endY - startY) * progress).toInt()
-                menu?.updateIndividualMenuItemPosition(item, currentX, currentY)
+            val positionAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
+                duration = DURATION
+                interpolator = INTERP_ACCEL
+                addUpdateListener {
+                    val p = it.animatedValue as Float
+                    currentMenu.updateIndividualMenuItemPosition(
+                        item,
+                        (startX + (endX - startX) * p).toInt(),
+                        (startY + (endY - startY) * p).toInt()
+                    )
+                }
             }
 
-            // Create visual effects animator (keep rotation as before)
-            val pvhR = PropertyValuesHolder.ofFloat(View.ROTATION, -720f)
-            val pvhsX = PropertyValuesHolder.ofFloat(View.SCALE_X, 0f)
-            val pvhsY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 0f)
-            val pvhA = PropertyValuesHolder.ofFloat(View.ALPHA, 0f)
+            val visualAnimator = ObjectAnimator.ofPropertyValuesHolder(
+                item.view,
+                PropertyValuesHolder.ofFloat(View.ROTATION, -720f),
+                PropertyValuesHolder.ofFloat(View.SCALE_X, 0f),
+                PropertyValuesHolder.ofFloat(View.SCALE_Y, 0f),
+                PropertyValuesHolder.ofFloat(View.ALPHA, 0f)
+            ).apply {
+                duration = DURATION
+                interpolator = INTERP_ACCEL
+            }
 
-            val visualAnimation = ObjectAnimator.ofPropertyValuesHolder(item.view, pvhR, pvhsX, pvhsY, pvhA)
-            visualAnimation.duration = DURATION
-            visualAnimation.interpolator = INTERP_ACCEL
-
-            // Combine animations
-            val animation = AnimatorSet().apply {
-                playTogether(positionAnimator, visualAnimation)
+            AnimatorSet().apply {
+                playTogether(positionAnimator, visualAnimator)
+                startDelay = (subItems.size - i) * LAG_BETWEEN_ITEMS
                 addListener(SubActionItemAnimationListener(item, ActionType.CLOSING))
+                animations += this
             }
-
-            if (i == 0) {
-                lastAnimation = animation
-            }
-
-            animation.startDelay = ((currentMenu.getSubActionItems().size - i) * LAG_BETWEEN_ITEMS).toLong()
-            animation.start()
         }
 
-        lastAnimation?.addListener(LastAnimationListener())
+        AnimatorSet().apply {
+            playTogether(animations)
+            addListener(LastAnimationListener())
+            start()
+        }
     }
 
-    fun isAnimating(): Boolean = animating
+    fun isAnimating(): Boolean {
+        return animating
+    }
 
-    fun setAnimating(animating: Boolean) {
-        this.animating = animating
+    private fun setAnimating(value: Boolean) {
+        animating = value
     }
 
     fun setAnimationCompletionListener(listener: (() -> Unit)?) {
-        this.animationCompletionListener = listener
+        animationCompletionListener = listener
     }
-
-    private var animationCompletionListener: (() -> Unit)? = null
 
     private inner class SubActionItemAnimationListener(
         private val subActionItem: QuickBallFloatingMenu.Item,
         private val actionType: ActionType
-    ) : Animator.AnimatorListener {
+    ) : AnimatorListenerAdapter() {
+        override fun onAnimationEnd(animation: Animator) = handleEnd()
+        override fun onAnimationCancel(animation: Animator) = handleEnd()
 
-        override fun onAnimationStart(animation: Animator) {}
-
-        override fun onAnimationEnd(animation: Animator) {
-            restoreSubActionViewAfterAnimation(subActionItem, actionType)
-        }
-
-        override fun onAnimationCancel(animation: Animator) {
-            restoreSubActionViewAfterAnimation(subActionItem, actionType)
-        }
-
-        override fun onAnimationRepeat(animation: Animator) {}
-
-        private fun restoreSubActionViewAfterAnimation(
-            subActionItem: QuickBallFloatingMenu.Item,
-            actionType: ActionType
-        ) {
+        private fun handleEnd() {
             when (actionType) {
                 ActionType.OPENING -> {
-                    // For individual menu items, ensure they end at final visual state
-                    subActionItem.view.translationX = 0f
-                    subActionItem.view.translationY = 0f
-                    subActionItem.view.rotation = 0f
-                    subActionItem.view.scaleX = 1f
-                    subActionItem.view.scaleY = 1f
-                    subActionItem.view.alpha = 1f
-                    subActionItem.view.setLayerType(View.LAYER_TYPE_NONE, null)
+                    subActionItem.view.apply {
+                        rotation = 0f
+                        scaleX = 1f
+                        scaleY = 1f
+                        alpha = 1f
+                        setLayerType(View.LAYER_TYPE_NONE, null)
+                    }
                 }
 
                 ActionType.CLOSING -> {
-                    // For individual menu items, remove from window manager
-                    subActionItem.view.alpha = 0f
-                    subActionItem.view.scaleX = 0f
-                    subActionItem.view.scaleY = 0f
-                    subActionItem.view.setLayerType(View.LAYER_TYPE_NONE, null)
-
-                    subActionItem.view.post {
-                        menu?.removeIndividualMenuItem(subActionItem)
+                    subActionItem.view.apply {
+                        alpha = 0f
+                        scaleX = 0f
+                        scaleY = 0f
+                        setLayerType(View.LAYER_TYPE_NONE, null)
+                        post { menu?.removeIndividualMenuItem(subActionItem) }
                     }
                 }
             }
         }
     }
 
-    private inner class LastAnimationListener : Animator.AnimatorListener {
-
-        override fun onAnimationStart(animation: Animator) {
-            setAnimating(true)
-        }
-
+    private inner class LastAnimationListener : AnimatorListenerAdapter() {
         override fun onAnimationEnd(animation: Animator) {
             setAnimating(false)
             animationCompletionListener?.invoke()
@@ -222,10 +205,6 @@ class AnimationHelper {
         override fun onAnimationCancel(animation: Animator) {
             setAnimating(false)
             animationCompletionListener?.invoke()
-        }
-
-        override fun onAnimationRepeat(animation: Animator) {
-            setAnimating(true)
         }
     }
 }
