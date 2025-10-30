@@ -2,6 +2,7 @@
     <string name="app_name">Quick Ball</string>
     <string name="made_by">Made with ❤️ by Chayan</string>
     <string name="version_format">Version: v%s</string>
+    <string name="remove_battery_restriction">Don’t kill my app</string>
 
     <!-- Accessibility Service (for AndroidManifest.xml) -->
     <string name="accessibility_service_description">QuickBall floating ball service that provides a floating ball overlay on your screen for quick access to features.</string>
@@ -44,18 +45,13 @@
     <string name="dialog_button_quit">Quit</string>
     <string name="dialog_button_accept">Accept</string>
 
-    <!-- Select Shortcuts Fragment -->
-    <string name="select_shortcuts_instructions">Drag the shortcuts to reorder them as they will appear in the floating menu.</string>
-    <string name="selected_shortcuts_header">Floating Menu Shortcuts</string>
-    <string name="drag_to_reorder_hint">Drag items to reorder them</string>
-    <string name="menu_icon_description">Menu item icon</string>
-    <string name="drag_handle_description">Drag to reorder</string>
-    
     <!-- Select Shortcut Fragment -->
+    <string name="apps_title">Apps</string>
     <string name="select_shortcut_title">Select Shortcut</string>
     <string name="select_shortcut_description">Choose a shortcut to replace the current one</string>
-    
+    <string name="menu_icon_description">Menu item icon</string>
+    <string name="drag_handle_description">Drag to reorder</string>
+
     <!-- Hide Automatically Fragment -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="app_icon">App icon</string>
 </resources>

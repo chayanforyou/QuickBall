@@ -17,8 +17,10 @@ import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import io.github.chayanforyou.quickball.R
 import io.github.chayanforyou.quickball.domain.handlers.MenuAction
+import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
 import io.github.chayanforyou.quickball.helpers.AnimationHelper
 import io.github.chayanforyou.quickball.utils.WidgetUtil.dp2px
+import io.github.chayanforyou.quickball.utils.getAppIcon
 import kotlin.math.abs
 
 class QuickBallFloatingMenu(
@@ -43,8 +45,8 @@ class QuickBallFloatingMenu(
         animationHelper?.setMenu(this)
         subActionItems.forEach { item ->
             item.view.setOnClickListener {
-                item.action?.let { action ->
-                    menuItemClickListener?.onMenuItemClick(action)
+                item.menuItem?.let { menuItem ->
+                    menuItemClickListener?.onMenuItemClick(menuItem)
                 }
             }
         }
@@ -71,8 +73,17 @@ class QuickBallFloatingMenu(
                 }
             }
             
+            // Pre-init visuals to avoid first-frame flicker
             subActionItems.forEach { item ->
-                addIndividualMenuItem(item, center.x - item.width / 2, center.y - item.height / 2)
+                item.view.alpha = 0f
+                item.view.scaleX = 0f
+                item.view.scaleY = 0f
+                item.view.rotation = 0f
+            }
+
+            // Add each item once at its final position
+            subActionItems.forEach { item ->
+                addIndividualMenuItem(item, item.x, item.y)
             }
             animationHelper.animateMenuOpening(center)
         } else {
@@ -198,7 +209,8 @@ class QuickBallFloatingMenu(
             WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
             PixelFormat.TRANSLUCENT
         ).apply {
             format = PixelFormat.TRANSLUCENT
@@ -210,7 +222,9 @@ class QuickBallFloatingMenu(
 
     fun updateIndividualMenuItemPosition(item: Item, x: Int, y: Int) {
         val layoutParams = individualMenuItems[item] ?: return
-
+        if (!item.view.isAttachedToWindow) {
+            return
+        }
         if (layoutParams.x == x && layoutParams.y == y) {
             return
         }
@@ -226,7 +240,7 @@ class QuickBallFloatingMenu(
     }
 
     // ---------- Data Class ----------
-    data class Item(val view: View, val action: MenuAction? = null) {
+    data class Item(val view: View, val action: MenuAction? = null, val menuItem: QuickBallMenuItemModel? = null) {
         var x: Int = 0
         var y: Int = 0
         
@@ -243,7 +257,7 @@ class QuickBallFloatingMenu(
     }
     
     interface MenuItemClickListener {
-        fun onMenuItemClick(action: MenuAction)
+        fun onMenuItemClick(menuItem: QuickBallMenuItemModel)
     }
 
     companion object {
@@ -254,11 +268,18 @@ class QuickBallFloatingMenu(
 
         fun create(
             context: Context,
-            resId: Int,
-            action: MenuAction? = null,
+            menuItem: QuickBallMenuItemModel,
         ): Item {
             val imageView = ImageView(context).apply {
-                setImageResource(resId)
+                when {
+                    menuItem.packageName != null -> {
+                        val appIcon = context.getAppIcon(menuItem.packageName)
+                        setImageDrawable(appIcon)
+                    }
+                    else -> {
+                        setImageResource(menuItem.iconRes)
+                    }
+                }
                 layoutParams = FrameLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT,
@@ -269,7 +290,8 @@ class QuickBallFloatingMenu(
             }
 
             return Item(
-                action = action,
+                action = menuItem.action,
+                menuItem = menuItem,
                 view = FrameLayout(context).apply {
                     layoutParams = FrameLayout.LayoutParams(sizeInPx, sizeInPx)
                     background = ContextCompat.getDrawable(

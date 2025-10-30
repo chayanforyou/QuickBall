@@ -16,6 +16,8 @@ class AnimationHelper {
     companion object {
         private const val DURATION = 300L
         private const val LAG_BETWEEN_ITEMS = 5
+        private val INTERP_OVERSHOOT by lazy { OvershootInterpolator(0.9f) }
+        private val INTERP_ACCEL by lazy { AccelerateDecelerateInterpolator() }
     }
 
     private enum class ActionType { OPENING, CLOSING }
@@ -39,7 +41,6 @@ class AnimationHelper {
 
             // Enable hardware acceleration for smooth animations
             item.view.setLayerType(View.LAYER_TYPE_HARDWARE, null)
-
             item.view.scaleX = 0f
             item.view.scaleY = 0f
             item.view.alpha = 0f
@@ -53,7 +54,7 @@ class AnimationHelper {
             // Create position animator with throttled updates
             val positionAnimator = ValueAnimator.ofFloat(0f, 1f)
             positionAnimator.duration = DURATION
-            positionAnimator.interpolator = OvershootInterpolator(0.9f)
+            positionAnimator.interpolator = INTERP_OVERSHOOT
 
             // Use throttled updates to prevent frame drops
             positionAnimator.addUpdateListener { anim ->
@@ -63,7 +64,7 @@ class AnimationHelper {
                 menu?.updateIndividualMenuItemPosition(item, currentX, currentY)
             }
 
-            // Create visual effects animator
+            // Create visual effects animator (keep rotation as before)
             val pvhR = PropertyValuesHolder.ofFloat(View.ROTATION, 720f)
             val pvhsX = PropertyValuesHolder.ofFloat(View.SCALE_X, 1f)
             val pvhsY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f)
@@ -71,7 +72,7 @@ class AnimationHelper {
 
             val visualAnimation = ObjectAnimator.ofPropertyValuesHolder(item.view, pvhR, pvhsX, pvhsY, pvhA)
             visualAnimation.duration = DURATION
-            visualAnimation.interpolator = OvershootInterpolator(0.9f)
+            visualAnimation.interpolator = INTERP_OVERSHOOT
 
             // Combine animations
             val animation = AnimatorSet().apply {
@@ -110,7 +111,7 @@ class AnimationHelper {
             // Create position animator with throttled updates
             val positionAnimator = ValueAnimator.ofFloat(0f, 1f)
             positionAnimator.duration = DURATION
-            positionAnimator.interpolator = AccelerateDecelerateInterpolator()
+            positionAnimator.interpolator = INTERP_ACCEL
 
             // Use throttled updates to prevent frame drops
             positionAnimator.addUpdateListener { anim ->
@@ -120,7 +121,7 @@ class AnimationHelper {
                 menu?.updateIndividualMenuItemPosition(item, currentX, currentY)
             }
 
-            // Create visual effects animator
+            // Create visual effects animator (keep rotation as before)
             val pvhR = PropertyValuesHolder.ofFloat(View.ROTATION, -720f)
             val pvhsX = PropertyValuesHolder.ofFloat(View.SCALE_X, 0f)
             val pvhsY = PropertyValuesHolder.ofFloat(View.SCALE_Y, 0f)
@@ -128,7 +129,7 @@ class AnimationHelper {
 
             val visualAnimation = ObjectAnimator.ofPropertyValuesHolder(item.view, pvhR, pvhsX, pvhsY, pvhA)
             visualAnimation.duration = DURATION
-            visualAnimation.interpolator = AccelerateDecelerateInterpolator()
+            visualAnimation.interpolator = INTERP_ACCEL
 
             // Combine animations
             val animation = AnimatorSet().apply {
@@ -182,18 +183,14 @@ class AnimationHelper {
         ) {
             when (actionType) {
                 ActionType.OPENING -> {
-                    // For individual menu items, update position to final location
+                    // For individual menu items, ensure they end at final visual state
                     subActionItem.view.translationX = 0f
                     subActionItem.view.translationY = 0f
                     subActionItem.view.rotation = 0f
                     subActionItem.view.scaleX = 1f
                     subActionItem.view.scaleY = 1f
                     subActionItem.view.alpha = 1f
-                    
-                    // Disable hardware layer after animation to free memory
                     subActionItem.view.setLayerType(View.LAYER_TYPE_NONE, null)
-
-                    menu?.updateIndividualMenuItemPosition(subActionItem, subActionItem.x, subActionItem.y)
                 }
 
                 ActionType.CLOSING -> {
@@ -201,8 +198,6 @@ class AnimationHelper {
                     subActionItem.view.alpha = 0f
                     subActionItem.view.scaleX = 0f
                     subActionItem.view.scaleY = 0f
-                    
-                    // Disable hardware layer before removal
                     subActionItem.view.setLayerType(View.LAYER_TYPE_NONE, null)
 
                     subActionItem.view.post {
