@@ -73,8 +73,17 @@ class QuickBallFloatingMenu(
                 }
             }
             
+            // Pre-init visuals to avoid first-frame flicker
             subActionItems.forEach { item ->
-                addIndividualMenuItem(item, center.x - item.width / 2, center.y - item.height / 2)
+                item.view.alpha = 0f
+                item.view.scaleX = 0f
+                item.view.scaleY = 0f
+                item.view.rotation = 0f
+            }
+
+            // Add each item once at its final position
+            subActionItems.forEach { item ->
+                addIndividualMenuItem(item, item.x, item.y)
             }
             animationHelper.animateMenuOpening(center)
         } else {
@@ -200,7 +209,8 @@ class QuickBallFloatingMenu(
             WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
             PixelFormat.TRANSLUCENT
         ).apply {
             format = PixelFormat.TRANSLUCENT
@@ -212,7 +222,9 @@ class QuickBallFloatingMenu(
 
     fun updateIndividualMenuItemPosition(item: Item, x: Int, y: Int) {
         val layoutParams = individualMenuItems[item] ?: return
-
+        if (!item.view.isAttachedToWindow) {
+            return
+        }
         if (layoutParams.x == x && layoutParams.y == y) {
             return
         }
