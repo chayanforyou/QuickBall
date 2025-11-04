@@ -438,16 +438,18 @@ class QuickBallFloatingButton(
         imageView: ImageView,
         @DrawableRes newIconRes: Int,
         duration: Long = 180L,
-        reverseAngle: Float = -120f
+        reverseAngle: Float = -90f
     ) {
         val newDrawable = ContextCompat.getDrawable(imageView.context, newIconRes) ?: return
 
         ObjectAnimator.ofFloat(imageView, View.ROTATION, 0f, reverseAngle).apply {
             this.duration = duration
+            interpolator = PathInterpolator(0.4f, 0f, 0.2f, 1f)
             doOnEnd {
                 imageView.setImageDrawable(newDrawable)
                 ObjectAnimator.ofFloat(imageView, View.ROTATION, reverseAngle, 0f).apply {
                     this.duration = duration
+                    interpolator = PathInterpolator(0.4f, 0f, 0.2f, 1f)
                     start()
                 }
             }

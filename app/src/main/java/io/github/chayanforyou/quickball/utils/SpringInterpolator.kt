@@ -1,25 +1,23 @@
 package io.github.chayanforyou.quickball.utils
 
 import android.animation.TimeInterpolator
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.exp
-import kotlin.math.pow
-import kotlin.math.sin
-import kotlin.math.sqrt
+import kotlin.math.*
 
 class SpringInterpolator(
-    private var dampingRatio: Float = 0.95f,
-    private var stiffness: Float = 0.6f
+    dampingRatio: Float = 0.95f,
+    stiffness: Float = 0.6f
 ) : TimeInterpolator {
+
+    private var dampingRatio = dampingRatio
+    private var stiffness = stiffness
 
     private var omega: Float = 0f
     private var zeta: Float = 0f
     private var sqrtDiscriminant: Float = 0f
     private var a: Float = 0f
     private var b: Float = 0f
-    private val initialPosition: Float = -1.0f
-    private val initialVelocity: Float = 1.0f
+    private var initialPosition: Float = -1f
+    private var initialVelocity: Float = 1f
 
     init {
         updateParameters()
@@ -27,28 +25,27 @@ class SpringInterpolator(
 
     private fun updateParameters() {
         val pow = (2.0 * PI / stiffness.toDouble()).pow(2.0)
+        val mass = initialVelocity
+        omega = (pow * mass).toFloat()
 
-        omega = (pow * initialVelocity.toDouble()).toFloat()
+        zeta = ((dampingRatio * 4.0 * PI * mass) / stiffness).toFloat()
 
-        zeta = ((dampingRatio * 4.0 * PI * initialVelocity.toDouble()) / stiffness.toDouble()).toFloat()
+        val discriminant = (mass * 4.0f * omega) - (zeta * zeta)
+        sqrtDiscriminant = sqrt(discriminant.toDouble()).toFloat() / (mass * 2.0f)
 
-        val discriminant = (initialVelocity * 4.0f * omega) - (zeta * zeta)
-        sqrtDiscriminant = sqrt(discriminant.toDouble()).toFloat() / (initialVelocity * 2.0f)
-
-        a = -((zeta / 2.0f) * initialVelocity)
-
-        b = (0.0f - (a * initialPosition)) / sqrtDiscriminant
+        a = -(zeta / 2.0f) * mass
+        b = (-a * initialPosition) / sqrtDiscriminant
     }
 
     override fun getInterpolation(input: Float): Float {
         val expTerm = exp((a * input).toDouble())
-
         val cosTerm = cos((sqrtDiscriminant * input).toDouble())
         val sinTerm = sin((sqrtDiscriminant * input).toDouble())
 
-        return (expTerm * ((initialPosition * cosTerm) + (b * sinTerm)) + 1.0).toFloat()
+        return (expTerm * (initialPosition * cosTerm + b * sinTerm) + 1.0).toFloat()
     }
 
+    // Optional: Allow updating damping and stiffness at runtime
     fun setDampingRatio(damping: Float) {
         this.dampingRatio = damping
         updateParameters()
