@@ -6,20 +6,17 @@ import android.animation.AnimatorSet
 import android.animation.ValueAnimator
 import android.graphics.Point
 import android.view.View
-import android.view.animation.PathInterpolator
 import io.github.chayanforyou.quickball.ui.floating.QuickBallFloatingMenu
 import io.github.chayanforyou.quickball.utils.SpringInterpolator
 
 object AnimationHelper {
 
-    private const val INITIAL_SCALE = 0.01f
-    private const val INITIAL_ALPHA = 0.01f
-    private const val DURATION_OPEN = 250L
+    private const val DURATION_OPEN = 500L
     private const val DURATION_CLOSE = 350L
-//    private val INTERP_OPEN = PathInterpolator(0.5f, 0.0f, 0.3f, 0.9f)
-//    private val INTERP_CLOSE = PathInterpolator(0.4f, 0.0f, 0.3f, 1.0f)
+    private const val DELAY_PER_ITEM_OPEN = 10L
+    private const val DELAY_PER_ITEM_CLOSE = 1L
 
-    private val INTERP_OPEN = SpringInterpolator(0.6f, 0.5714286f)
+    private val INTERP_OPEN = SpringInterpolator(0.6f, 0.57f)
     private val INTERP_CLOSE = SpringInterpolator(0.99f, 0.3f)
 
     private enum class ActionType { OPENING, CLOSING }
@@ -27,90 +24,109 @@ object AnimationHelper {
     private var animating = false
     private var animationCompletionListener: (() -> Unit)? = null
 
+    // ------------------------------------------------------------
+    // OPENING
+    // ------------------------------------------------------------
     fun animateMenuOpening(menu: QuickBallFloatingMenu, center: Point) {
         val subItems = menu.getSubActionItems()
-        if (animating || subItems.isEmpty()) {
+        if (subItems.isEmpty()) {
             animationCompletionListener?.invoke()
             return
         }
 
         setAnimating(true)
-        val animators = subItems.map { item ->
+        val animators = subItems.mapIndexed { index, item ->
             val view = item.view
+            val itemWidth = item.width
+            val itemHeight = item.height
+
+            val centerX = center.x - itemWidth / 2
+            val centerY = center.y - itemHeight / 2
+
+            // ---- initial state (scale = 0, alpha = 0) ----
             view.apply {
-                scaleX = INITIAL_SCALE
-                scaleY = INITIAL_SCALE
-                alpha = INITIAL_ALPHA
+                scaleX = 0f
+                scaleY = 0f
+                alpha = 0f
                 setLayerType(View.LAYER_TYPE_HARDWARE, null)
             }
 
-            val itemWidth = item.width
-            val itemHeight = item.height
-            val startX = center.x - itemWidth / 2
-            val startY = center.y - itemHeight / 2
-            val endX = item.x
-            val endY = item.y
+            val finalX = item.x
+            val finalY = item.y
 
             ValueAnimator.ofFloat(0f, 1f).apply {
                 duration = DURATION_OPEN
+                startDelay = index * DELAY_PER_ITEM_OPEN
                 interpolator = INTERP_OPEN
+
                 addUpdateListener { anim ->
                     val p = anim.animatedValue as Float
-                    val x = (startX + (endX - startX) * p).toInt()
-                    val y = (startY + (endY - startY) * p).toInt()
+                    val x = (centerX + (finalX - centerX) * p).toInt()
+                    val y = (centerY + (finalY - centerY) * p).toInt()
                     menu.updateIndividualMenuItemPosition(item, x, y)
 
-                    view.scaleX = INITIAL_SCALE + (1f - INITIAL_SCALE) * p
-                    view.scaleY = INITIAL_SCALE + (1f - INITIAL_SCALE) * p
-                    view.alpha = INITIAL_ALPHA + (1f - INITIAL_ALPHA) * p
+                    view.scaleX = p          // 0 to 1
+                    view.scaleY = p
+                    view.alpha = p
                 }
+
                 addListener(SubActionItemAnimationListener(menu, item, ActionType.OPENING))
             }
         }
 
-        AnimatorSet().apply {
-            playTogether(animators)
-            addListener(LastAnimationListener())
-            start()
-        }
+        startAnimatorSet(animators)
     }
 
+    // ------------------------------------------------------------
+    // CLOSING
+    // ------------------------------------------------------------
     fun animateMenuClosing(menu: QuickBallFloatingMenu, center: Point) {
         val subItems = menu.getSubActionItems()
-        if (animating || subItems.isEmpty()) {
+        if (subItems.isEmpty()) {
             animationCompletionListener?.invoke()
             return
         }
 
         setAnimating(true)
-        val animators = subItems.map { item ->
+        val animators = subItems.mapIndexed { index, item ->
             val view = item.view
-            view.setLayerType(View.LAYER_TYPE_HARDWARE, null)
-
             val itemWidth = item.width
             val itemHeight = item.height
+
             val startX = item.x
             val startY = item.y
             val endX = center.x - itemWidth / 2
             val endY = center.y - itemHeight / 2
 
+            view.setLayerType(View.LAYER_TYPE_HARDWARE, null)
+
             ValueAnimator.ofFloat(0f, 1f).apply {
                 duration = DURATION_CLOSE
+                startDelay = index * DELAY_PER_ITEM_CLOSE
                 interpolator = INTERP_CLOSE
+
                 addUpdateListener { anim ->
                     val p = anim.animatedValue as Float
                     val x = (startX + (endX - startX) * p).toInt()
                     val y = (startY + (endY - startY) * p).toInt()
                     menu.updateIndividualMenuItemPosition(item, x, y)
 
-                    view.scaleX = 1f - p * (1f - INITIAL_SCALE)
-                    view.scaleY = 1f - p * (1f - INITIAL_SCALE)
-                    view.alpha = 1f - p * (1f - INITIAL_ALPHA)
+                    view.scaleX = 1f - p   // 1 to 0
+                    view.scaleY = 1f - p
+                    view.alpha = 1f - p
                 }
+
                 addListener(SubActionItemAnimationListener(menu, item, ActionType.CLOSING))
             }
         }
 
+        startAnimatorSet(animators)
+    }
+
+    // ------------------------------------------------------------
+    // Helpers
+    // ------------------------------------------------------------
+    private fun startAnimatorSet(animators: List<ValueAnimator>) {
         AnimatorSet().apply {
             playTogether(animators)
             addListener(LastAnimationListener())
@@ -119,6 +135,7 @@ object AnimationHelper {
     }
 
     fun isAnimating(): Boolean = animating
+
     private fun setAnimating(value: Boolean) { animating = value }
 
     fun setAnimationCompletionListener(listener: (() -> Unit)?) {
