@@ -2,181 +2,210 @@ package io.github.chayanforyou.quickball.helpers
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
-import android.animation.AnimatorSet
-import android.animation.ValueAnimator
+import android.animation.ObjectAnimator
+import android.animation.PropertyValuesHolder
 import android.graphics.Point
 import android.view.View
-import android.view.animation.PathInterpolator
+import android.view.WindowManager
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.OvershootInterpolator
+import android.widget.FrameLayout
 import io.github.chayanforyou.quickball.ui.floating.QuickBallFloatingMenu
 
-object AnimationHelper {
+class AnimationHelper {
 
-    private const val DURATION_OPEN = 250L
-    private const val DURATION_CLOSE = 300L
-    private const val DELAY_PER_ITEM_OPEN = 5L
-    private const val DELAY_PER_ITEM_CLOSE = 5L
+    companion object {
+        private const val DURATION = 220L
+        private const val LAG_BETWEEN_ITEMS = 20L
+        private val INTERP_OPEN = OvershootInterpolator(0.9f)
+        private val INTERP_CLOSE = AccelerateDecelerateInterpolator()
 
-    private val INTERP_OPEN = PathInterpolator(0.5f, 0.0f, 0.3f, 0.9f)
-    private val INTERP_CLOSE = PathInterpolator(0.4f, 0.0f, 0.3f, 1.0f)
-
-//    private val INTERP_OPEN = SpringInterpolator(0.6f, 0.57f)
-//    private val INTERP_CLOSE = SpringInterpolator(0.99f, 0.3f)
+//        private val INTERP_OPEN = SpringInterpolator(0.6f, 0.57f)
+//        private val INTERP_CLOSE = SpringInterpolator(0.99f, 0.3f)
+    }
 
     private enum class ActionType { OPENING, CLOSING }
 
     private var animating = false
+    private var menu: QuickBallFloatingMenu? = null
     private var animationCompletionListener: (() -> Unit)? = null
 
-    // ------------------------------------------------------------
-    // OPENING
-    // ------------------------------------------------------------
-    fun animateMenuOpening(menu: QuickBallFloatingMenu, center: Point) {
-        val subItems = menu.getSubActionItems()
+    fun setMenu(menu: QuickBallFloatingMenu) {
+        this.menu = menu
+    }
+
+    fun animateMenuOpening(center: Point) {
+        val currentMenu = menu ?: return
+        if (animating) return
+
+        setAnimating(true)
+
+        val subItems = currentMenu.getSubActionItems()
         if (subItems.isEmpty()) {
-            animationCompletionListener?.invoke()
+            setAnimating(false)
             return
         }
 
-        setAnimating(true)
-        val animators = subItems.mapIndexed { index, item ->
+        var lastAnimation: Animator? = null
+
+        subItems.forEachIndexed { i, item ->
             val view = item.view
-            val itemWidth = item.width
-            val itemHeight = item.height
 
-            val centerX = center.x - itemWidth / 2
-            val centerY = center.y - itemHeight / 2
+            // Initial state
+            view.scaleX = 0f
+            view.scaleY = 0f
+            view.alpha = 0f
 
-            // ---- initial state (scale = 0, alpha = 0) ----
-            view.apply {
-                scaleX = 0f
-                scaleY = 0f
-                alpha = 0f
-                setLayerType(View.LAYER_TYPE_HARDWARE, null)
-            }
+            // Target translation: from center to final position
+            val targetX = item.x - center.x + item.width / 2f
+            val targetY = item.y - center.y + item.height / 2f
 
-            val finalX = item.x
-            val finalY = item.y
-
-            ValueAnimator.ofFloat(0f, 1f).apply {
-                duration = DURATION_OPEN
-                startDelay = index * DELAY_PER_ITEM_OPEN
+            val animation = ObjectAnimator.ofPropertyValuesHolder(
+                view,
+                PropertyValuesHolder.ofFloat(View.TRANSLATION_X, targetX),
+                PropertyValuesHolder.ofFloat(View.TRANSLATION_Y, targetY),
+                PropertyValuesHolder.ofFloat(View.ROTATION, 720f),
+                PropertyValuesHolder.ofFloat(View.SCALE_X, 1f),
+                PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f),
+                PropertyValuesHolder.ofFloat(View.ALPHA, 1f)
+            ).apply {
+                duration = DURATION
                 interpolator = INTERP_OPEN
-
-                addUpdateListener { anim ->
-                    val p = anim.animatedValue as Float
-                    val x = (centerX + (finalX - centerX) * p).toInt()
-                    val y = (centerY + (finalY - centerY) * p).toInt()
-                    menu.updateIndividualMenuItemPosition(item, x, y)
-
-                    view.scaleX = p          // 0 to 1
-                    view.scaleY = p
-                    view.alpha = p
-                }
-
-                addListener(SubActionItemAnimationListener(menu, item, ActionType.OPENING))
+                startDelay = (subItems.size - i) * LAG_BETWEEN_ITEMS
+                addListener(SubActionItemAnimationListener(item, ActionType.OPENING))
             }
+
+            if (i == 0) {
+                lastAnimation = animation
+            }
+
+            animation.start()
         }
 
-        startAnimatorSet(animators)
+        lastAnimation?.addListener(LastAnimationListener())
     }
 
-    // ------------------------------------------------------------
-    // CLOSING
-    // ------------------------------------------------------------
-    fun animateMenuClosing(menu: QuickBallFloatingMenu, center: Point) {
-        val subItems = menu.getSubActionItems()
+    fun animateMenuClosing(center: Point) {
+        val currentMenu = menu ?: return
+        if (animating) return
+
+        setAnimating(true)
+
+        val subItems = currentMenu.getSubActionItems()
         if (subItems.isEmpty()) {
-            animationCompletionListener?.invoke()
+            setAnimating(false)
             return
         }
 
-        setAnimating(true)
-        val animators = subItems.mapIndexed { index, item ->
+        var lastAnimation: Animator? = null
+
+        subItems.forEachIndexed { i, item ->
             val view = item.view
-            val itemWidth = item.width
-            val itemHeight = item.height
 
-            val startX = item.x
-            val startY = item.y
-            val endX = center.x - itemWidth / 2
-            val endY = center.y - itemHeight / 2
+            // Reverse translation: from current position back to center
+            val reverseX = -(item.x - center.x + item.width / 2f)
+            val reverseY = -(item.y - center.y + item.height / 2f)
 
-            view.setLayerType(View.LAYER_TYPE_HARDWARE, null)
-
-            ValueAnimator.ofFloat(0f, 1f).apply {
-                duration = DURATION_CLOSE
-                startDelay = index * DELAY_PER_ITEM_CLOSE
+            val animation = ObjectAnimator.ofPropertyValuesHolder(
+                view,
+                PropertyValuesHolder.ofFloat(View.TRANSLATION_X, reverseX),
+                PropertyValuesHolder.ofFloat(View.TRANSLATION_Y, reverseY),
+                PropertyValuesHolder.ofFloat(View.ROTATION, -720f),
+                PropertyValuesHolder.ofFloat(View.SCALE_X, 0f),
+                PropertyValuesHolder.ofFloat(View.SCALE_Y, 0f),
+                PropertyValuesHolder.ofFloat(View.ALPHA, 0f)
+            ).apply {
+                duration = DURATION
                 interpolator = INTERP_CLOSE
-
-                addUpdateListener { anim ->
-                    val p = anim.animatedValue as Float
-                    val x = (startX + (endX - startX) * p).toInt()
-                    val y = (startY + (endY - startY) * p).toInt()
-                    menu.updateIndividualMenuItemPosition(item, x, y)
-
-                    view.scaleX = 1f - p   // 1 to 0
-                    view.scaleY = 1f - p
-                    view.alpha = 1f - p
-                }
-
-                addListener(SubActionItemAnimationListener(menu, item, ActionType.CLOSING))
+                startDelay = (subItems.size - i) * LAG_BETWEEN_ITEMS
+                addListener(SubActionItemAnimationListener(item, ActionType.CLOSING))
             }
+
+            if (i == 0) {
+                lastAnimation = animation
+            }
+
+            animation.start()
         }
 
-        startAnimatorSet(animators)
-    }
-
-    // ------------------------------------------------------------
-    // Helpers
-    // ------------------------------------------------------------
-    private fun startAnimatorSet(animators: List<ValueAnimator>) {
-        AnimatorSet().apply {
-            playTogether(animators)
-            addListener(LastAnimationListener())
-            start()
-        }
+        lastAnimation?.addListener(LastAnimationListener())
     }
 
     fun isAnimating(): Boolean = animating
 
-    private fun setAnimating(value: Boolean) { animating = value }
+    private fun setAnimating(value: Boolean) {
+        animating = value
+    }
 
     fun setAnimationCompletionListener(listener: (() -> Unit)?) {
         animationCompletionListener = listener
     }
 
-    private class SubActionItemAnimationListener(
-        private val menu: QuickBallFloatingMenu,
-        private val item: QuickBallFloatingMenu.Item,
-        private val type: ActionType
+    private inner class SubActionItemAnimationListener(
+        private val subActionItem: QuickBallFloatingMenu.Item,
+        private val actionType: ActionType
     ) : AnimatorListenerAdapter() {
-        override fun onAnimationEnd(animation: Animator) = cleanup()
-        override fun onAnimationCancel(animation: Animator) = cleanup()
 
-        private fun cleanup() {
-            when (type) {
+        override fun onAnimationEnd(animation: Animator) = handleEnd()
+        override fun onAnimationCancel(animation: Animator) = handleEnd()
+
+        private fun handleEnd() {
+            val view = subActionItem.view
+            val params = view.layoutParams as FrameLayout.LayoutParams
+            val overlayParams = menu?.getOverlayContainer()?.layoutParams as? WindowManager.LayoutParams
+
+            // Reset transformation properties
+            view.translationX = 0f
+            view.translationY = 0f
+            view.rotation = 0f
+            view.scaleX = 1f
+            view.scaleY = 1f
+            view.alpha = 1f
+
+            when (actionType) {
                 ActionType.OPENING -> {
-                    item.view.apply {
-                        scaleX = 1f; scaleY = 1f; alpha = 1f
-                        setLayerType(View.LAYER_TYPE_NONE, null)
-                    }
+                    // Set final position via margins
+                    val offsetX = overlayParams?.x ?: 0
+                    val offsetY = overlayParams?.y ?: 0
+                    params.setMargins(
+                        subActionItem.x - offsetX,
+                        subActionItem.y - offsetY,
+                        0, 0
+                    )
+                    view.layoutParams = params
                 }
+
                 ActionType.CLOSING -> {
-                    item.view.apply {
-                        alpha = 0f; scaleX = 0f; scaleY = 0f
-                        setLayerType(View.LAYER_TYPE_NONE, null)
-                        post { menu.removeIndividualMenuItem(item) }
+                    val center = menu?.getActionViewCenter() ?: return
+                    val offsetX = overlayParams?.x ?: 0
+                    val offsetY = overlayParams?.y ?: 0
+
+                    // Snap to center before removal
+                    params.setMargins(
+                        center.x - offsetX - subActionItem.width / 2,
+                        center.y - offsetY - subActionItem.height / 2,
+                        0, 0
+                    )
+                    view.layoutParams = params
+
+                    // Remove from overlay
+                    menu?.removeViewFromCurrentContainer(view)
+
+                    // Detach overlay if empty
+                    if (menu?.getOverlayContainer()?.childCount == 0) {
+                        menu?.detachOverlayContainer()
                     }
                 }
             }
         }
     }
 
-    private class LastAnimationListener : AnimatorListenerAdapter() {
+    private inner class LastAnimationListener : AnimatorListenerAdapter() {
         override fun onAnimationEnd(animation: Animator) {
             setAnimating(false)
             animationCompletionListener?.invoke()
         }
+
         override fun onAnimationCancel(animation: Animator) {
             setAnimating(false)
             animationCompletionListener?.invoke()

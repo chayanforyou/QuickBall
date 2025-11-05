@@ -500,7 +500,7 @@ class QuickBallFloatingButton(
             startAngle = startAngle,
             endAngle = endAngle,
             menuItems = menuItems,
-            animationHelper = AnimationHelper,
+            animationHelper = AnimationHelper(),
             stateChangeListener = object : QuickBallFloatingMenu.MenuStateChangeListener {
                 override fun onMenuOpened(menu: QuickBallFloatingMenu) {
                     floatingBall?.post { updateMenuIcon() }
