@@ -70,7 +70,7 @@ class QuickBallHomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setupClickListeners()
         updatePermissionStates()
-        binding.tvVersion.text = getString(R.string.version_format, BuildConfig.VERSION_NAME)
+        showVersionInfo()
     }
 
     override fun onResume() {
@@ -104,6 +104,16 @@ class QuickBallHomeFragment : Fragment() {
             val action = QuickBallHomeFragmentDirections.actionQuickBallHomeFragmentToAutoHideSettingsFragment()
             findNavController().navigate(action)
         }
+
+        binding.layoutFooter.setOnClickListener {
+            val url = "https://github.com/chayanforyou/QuickBall"
+            val intent = Intent(Intent.ACTION_VIEW, url.toUri())
+            startActivity(intent)
+        }
+    }
+
+    private fun showVersionInfo() {
+        binding.tvVersion.text = getString(R.string.version_format, BuildConfig.VERSION_NAME)
     }
 
     // Quick Ball Control

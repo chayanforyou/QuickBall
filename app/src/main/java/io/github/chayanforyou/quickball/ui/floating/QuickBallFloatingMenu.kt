@@ -28,68 +28,38 @@ class QuickBallFloatingMenu(
     private val startAngle: Int,
     private val endAngle: Int,
     private val radius: Float,
-    private val subActionItems: List<Item> = mutableListOf(),
+    subActionItems: List<Item> = emptyList(),
     private val animationHelper: AnimationHelper? = null,
     private var stateChangeListener: MenuStateChangeListener? = null,
     private var menuItemClickListener: MenuItemClickListener? = null,
 ) {
 
-    private val windowManager: WindowManager by lazy {
-        mainActionView.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-    }
+    private val windowManager: WindowManager = mainActionView.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     private val menuRadius = dp2px(radius)
     private var isOpen = false
-    private val individualMenuItems = mutableMapOf<Item, WindowManager.LayoutParams>()
-
-    init {
-        animationHelper?.setMenu(this)
-        subActionItems.forEach { item ->
-            item.view.setOnClickListener {
-                item.menuItem?.let { menuItem ->
-                    menuItemClickListener?.onMenuItemClick(menuItem)
-                }
-            }
+    private val itemParams = mutableMapOf<Item, WindowManager.LayoutParams>()
+    private val subItems: List<Item> = subActionItems.onEach { item ->
+        item.view.setOnClickListener {
+            item.menuItem?.let { menuItemClickListener?.onMenuItemClick(it) }
         }
     }
 
     // ---------- Public API ----------
-    fun getSubActionItems(): List<Item> = subActionItems
+    fun getSubActionItems(): List<Item> = subItems
 
     fun isOpen(): Boolean = isOpen
 
     fun isAnimating(): Boolean = animationHelper?.isAnimating() == true
 
     fun open(animated: Boolean) {
-        if (isOpen) return // Already open
-        if (animated && animationHelper?.isAnimating() == true) return
-        
+        if (isOpen || (animated && isAnimating())) return
+
         val center = calculateItemPositions()
 
-        if (animated && animationHelper != null) {
-            // Validate all items are detached before animating
-            subActionItems.forEach { item ->
-                if (item.view.parent != null) {
-                    throw RuntimeException("All of the sub action items have to be independent from a parent.")
-                }
-            }
-            
-            // Pre-init visuals to avoid first-frame flicker
-            subActionItems.forEach { item ->
-                item.view.alpha = 0f
-                item.view.scaleX = 0f
-                item.view.scaleY = 0f
-                item.view.rotation = 0f
-            }
+        subItems.forEach { addIndividualMenuItem(it, it.x, it.y) }
 
-            // Add each item once at its final position
-            subActionItems.forEach { item ->
-                addIndividualMenuItem(item, item.x, item.y)
-            }
-            animationHelper.animateMenuOpening(center)
-        } else {
-            subActionItems.forEach { item ->
-                addIndividualMenuItem(item, item.x, item.y)
-            }
+        if (animated && animationHelper != null) {
+            animationHelper.animateMenuOpening(this, center)
         }
 
         isOpen = true
@@ -97,13 +67,12 @@ class QuickBallFloatingMenu(
     }
 
     fun close(animated: Boolean) {
-        if (!isOpen) return // Already closed
-        if (animated && animationHelper?.isAnimating() == true) return
+        if (!isOpen || (animated && isAnimating())) return
 
         if (animated && animationHelper != null) {
-            animationHelper.animateMenuClosing(getActionViewCenter())
+            animationHelper.animateMenuClosing(this, getActionViewCenter())
         } else {
-            subActionItems.forEach { removeIndividualMenuItem(it) }
+            subItems.forEach { removeIndividualMenuItem(it) }
         }
 
         isOpen = false
@@ -116,96 +85,88 @@ class QuickBallFloatingMenu(
         animationHelper?.setAnimationCompletionListener(listener)
     }
 
-    inline fun doOnAnimationEnd(
-        crossinline action: (isOpen: Boolean) -> Unit
-    ) {
+    inline fun doOnAnimationEnd(crossinline action: (isOpen: Boolean) -> Unit) {
         setAnimationCompletionListener {
             setAnimationCompletionListener(null)
             action(isOpen())
         }
     }
 
-    // ---------- Helpers & calculations ----------
+    // ---------- Center ----------
     fun getActionViewCenter(): Point {
         val coords = IntArray(2)
         mainActionView.getLocationOnScreen(coords)
         return Point(
-            coords[0] + mainActionView.measuredWidth / 2,
-            coords[1] + mainActionView.measuredHeight / 2
+            coords[0] + mainActionView.width / 2,
+            coords[1] + mainActionView.height / 2
         )
     }
 
+    // ---------- Position Calculation ----------
     private fun calculateItemPositions(): Point {
         val center = getActionViewCenter()
         val area = RectF(
-            (center.x - menuRadius).toFloat(),
-            (center.y - menuRadius).toFloat(),
-            (center.x + menuRadius).toFloat(),
-            (center.y + menuRadius).toFloat()
+            (center.x - menuRadius).toFloat(), (center.y - menuRadius).toFloat(),
+            (center.x + menuRadius).toFloat(), (center.y + menuRadius).toFloat()
         )
 
-        val (adjustedStartAngle, adjustedSpan) = if (endAngle < startAngle) {
-            Pair(startAngle - 360, endAngle - (startAngle - 360))
+        val (start, span) = if (endAngle < startAngle) {
+            startAngle - 360 to endAngle - (startAngle - 360)
         } else {
-            Pair(startAngle, endAngle - startAngle)
+            startAngle to endAngle - startAngle
         }
 
-        val orbit = Path().apply { addArc(area, adjustedStartAngle.toFloat(), adjustedSpan.toFloat()) }
-        val measure = PathMeasure(orbit, false)
-        val divisor = if (abs(adjustedSpan.toDouble()) >= 360 || subActionItems.size <= 1) {
-            subActionItems.size
-        } else {
-            subActionItems.size - 1
-        }
+        val path = Path().apply { addArc(area, start.toFloat(), span.toFloat()) }
+        val measure = PathMeasure(path, false)
+        val totalLength = measure.length
+        val count = subItems.size
+        val divisor = if (abs(span) >= 360 || count <= 1) count else count - 1
 
-        subActionItems.forEachIndexed { i, item ->
-            val coords = FloatArray(2)
-            measure.getPosTan(i * measure.length / divisor, coords, null)
-            item.x = coords[0].toInt() - item.width / 2
-            item.y = coords[1].toInt() - item.height / 2
+        // Reuse FloatArray to avoid allocations
+        val pos = FloatArray(2)
+        subItems.forEachIndexed { i, item ->
+            measure.getPosTan(i * totalLength / divisor, pos, null)
+            // Cache width/height to avoid repeated getter calls
+            val itemWidth = item.width
+            val itemHeight = item.height
+            item.x = pos[0].toInt() - itemWidth / 2
+            item.y = pos[1].toInt() - itemHeight / 2
         }
 
         return center
     }
 
-    // ---------- Individual Menu Item Management ----------
+    // ---------- Item Management ----------
     private fun addIndividualMenuItem(item: Item, x: Int, y: Int) {
-        if (individualMenuItems.containsKey(item)) {
-            return
-        }
+        if (itemParams.containsKey(item)) return
 
+        val lp = createLayoutParams(x, y, item.width, item.height)
+        itemParams[item] = lp
         try {
-            val layoutParams = createIndividualMenuItemParams(x, y, item.width, item.height)
-            individualMenuItems[item] = layoutParams
-            windowManager.addView(item.view, layoutParams)
+            windowManager.addView(item.view, lp)
         } catch (e: Exception) {
-            Log.w(TAG, "Failed to add menu item: ${e.message}")
+            Log.w(TAG, "Add failed: ${e.message}")
         }
     }
 
     fun removeIndividualMenuItem(item: Item) {
-        if (!individualMenuItems.containsKey(item)) {
-            return
-        }
+        if (!itemParams.containsKey(item)) return
 
         try {
+            itemParams.remove(item)
             windowManager.removeView(item.view)
-            individualMenuItems.remove(item)
         } catch (e: Exception) {
-            Log.w(TAG, "Failed to remove menu item: ${e.message}")
+            Log.w(TAG, "Remove failed: ${e.message}")
         }
     }
 
-    private fun createIndividualMenuItemParams(x: Int, y: Int, width: Int, height: Int): WindowManager.LayoutParams {
+    private fun createLayoutParams(x: Int, y: Int, w: Int, h: Int): WindowManager.LayoutParams {
         return WindowManager.LayoutParams(
-            width,
-            height,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            w, h,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
                 WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
-            } else {
-                @Suppress("DEPRECATION")
-                WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY
-            },
+            else @Suppress("DEPRECATION")
+            WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
@@ -213,7 +174,6 @@ class QuickBallFloatingMenu(
                     WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
             PixelFormat.TRANSLUCENT
         ).apply {
-            format = PixelFormat.TRANSLUCENT
             gravity = Gravity.TOP or Gravity.START
             this.x = x
             this.y = y
@@ -221,87 +181,72 @@ class QuickBallFloatingMenu(
     }
 
     fun updateIndividualMenuItemPosition(item: Item, x: Int, y: Int) {
-        val layoutParams = individualMenuItems[item] ?: return
-        if (!item.view.isAttachedToWindow) {
-            return
-        }
-        if (layoutParams.x == x && layoutParams.y == y) {
-            return
-        }
-        
-        layoutParams.x = x
-        layoutParams.y = y
+        val lp = itemParams[item] ?: return
+        if (!item.view.isAttachedToWindow || (lp.x == x && lp.y == y)) return
 
+        lp.x = x
+        lp.y = y
         try {
-            windowManager.updateViewLayout(item.view, layoutParams)
+            windowManager.updateViewLayout(item.view, lp)
         } catch (e: Exception) {
-            Log.w(TAG, "Failed to update menu item position: ${e.message}")
+            Log.w(TAG, "Update failed: ${e.message}")
         }
     }
 
-    // ---------- Data Class ----------
-    data class Item(val view: View, val action: MenuAction? = null, val menuItem: QuickBallMenuItemModel? = null) {
+    // ---------- Item Class ----------
+    data class Item(
+        val view: View,
+        val action: MenuAction? = null,
+        val menuItem: QuickBallMenuItemModel? = null
+    ) {
         var x: Int = 0
         var y: Int = 0
-        
-        val width: Int
-            get() = if (view.measuredWidth > 0) view.measuredWidth else view.layoutParams?.width ?: 0
-            
-        val height: Int
-            get() = if (view.measuredHeight > 0) view.measuredHeight else view.layoutParams?.height ?: 0
+        val width: Int get() = view.measuredWidth.coerceAtLeast(view.minimumWidth)
+        val height: Int get() = view.measuredHeight.coerceAtLeast(view.minimumHeight)
     }
 
     interface MenuStateChangeListener {
         fun onMenuOpened(menu: QuickBallFloatingMenu)
         fun onMenuClosed(menu: QuickBallFloatingMenu)
     }
-    
+
     interface MenuItemClickListener {
         fun onMenuItemClick(menuItem: QuickBallMenuItemModel)
     }
 
     companion object {
         private const val TAG = "QuickBallFloatingMenu"
+        private val SIZE_PX by lazy { dp2px(52f) }
+        private val MARGIN_PX by lazy { dp2px(14f) }
 
-        private val sizeInPx by lazy { dp2px(52f) }
-        private val margin by lazy { dp2px(14f) }
-
-        fun create(
-            context: Context,
-            menuItem: QuickBallMenuItemModel,
-        ): Item {
-            val imageView = ImageView(context).apply {
-                when {
-                    menuItem.packageName != null -> {
-                        val appIcon = context.getAppIcon(menuItem.packageName)
-                        setImageDrawable(appIcon)
-                    }
-                    else -> {
-                        setImageResource(menuItem.iconRes)
-                    }
-                }
+        fun create(context: Context, menuItem: QuickBallMenuItemModel): Item {
+            val iconView = ImageView(context).apply {
+                menuItem.packageName?.let { setImageDrawable(context.getAppIcon(it)) }
+                    ?: setImageResource(menuItem.iconRes)
                 layoutParams = FrameLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     Gravity.CENTER
-                ).apply {
-                    setMargins(margin, margin, margin, margin)
-                }
+                ).apply { setMargins(MARGIN_PX, MARGIN_PX, MARGIN_PX, MARGIN_PX) }
+            }
+
+            val container = FrameLayout(context).apply {
+                layoutParams = FrameLayout.LayoutParams(SIZE_PX, SIZE_PX)
+                background = ContextCompat.getDrawable(context, R.drawable.floating_ball_background)
+                    ?.mutate()?.constantState?.newDrawable()
+                isClickable = true
+                addView(iconView)
+                // Pre-measure
+                measure(
+                    View.MeasureSpec.makeMeasureSpec(SIZE_PX, View.MeasureSpec.EXACTLY),
+                    View.MeasureSpec.makeMeasureSpec(SIZE_PX, View.MeasureSpec.EXACTLY)
+                )
             }
 
             return Item(
+                view = container,
                 action = menuItem.action,
-                menuItem = menuItem,
-                view = FrameLayout(context).apply {
-                    layoutParams = FrameLayout.LayoutParams(sizeInPx, sizeInPx)
-                    background = ContextCompat.getDrawable(
-                        context,
-                        R.drawable.floating_ball_background
-                    )?.mutate()?.constantState?.newDrawable()
-                    isClickable = true
-                    setLayerType(View.LAYER_TYPE_HARDWARE, null)
-                    addView(imageView)
-                }
+                menuItem = menuItem
             )
         }
 
@@ -311,7 +256,7 @@ class QuickBallFloatingMenu(
             endAngle: Int = 240,
             radius: Float = 94f,
             menuItems: List<Item> = emptyList(),
-            animationHelper: AnimationHelper? = AnimationHelper(),
+            animationHelper: AnimationHelper? = AnimationHelper,
             stateChangeListener: MenuStateChangeListener? = null,
             menuItemClickListener: MenuItemClickListener? = null
         ) = QuickBallFloatingMenu(
