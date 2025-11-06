@@ -25,8 +25,6 @@ import io.github.chayanforyou.quickball.helpers.AnimationHelper
 import io.github.chayanforyou.quickball.utils.WidgetUtil.dp2px
 import io.github.chayanforyou.quickball.utils.getAppIcon
 import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.min
 
 class QuickBallFloatingMenu(
     private val mainActionView: View,
@@ -60,9 +58,25 @@ class QuickBallFloatingMenu(
 
     // ---------- Public API ----------
     fun getSubActionItems(): List<Item> = subItems
+
     fun getOverlayContainer(): FrameLayout? = overlayContainer
+
     fun isOpen(): Boolean = isOpen
+
     fun isAnimating(): Boolean = animationHelper?.isAnimating() == true
+
+    fun setAnimationCompletionListener(listener: (() -> Unit)?) {
+        animationHelper?.setAnimationCompletionListener(listener)
+    }
+
+    inline fun doOnAnimationEnd(
+        crossinline action: (isOpen: Boolean) -> Unit
+    ) {
+        setAnimationCompletionListener {
+            setAnimationCompletionListener(null)
+            action(isOpen())
+        }
+    }
 
     fun open(animated: Boolean) {
         if (isOpen || (animated && isAnimating())) return
@@ -117,16 +131,11 @@ class QuickBallFloatingMenu(
         stateChangeListener?.onMenuClosed(this)
     }
 
-    fun toggle(animated: Boolean) = if (isOpen) close(animated) else open(animated)
-
-    fun setAnimationCompletionListener(listener: (() -> Unit)?) {
-        animationHelper?.setAnimationCompletionListener(listener)
-    }
-
-    inline fun doOnAnimationEnd(crossinline action: (isOpen: Boolean) -> Unit) {
-        setAnimationCompletionListener {
-            setAnimationCompletionListener(null)
-            action(isOpen())
+    fun toggle(animated: Boolean) {
+        if (isOpen) {
+            close(animated)
+        } else {
+            open(animated)
         }
     }
 
@@ -186,24 +195,14 @@ class QuickBallFloatingMenu(
     private fun ensureOverlayContainer(): FrameLayout {
         if (overlayContainer == null) {
             overlayContainer = FrameLayout(mainActionView.context).apply {
-                isClickable = false
-                buttonBounds = Rect()
-
-                setOnTouchListener { _, event ->
-                    val bounds = buttonBounds ?: return@setOnTouchListener false
-                    if (bounds.isEmpty) return@setOnTouchListener false
-
-                    val containerLocation = IntArray(2)
-                    getLocationOnScreen(containerLocation)
-                    val screenX = (containerLocation[0] + event.x).toInt()
-                    val screenY = (containerLocation[1] + event.y).toInt()
-
-                    if (!bounds.contains(screenX, screenY)) return@setOnTouchListener false
-
+                isClickable = true
+                isFocusable = false
+                setOnTouchListener { v, event ->
                     when (event.action) {
-                        MotionEvent.ACTION_DOWN -> true
-                        MotionEvent.ACTION_UP -> {
-                            if (isOpen) close(true) else mainActionView.performClick()
+                        MotionEvent.ACTION_UP,
+                        MotionEvent.ACTION_CANCEL,
+                        MotionEvent.ACTION_OUTSIDE -> {
+                            close(true)
                             true
                         }
                         else -> false
@@ -247,43 +246,32 @@ class QuickBallFloatingMenu(
         val bounds = buttonBounds ?: return
         val location = IntArray(2)
         mainActionView.getLocationOnScreen(location)
+
+        val containerLocation = IntArray(2)
+        overlayContainer?.getLocationOnScreen(containerLocation) ?: return
+
         val width = mainActionView.measuredWidth
         val height = mainActionView.measuredHeight
 
         if (width > 0 && height > 0) {
-            bounds.set(location[0], location[1], location[0] + width, location[1] + height)
+            val relativeX = location[0] - containerLocation[0]
+            val relativeY = location[1] - containerLocation[1]
+            bounds.set(relativeX, relativeY, relativeX + width, relativeY + height)
         } else {
             bounds.setEmpty()
         }
     }
 
     private fun calculateOverlayContainerParams(): WindowManager.LayoutParams {
-        val coords = getActionViewCoordinates()
-        val bounds = Rect(
-            coords.x,
-            coords.y,
-            coords.x + mainActionView.measuredWidth,
-            coords.y + mainActionView.measuredHeight
-        )
-
-        subItems.forEach { item ->
-            bounds.left = min(bounds.left, item.x)
-            bounds.top = min(bounds.top, item.y)
-            bounds.right = max(bounds.right, item.x + item.width)
-            bounds.bottom = max(bounds.bottom, item.y + item.height)
-        }
-
-        val padding = dp2px(20f)
-        bounds.inset(-padding, -padding)
-
-        val containerWidth = bounds.width().coerceAtLeast(1)
-        val containerHeight = bounds.height().coerceAtLeast(1)
+        val displayMetrics = mainActionView.context.resources.displayMetrics
+        val screenWidth = displayMetrics.widthPixels
+        val screenHeight = displayMetrics.heightPixels
 
         return getDefaultSystemWindowParams().apply {
-            width = containerWidth
-            height = containerHeight
-            x = bounds.left
-            y = bounds.top
+            width = screenWidth
+            height = screenHeight
+            x = 0
+            y = 0
             gravity = Gravity.TOP or Gravity.START
         }
     }
@@ -349,8 +337,8 @@ class QuickBallFloatingMenu(
 
     companion object {
         private const val TAG = "QuickBallFloatingMenu"
-        private val SIZE_PX by lazy { dp2px(52f) }
-        private val MARGIN_PX by lazy { dp2px(14f) }
+        private val SIZE_PX by lazy { dp2px(53f) }
+        private val MARGIN_PX by lazy { dp2px(15f) }
 
         fun create(context: Context, menuItem: QuickBallMenuItemModel): Item {
             val iconView = ImageView(context).apply {
@@ -386,7 +374,7 @@ class QuickBallFloatingMenu(
             actionView: View,
             startAngle: Int = 120,
             endAngle: Int = 240,
-            radius: Float = 94f,
+            radius: Float = 96f,
             menuItems: List<Item> = emptyList(),
             animationHelper: AnimationHelper? = null,
             stateChangeListener: MenuStateChangeListener? = null,
@@ -403,8 +391,8 @@ class QuickBallFloatingMenu(
         )
 
         fun getDefaultSystemWindowParams() = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.MATCH_PARENT,
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
             } else {
@@ -415,6 +403,7 @@ class QuickBallFloatingMenu(
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
                     WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                    WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH or
                     WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED,
             PixelFormat.TRANSLUCENT
         ).apply {

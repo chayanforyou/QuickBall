@@ -4,16 +4,13 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
-import android.graphics.Color
 import android.graphics.PixelFormat
 import android.os.Build
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.Gravity
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -46,12 +43,11 @@ class QuickBallFloatingButton(
     private val displayMetrics: DisplayMetrics by lazy { context.resources.displayMetrics }
     private val windowManager: WindowManager by lazy { context.getSystemService(Context.WINDOW_SERVICE) as WindowManager }
     private var floatingBall: View? = null
-    private var menuOverlay: View? = null
     private var floatingMenu: QuickBallFloatingMenu? = null
 
     // Ball properties
-    private val ballSize by lazy { dp2px(44f) }
-    private val ballMargin by lazy { dp2px(6f) }
+    private val ballSize by lazy { dp2px(45f) }
+    private val ballMargin by lazy { dp2px(5f) }
     private val stashOffset by lazy { dp2px(24f) }
     private val topBoundary by lazy { dp2px(100f) }
     private val bottomBoundary by lazy { dp2px(100f) }
@@ -95,74 +91,12 @@ class QuickBallFloatingButton(
         // Initialize current orientation
         currentOrientation = context.resources.configuration.orientation
 
-        // Create menu overlay
-        menuOverlay = createMenuOverlay()
-
         // Create floating ball
         floatingBall = createFloatingBall()
     }
 
-    @SuppressLint("ClickableViewAccessibility")
-    private fun createMenuOverlay(): View {
-        return View(context).apply {
-            setBackgroundColor(Color.TRANSPARENT)
-            isClickable = true
-            isFocusable = false
-            visibility = View.GONE
-            setOnTouchListener { v, event ->
-                when (event.action) {
-                    MotionEvent.ACTION_DOWN,
-                    MotionEvent.ACTION_OUTSIDE -> {
-                        hideMenu(true)
-                        true
-                    }
-                    else -> false
-                }
-            }
-        }
-    }
-
-    private fun addOverlayToWindow() {
-        val overlay = menuOverlay ?: return
-
-        try {
-            val layoutParams = createMenuOverlayLayoutParams()
-            windowManager.addView(overlay, layoutParams)
-        } catch (e: Exception) {
-            Log.e(TAG, "Error adding menu overlay to window", e)
-        }
-    }
-
-    private fun showMenuOverlay() {
-        menuOverlay?.visibility = View.VISIBLE
-    }
-
-    private fun hideMenuOverlay() {
-        menuOverlay?.visibility = View.GONE
-    }
-
-    private fun createMenuOverlayLayoutParams(): WindowManager.LayoutParams {
-        return WindowManager.LayoutParams().apply {
-            type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
-            } else {
-                @Suppress("DEPRECATION")
-                WindowManager.LayoutParams.TYPE_SYSTEM_OVERLAY
-            }
-            flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
-                    WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
-
-            format = PixelFormat.TRANSLUCENT
-            width = WindowManager.LayoutParams.MATCH_PARENT
-            height = WindowManager.LayoutParams.MATCH_PARENT
-            gravity = Gravity.TOP or Gravity.START
-        }
-    }
-
     private fun createFloatingBall(): FrameLayout {
-        val margin = dp2px(8f)
+        val margin = dp2px(9f)
 
         val imageView = ImageView(context).apply {
             setImageResource(R.drawable.ic_menu_open)
@@ -201,8 +135,8 @@ class QuickBallFloatingButton(
             flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                     WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                    WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED
 
             // Set format
             format = PixelFormat.TRANSLUCENT
@@ -240,8 +174,7 @@ class QuickBallFloatingButton(
     fun show() {
         if (isVisible) return
 
-        // Add overlay FIRST to ensure proper z-order (below everything)
-        addOverlayToWindow()
+        // Add quick ball overlay
         addFloatingBallToWindow()
 
         // Restore last position if available
@@ -261,11 +194,6 @@ class QuickBallFloatingButton(
             floatingBall?.let { ball ->
                 if (ball.parent != null) {
                     windowManager.removeView(ball)
-                }
-            }
-            menuOverlay?.let { overlay ->
-                if (overlay.parent != null) {
-                    windowManager.removeView(overlay)
                 }
             }
 
@@ -387,7 +315,7 @@ class QuickBallFloatingButton(
     }
 
     fun hideMenu(animated: Boolean = false) {
-        hideMenuOverlay()
+//        hideMenuOverlay()
         floatingMenu?.takeIf { it.isOpen() }?.apply {
             if (isAnimating()) {
                 doOnAnimationEnd { isOpen ->
@@ -423,7 +351,7 @@ class QuickBallFloatingButton(
 
         floatingBall?.post {
             ensureMenuCreated()
-            showMenuOverlay()
+//            showMenuOverlay()
             floatingMenu?.open(true)
         }
     }
@@ -508,7 +436,7 @@ class QuickBallFloatingButton(
                 }
 
                 override fun onMenuClosed(menu: QuickBallFloatingMenu) {
-                    hideMenuOverlay()
+//                    hideMenuOverlay()
                     floatingBall?.post { updateMenuIcon() }
                     onMenuStateChangedListener?.invoke(false)
                 }
@@ -625,7 +553,7 @@ class QuickBallFloatingButton(
             !isAnimatingStash -> {
                 floatingMenu?.takeUnless { it.isOpen() }?.let {
                     ensureMenuCreated()
-                    showMenuOverlay()
+//                    showMenuOverlay()
                 }
                 floatingMenu?.toggle(true)
             }
