@@ -95,6 +95,10 @@ class QuickBallHomeFragment : Fragment() {
             }
         }
 
+        binding.switchEnableOnLockScreen.setOnCheckedChangeListener { _, isChecked ->
+            PreferenceManager.setShowOnLockScreenEnabled(requireContext(), isChecked)
+        }
+
         binding.layoutShortcutsSelection.setOnClickListener {
             val action = QuickBallHomeFragmentDirections.actionQuickBallHomeFragmentToShortcutMenuFragment()
             findNavController().navigate(action)
@@ -154,6 +158,10 @@ class QuickBallHomeFragment : Fragment() {
             binding.switchEnableQuickBall.isChecked = PreferenceManager.isQuickBallEnabled(requireContext())
             binding.switchEnableQuickBall.jumpDrawablesToCurrentState()
         }
+        
+        // Restore lock screen preference
+        binding.switchEnableOnLockScreen.isChecked = PreferenceManager.isShowOnLockScreenEnabled(requireContext())
+        binding.switchEnableOnLockScreen.jumpDrawablesToCurrentState()
     }
 
     private fun hasAllRequiredPermissions(): Boolean {

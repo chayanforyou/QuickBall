@@ -29,9 +29,13 @@ class InstalledAppListAdapter(
         fun bind(app: InstalledAppModel) = with(binding) {
             ivAppIcon.setImageDrawable(app.icon)
             tvAppName.text = app.appName
+
+            // Remove listener to avoid triggering on recycler view rebind
+            switchSelect.setOnCheckedChangeListener(null)
             switchSelect.isChecked = app.isSelected
 
             switchSelect.setOnCheckedChangeListener { _, isChecked ->
+                app.isSelected = isChecked
                 onToggleChanged(app, isChecked)
             }
         }

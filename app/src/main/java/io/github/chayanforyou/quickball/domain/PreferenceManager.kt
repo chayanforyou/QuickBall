@@ -11,6 +11,7 @@ import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
 object PreferenceManager {
     private const val PREFS_NAME = "quick_ball_prefs"
     private const val KEY_QUICK_BALL_ENABLED = "quick_ball_enabled"
+    private const val KEY_SHOW_ON_LOCK_SCREEN = "show_on_lock_screen"
     private const val KEY_SELECTED_MENU_ITEMS = "selected_menu_items"
     private const val KEY_SELECTED_APPS = "selected_apps"
     
@@ -27,6 +28,16 @@ object PreferenceManager {
     fun setQuickBallEnabled(context: Context, enabled: Boolean) {
         getPreferences(context).edit { 
             putBoolean(KEY_QUICK_BALL_ENABLED, enabled) 
+        }
+    }
+
+    fun isShowOnLockScreenEnabled(context: Context): Boolean {
+        return getPreferences(context).getBoolean(KEY_SHOW_ON_LOCK_SCREEN, false)
+    }
+
+    fun setShowOnLockScreenEnabled(context: Context, enabled: Boolean) {
+        getPreferences(context).edit {
+            putBoolean(KEY_SHOW_ON_LOCK_SCREEN, enabled)
         }
     }
     
@@ -72,25 +83,25 @@ object PreferenceManager {
         }
     }
     
-    fun saveSelectedApps(context: Context, selectedApps: Set<String>) {
+    fun setAutoHideApps(context: Context, selectedApps: Set<String>) {
         getPreferences(context).edit { 
             putStringSet(KEY_SELECTED_APPS, selectedApps) 
         }
     }
     
-    fun getSelectedApps(context: Context): Set<String> {
+    fun getAutoHideApps(context: Context): Set<String> {
         return getPreferences(context).getStringSet(KEY_SELECTED_APPS, emptySet()) ?: emptySet()
     }
     
-    fun addSelectedApp(context: Context, packageName: String) {
-        val currentSelected = getSelectedApps(context).toMutableSet()
+    fun addAutoHideApp(context: Context, packageName: String) {
+        val currentSelected = getAutoHideApps(context).toMutableSet()
         currentSelected.add(packageName)
-        saveSelectedApps(context, currentSelected)
+        setAutoHideApps(context, currentSelected)
     }
     
-    fun removeSelectedApp(context: Context, packageName: String) {
-        val currentSelected = getSelectedApps(context).toMutableSet()
+    fun removeAutoHideApp(context: Context, packageName: String) {
+        val currentSelected = getAutoHideApps(context).toMutableSet()
         currentSelected.remove(packageName)
-        saveSelectedApps(context, currentSelected)
+        setAutoHideApps(context, currentSelected)
     }
 }

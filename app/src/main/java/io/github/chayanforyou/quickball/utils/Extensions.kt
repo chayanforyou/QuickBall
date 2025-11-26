@@ -3,7 +3,6 @@ package io.github.chayanforyou.quickball.utils
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
-import android.util.TypedValue
 import androidx.core.content.ContextCompat
 import io.github.chayanforyou.quickball.domain.PreferenceManager
 import io.github.chayanforyou.quickball.domain.models.InstalledAppModel
@@ -18,7 +17,7 @@ fun Context.getAppIcon(packageName: String): Drawable? {
 
 fun Context.loadInstalledApps(sortBySelectedFirst: Boolean = false): List<InstalledAppModel> {
     val installedApps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
-    val selectedApps = PreferenceManager.getSelectedApps(this)
+    val autoHideApps = PreferenceManager.getAutoHideApps(this)
 
     val apps = installedApps
         .filter { appInfo ->
@@ -33,7 +32,7 @@ fun Context.loadInstalledApps(sortBySelectedFirst: Boolean = false): List<Instal
                 appName = appName,
                 packageName = appInfo.packageName,
                 icon = icon,
-                isSelected = selectedApps.contains(appInfo.packageName)
+                isSelected = autoHideApps.contains(appInfo.packageName)
             )
         }
 

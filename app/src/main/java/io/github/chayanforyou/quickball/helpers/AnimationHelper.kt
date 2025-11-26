@@ -64,7 +64,7 @@ class AnimationHelper {
                 view,
                 PropertyValuesHolder.ofFloat(View.TRANSLATION_X, targetX),
                 PropertyValuesHolder.ofFloat(View.TRANSLATION_Y, targetY),
-                PropertyValuesHolder.ofFloat(View.ROTATION, 720f),
+                // PropertyValuesHolder.ofFloat(View.ROTATION, 720f),
                 PropertyValuesHolder.ofFloat(View.SCALE_X, 1f),
                 PropertyValuesHolder.ofFloat(View.SCALE_Y, 1f),
                 PropertyValuesHolder.ofFloat(View.ALPHA, 1f)
@@ -110,7 +110,7 @@ class AnimationHelper {
                 view,
                 PropertyValuesHolder.ofFloat(View.TRANSLATION_X, reverseX),
                 PropertyValuesHolder.ofFloat(View.TRANSLATION_Y, reverseY),
-                PropertyValuesHolder.ofFloat(View.ROTATION, -720f),
+                // PropertyValuesHolder.ofFloat(View.ROTATION, -720f),
                 PropertyValuesHolder.ofFloat(View.SCALE_X, 0f),
                 PropertyValuesHolder.ofFloat(View.SCALE_Y, 0f),
                 PropertyValuesHolder.ofFloat(View.ALPHA, 0f)
@@ -153,6 +153,8 @@ class AnimationHelper {
             val view = subActionItem.view
             val params = view.layoutParams as FrameLayout.LayoutParams
             val overlayParams = menu?.getOverlayContainer()?.layoutParams as? WindowManager.LayoutParams
+            val offsetX = overlayParams?.x ?: 0
+            val offsetY = overlayParams?.y ?: 0
 
             // Reset transformation properties
             view.translationX = 0f
@@ -165,8 +167,6 @@ class AnimationHelper {
             when (actionType) {
                 ActionType.OPENING -> {
                     // Set final position via margins
-                    val offsetX = overlayParams?.x ?: 0
-                    val offsetY = overlayParams?.y ?: 0
                     params.setMargins(
                         subActionItem.x - offsetX,
                         subActionItem.y - offsetY,
@@ -177,9 +177,6 @@ class AnimationHelper {
 
                 ActionType.CLOSING -> {
                     val center = menu?.getActionViewCenter() ?: return
-                    val offsetX = overlayParams?.x ?: 0
-                    val offsetY = overlayParams?.y ?: 0
-
                     // Snap to center before removal
                     params.setMargins(
                         center.x - offsetX - subActionItem.width / 2,

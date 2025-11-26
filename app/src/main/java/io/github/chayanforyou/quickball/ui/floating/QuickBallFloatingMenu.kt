@@ -123,7 +123,7 @@ class QuickBallFloatingMenu(
         if (animated && animationHelper != null) {
             animationHelper.animateMenuClosing(getActionViewCenter())
         } else {
-            subItems.forEach { removeViewFromCurrentContainer(it.view) }
+            removeAllSubActionViews()
             detachOverlayContainer()
         }
 
@@ -242,6 +242,16 @@ class QuickBallFloatingMenu(
         buttonBounds?.setEmpty()
     }
 
+    private fun removeAllSubActionViews() {
+        subItems.forEach { item ->
+            try {
+                removeViewFromCurrentContainer(item.view)
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to remove view from parent: ${e.message}")
+            }
+        }
+    }
+
     private fun updateButtonBounds() {
         val bounds = buttonBounds ?: return
         val location = IntArray(2)
@@ -277,7 +287,7 @@ class QuickBallFloatingMenu(
     }
 
     private fun addViewToCurrentContainer(view: View, layoutParams: ViewGroup.LayoutParams) {
-        ensureOverlayContainer().addView(view, layoutParams)
+        overlayContainer?.addView(view, layoutParams)
     }
 
     fun removeViewFromCurrentContainer(view: View) {

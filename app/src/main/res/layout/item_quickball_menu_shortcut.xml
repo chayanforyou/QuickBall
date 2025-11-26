@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?attr/selectableItemBackground"
-    android:padding="@dimen/padding">
+    android:padding="@dimen/padding_24dp">
 
     <ImageView
         android:id="@+id/iv_drag_handle"

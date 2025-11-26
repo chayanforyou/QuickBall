@@ -79,9 +79,9 @@ class AutoHideSettingsFragment : Fragment() {
 
     private fun updateAppSelectionState(app: InstalledAppModel, isSelected: Boolean) {
         if (isSelected) {
-            PreferenceManager.addSelectedApp(requireContext(), app.packageName)
+            PreferenceManager.addAutoHideApp(requireContext(), app.packageName)
         } else {
-            PreferenceManager.removeSelectedApp(requireContext(), app.packageName)
+            PreferenceManager.removeAutoHideApp(requireContext(), app.packageName)
         }
     }
 

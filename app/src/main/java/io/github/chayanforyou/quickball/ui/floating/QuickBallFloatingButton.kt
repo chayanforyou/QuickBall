@@ -188,7 +188,7 @@ class QuickBallFloatingButton(
         savePositionForCurrentOrientation()
 
         // Hide and cleanup menu
-        hideMenu(false)
+        hideMenu()
 
         try {
             floatingBall?.let { ball ->
@@ -315,7 +315,6 @@ class QuickBallFloatingButton(
     }
 
     fun hideMenu(animated: Boolean = false) {
-//        hideMenuOverlay()
         floatingMenu?.takeIf { it.isOpen() }?.apply {
             if (isAnimating()) {
                 doOnAnimationEnd { isOpen ->
