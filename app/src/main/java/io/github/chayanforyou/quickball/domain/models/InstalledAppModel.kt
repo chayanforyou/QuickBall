@@ -6,5 +6,5 @@ data class InstalledAppModel(
     val packageName: String,
     val appName: String,
     val icon: Drawable,
-    val isSelected: Boolean = false
+    var isSelected: Boolean = false
 )

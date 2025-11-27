@@ -20,6 +20,9 @@
     <string name="hide_automatically_title">Hide automatically</string>
     <string name="hide_automatically_description">Hide Quick ball in selected apps.</string>
 
+    <!-- Show On Lock Screen -->
+    <string name="show_on_lock_screen_title">Show on Lock screen</string>
+
     <!-- Accessibility Permission -->
     <string name="accessibility_permission_title">Accessibility Service</string>
     <string name="accessibility_permission_description">Allows QuickBall to display floating overlay,\ncontrol volume, and lock your device</string>
