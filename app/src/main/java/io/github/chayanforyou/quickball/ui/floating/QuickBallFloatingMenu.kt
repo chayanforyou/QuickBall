@@ -46,6 +46,7 @@ class QuickBallFloatingMenu(
     private var isOpen = false
     private val subItems: List<Item> = subActionItems.onEach { item ->
         item.view.setOnClickListener {
+            if (isAnimating()) return@setOnClickListener
             item.menuItem?.let { menuItemClickListener?.onMenuItemClick(it) }
         }
     }
