@@ -52,7 +52,7 @@ class SelectAppsFragment : Fragment() {
     }
 
     private fun loadAppsAsync() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val apps = withContext(Dispatchers.IO) {
                     requireContext().loadInstalledApps()

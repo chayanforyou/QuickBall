@@ -109,6 +109,10 @@ class QuickBallHomeFragment : Fragment() {
             findNavController().navigate(action)
         }
 
+        binding.buttonSupportMe.setOnClickListener {
+
+        }
+
         binding.layoutFooter.setOnClickListener {
             val url = "https://github.com/chayanforyou/QuickBall"
             val intent = Intent(Intent.ACTION_VIEW, url.toUri())

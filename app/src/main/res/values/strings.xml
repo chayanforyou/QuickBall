@@ -3,6 +3,7 @@
     <string name="made_by">Made with ❤️ by Chayan</string>
     <string name="version_format">Version: v%s</string>
     <string name="remove_battery_restriction">Don’t kill my app</string>
+    <string name="support_me">If you love my work.\nplease consider supporting me</string>
 
     <!-- Accessibility Service (for AndroidManifest.xml) -->
     <string name="accessibility_service_description">QuickBall floating ball service that provides a floating ball overlay on your screen for quick access to features.</string>
@@ -57,4 +58,11 @@
 
     <!-- Hide Automatically Fragment -->
     <string name="app_icon">App icon</string>
+
+    <!-- Language Settings -->
+    <string name="language_title">Language</string>
+    <string name="language_description">Choose app language</string>
+    <string name="language_english">English</string>
+    <string name="language_hindi">हिंदी</string>
+    <string name="language_chinese">中文</string>
 </resources>

@@ -14,6 +14,7 @@ object PreferenceManager {
     private const val KEY_SHOW_ON_LOCK_SCREEN = "show_on_lock_screen"
     private const val KEY_SELECTED_MENU_ITEMS = "selected_menu_items"
     private const val KEY_SELECTED_APPS = "selected_apps"
+    private const val KEY_LANGUAGE = "language"
     
     private val gson = Gson()
     
@@ -103,5 +104,15 @@ object PreferenceManager {
         val currentSelected = getAutoHideApps(context).toMutableSet()
         currentSelected.remove(packageName)
         setAutoHideApps(context, currentSelected)
+    }
+    
+    fun getLanguage(context: Context): String {
+        return getPreferences(context).getString(KEY_LANGUAGE, "en") ?: "en"
+    }
+    
+    fun setLanguage(context: Context, language: String) {
+        getPreferences(context).edit {
+            putString(KEY_LANGUAGE, language)
+        }
     }
 }

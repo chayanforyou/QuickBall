@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "514492598764",
+    "project_id": "quick-action-ball",
+    "storage_bucket": "quick-action-ball.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:514492598764:android:a2c10901b4698be5ef58c9",
+        "android_client_info": {
+          "package_name": "io.github.chayanforyou.quickball"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDmJwDqEi0X05jeKJI1Yse9TdVcvuorB1c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

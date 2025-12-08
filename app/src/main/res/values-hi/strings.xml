@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">क्विक बॉल</string>
+    <string name="made_by">चयन द्वारा ❤️ के साथ बनाया गया</string>
+    <string name="version_format">संस्करण: v%s</string>
+    <string name="remove_battery_restriction">मेरे ऐप को बंद न करें</string>
+    <string name="support_me">यदि आप मेरे काम से प्यार करते हैं।\nकृपया मेरा समर्थन करने पर विचार करें</string>
+
+    <!-- Accessibility Service (for AndroidManifest.xml) -->
+    <string name="accessibility_service_description">क्विकबॉल फ्लोटिंग बॉल सेवा जो सुविधाओं तक त्वरित पहुंच के लिए आपकी स्क्रीन पर एक फ्लोटिंग बॉल ओवरले प्रदान करती है।</string>
+
+    <!-- Home Fragment -->
+    <string name="home_title">क्विक बॉल</string>
+    <string name="enable_quick_ball">क्विक बॉल चालू करें</string>
+    <string name="settings_label">सेटिंग्स</string>
+
+    <!-- Shortcut -->
+    <string name="shortcuts_title">शॉर्टकट चुनें</string>
+    <string name="shortcut_description">शॉर्टकट विवरण।</string>
+
+    <!-- Hide Automatically -->
+    <string name="hide_automatically_title">स्वचालित रूप से छुपाएं</string>
+    <string name="hide_automatically_description">चयनित ऐप्स में क्विक बॉल छुपाएं।</string>
+
+    <!-- Show On Lock Screen -->
+    <string name="show_on_lock_screen_title">लॉक स्क्रीन पर दिखाएं</string>
+
+    <!-- Accessibility Permission -->
+    <string name="accessibility_permission_title">पहुंच सेवा</string>
+    <string name="accessibility_permission_description">क्विकबॉल को फ्लोटिंग ओवरले प्रदर्शित करने,\nवॉल्यूम नियंत्रित करने और आपके डिवाइस को लॉक करने की अनुमति देता है</string>
+    <string name="accessibility_permission_status">पहुंच अनुमति स्थिति</string>
+
+    <!-- System Settings Permission -->
+    <string name="system_settings_title">सिस्टम सेटिंग्स संशोधित करें</string>
+    <string name="system_settings_description">क्विकबॉल को स्क्रीन चमक समायोजित करने की अनुमति देता है</string>
+    <string name="system_settings_permission_status">सिस्टम सेटिंग्स अनुमति स्थिति</string>
+
+    <!-- Device Admin Permission -->
+    <string name="device_admin_title">डिवाइस प्रशासक</string>
+    <string name="device_admin_description">पुराने एंड्रॉइड संस्करणों पर स्क्रीन लॉक के लिए आवश्यक</string>
+    <string name="device_admin_permission_status">डिवाइस प्रशासक अनुमति स्थिति</string>
+
+    <!-- Permission Dialog Messages -->
+    <string name="accessibility_dialog_title">पहुंच अनुमति आवश्यक</string>
+    <string name="accessibility_dialog_message">क्विकबॉल को अपनी मुख्य कार्यक्षमता के लिए एक पहुंच सेवा की आवश्यकता है, फ्लोटिंग बॉल ओवरले प्रदर्शित करने और वॉल्यूम नियंत्रण, चमक समायोजन और स्क्रीन लॉक जैसी सिस्टम क्रियाएं करने के लिए।\n\nपहुंच सेवा ऐप के ठीक से काम करने और आपकी स्क्रीन पर कहीं से भी डिवाइस नियंत्रणों तक त्वरित पहुंच प्रदान करने के लिए आवश्यक है।\n\nयह कभी भी कोई डेटा एकत्र या साझा नहीं करता! यह गोपनीयता पर केंद्रित है और ऐप कोई नेटवर्क अनुरोध नहीं भेजता।</string>
+
+    <string name="system_settings_dialog_title">सिस्टम सेटिंग्स अनुमति आवश्यक</string>
+    <string name="system_settings_dialog_message">क्विकबॉल को चमक नियंत्रण सुविधाएं प्रदान करने के लिए स्क्रीन चमक स्तर को संशोधित करने के लिए सिस्टम सेटिंग्स अनुमति की आवश्यकता है।\n\nफ्लोटिंग बॉल मेनू में चमक बढ़ाने और घटाने के नियंत्रण के ठीक से काम करने के लिए यह अनुमति आवश्यक है।\n\nयह कभी भी कोई डेटा एकत्र या साझा नहीं करता! यह गोपनीयता पर केंद्रित है और ऐप कोई नेटवर्क अनुरोध नहीं भेजता।</string>
+
+    <string name="dialog_button_quit">छोड़ें</string>
+    <string name="dialog_button_accept">स्वीकार करें</string>
+
+    <!-- Select Shortcut Fragment -->
+    <string name="apps_title">ऐप्स</string>
+    <string name="select_shortcut_title">शॉर्टकट चुनें</string>
+    <string name="select_shortcut_description">वर्तमान को बदलने के लिए एक शॉर्टकट चुनें</string>
+    <string name="menu_icon_description">मेनू आइटम आइकन</string>
+    <string name="drag_handle_description">पुनः क्रमित करने के लिए खींचें</string>
+
+    <!-- Hide Automatically Fragment -->
+    <string name="app_icon">ऐप आइकन</string>
+
+    <!-- Language Settings -->
+    <string name="language_title">भाषा</string>
+    <string name="language_description">ऐप की भाषा चुनें</string>
+    <string name="language_english">English</string>
+    <string name="language_hindi">हिंदी</string>
+    <string name="language_chinese">中文</string>
+</resources>

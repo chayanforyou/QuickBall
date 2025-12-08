@@ -14,9 +14,14 @@ import android.view.accessibility.AccessibilityEvent
 import io.github.chayanforyou.quickball.domain.PreferenceManager
 import io.github.chayanforyou.quickball.domain.handlers.QuickBallActionHandler
 import io.github.chayanforyou.quickball.ui.floating.QuickBallFloatingButton
+import io.github.chayanforyou.quickball.utils.LanguageUtils
 import io.github.chayanforyou.quickball.utils.ToastUtil
 
 class QuickBallService : AccessibilityService() {
+
+    override fun attachBaseContext(newBase: Context?) {
+        super.attachBaseContext(newBase?.let { LanguageUtils.applyLanguage(it) })
+    }
 
     companion object {
         const val ACTION_ENABLE_QUICK_BALL = "io.github.chayanforyou.quickball.ENABLE_QUICK_BALL"

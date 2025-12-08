@@ -15,6 +15,7 @@ import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
+import io.github.chayanforyou.quickball.helpers.AnalyticsHelper
 import io.github.chayanforyou.quickball.utils.ToastUtil
 
 class QuickBallActionHandler(
@@ -54,6 +55,8 @@ class QuickBallActionHandler(
     }
 
     override fun onMenuAction(menuItem: QuickBallMenuItemModel) {
+        AnalyticsHelper.trackShortcutUsage(menuItem)
+        
         when (menuItem.action) {
             MenuAction.VOLUME_UP -> performVolumeUpAction()
             MenuAction.VOLUME_DOWN -> performVolumeDownAction()
@@ -320,30 +323,28 @@ class QuickBallActionHandler(
 
     // -------------------- Screenshot --------------------
     private fun performScreenshotAction() {
-        try {
-            performStash?.invoke()
-            runDelayed {
-                takeScreenshot()
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to perform screenshot action", e)
+        performStash?.invoke()
+        runDelayed {
+            takeScreenshot()
         }
     }
 
     private fun takeScreenshot() {
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                accessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_TAKE_SCREENSHOT)
-            } else {
-                showToast("Screenshot is not supported on this device.")
-            }
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to take screenshot", e)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            accessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_TAKE_SCREENSHOT)
+        } else {
+            showToast("Screenshot is not supported on this device.")
         }
     }
 
     // -------------------- Lock Screen --------------------
     private fun performLockScreenAction() {
+        runDelayed {
+            lockScreen()
+        }
+    }
+
+    private fun lockScreen() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             accessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_LOCK_SCREEN)
         } else {
