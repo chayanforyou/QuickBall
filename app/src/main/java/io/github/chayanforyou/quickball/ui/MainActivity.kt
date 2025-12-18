@@ -1,6 +1,5 @@
 package io.github.chayanforyou.quickball.ui
 
-import android.content.Context
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -18,16 +17,11 @@ import io.github.chayanforyou.quickball.R
 import io.github.chayanforyou.quickball.databinding.ActivityMainBinding
 import io.github.chayanforyou.quickball.ui.fragments.LanguageSelectionSheet
 import io.github.chayanforyou.quickball.ui.fragments.OptimizationRemoverSheet
-import io.github.chayanforyou.quickball.utils.LanguageUtils
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
-
-    override fun attachBaseContext(newBase: Context?) {
-        super.attachBaseContext(newBase?.let { LanguageUtils.applyLanguage(it) })
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

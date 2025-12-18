@@ -60,8 +60,8 @@ class SelectAppsFragment : Fragment() {
 
                 setupRecyclerView(apps)
                 hideLoadingState()
-            } catch (_: Exception) {
-                hideLoadingState()
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
@@ -79,7 +79,6 @@ class SelectAppsFragment : Fragment() {
             adapter = appListAdapter
         }
     }
-
 
     private fun handleAppSelection(selectedApp: InstalledAppModel) {
         val appMenuItem = QuickBallMenuItemModel.createAppMenuItem(

@@ -24,6 +24,10 @@
     <!-- Show On Lock Screen -->
     <string name="show_on_lock_screen_title">Show on Lock screen</string>
 
+    <!-- Hide On Landscape -->
+    <string name="hide_on_landscape_title">Hide on Landscape</string>
+    <string name="hide_on_landscape_description">Hide Quick ball when device is in landscape mode</string>
+
     <!-- Accessibility Permission -->
     <string name="accessibility_permission_title">Accessibility Service</string>
     <string name="accessibility_permission_description">Allows QuickBall to display floating overlay,\ncontrol volume, and lock your device</string>
@@ -50,6 +54,8 @@
     <string name="dialog_button_accept">Accept</string>
 
     <!-- Select Shortcut Fragment -->
+    <string name="quick_settings_title">Quick settings</string>
+    <string name="other_title">Other</string>
     <string name="apps_title">Apps</string>
     <string name="select_shortcut_title">Select Shortcut</string>
     <string name="select_shortcut_description">Choose a shortcut to replace the current one</string>
@@ -58,6 +64,8 @@
 
     <!-- Hide Automatically Fragment -->
     <string name="app_icon">App icon</string>
+    <string name="select_all">Select All</string>
+    <string name="deselect_all">Deselect All</string>
 
     <!-- Language Settings -->
     <string name="language_title">Language</string>
@@ -65,4 +73,35 @@
     <string name="language_english">English</string>
     <string name="language_hindi">हिंदी</string>
     <string name="language_chinese">中文</string>
+    <string name="language_italian">Italiano</string>
+    <string name="language_portuguese">Português</string>
+    <string name="language_spanish">Español</string>
+    <string name="language_german">Deutsch</string>
+    
+    <!-- Quick Ball Menu Items -->
+    <!-- Navigation -->
+    <string name="menu_home">Home</string>
+    <string name="menu_back">Back</string>
+    <string name="menu_recent">Recent Apps</string>
+    
+    <!-- Display -->
+    <string name="menu_brightness_up">Brightness Up</string>
+    <string name="menu_brightness_down">Brightness Down</string>
+    <string name="menu_torch">Torch</string>
+    
+    <!-- Volume & Sound -->
+    <string name="menu_volume_up">Volume Up</string>
+    <string name="menu_volume_down">Volume Down</string>
+    <string name="menu_silent">Silent</string>
+    <string name="menu_vibration">Vibration</string>
+    
+    <!-- Connectivity -->
+    <string name="menu_wifi">Wi-Fi</string>
+    <string name="menu_bluetooth">Bluetooth</string>
+    <string name="menu_mobile_data">Mobile Data</string>
+    
+    <!-- Utilities -->
+    <string name="menu_screenshot">Screenshot</string>
+    <string name="menu_lock_screen">Lock Screen</string>
+
 </resources>

@@ -25,6 +25,10 @@
     <!-- Show On Lock Screen -->
     <string name="show_on_lock_screen_title">लॉक स्क्रीन पर दिखाएं</string>
 
+    <!-- Hide On Landscape -->
+    <string name="hide_on_landscape_title">लैंडस्केप में छुपाएं</string>
+    <string name="hide_on_landscape_description">डिवाइस लैंडस्केप मोड में होने पर क्विक बॉल छुपाएं</string>
+
     <!-- Accessibility Permission -->
     <string name="accessibility_permission_title">पहुंच सेवा</string>
     <string name="accessibility_permission_description">क्विकबॉल को फ्लोटिंग ओवरले प्रदर्शित करने,\nवॉल्यूम नियंत्रित करने और आपके डिवाइस को लॉक करने की अनुमति देता है</string>
@@ -51,6 +55,8 @@
     <string name="dialog_button_accept">स्वीकार करें</string>
 
     <!-- Select Shortcut Fragment -->
+    <string name="quick_settings_title">त्वरित सेटिंग्स</string>
+    <string name="other_title">अन्य</string>
     <string name="apps_title">ऐप्स</string>
     <string name="select_shortcut_title">शॉर्टकट चुनें</string>
     <string name="select_shortcut_description">वर्तमान को बदलने के लिए एक शॉर्टकट चुनें</string>
@@ -59,6 +65,8 @@
 
     <!-- Hide Automatically Fragment -->
     <string name="app_icon">ऐप आइकन</string>
+    <string name="select_all">सभी चुनें</string>
+    <string name="deselect_all">सभी अचयनित करें</string>
 
     <!-- Language Settings -->
     <string name="language_title">भाषा</string>
@@ -66,4 +74,35 @@
     <string name="language_english">English</string>
     <string name="language_hindi">हिंदी</string>
     <string name="language_chinese">中文</string>
+    <string name="language_italian">Italiano</string>
+    <string name="language_portuguese">Português</string>
+    <string name="language_spanish">Español</string>
+    <string name="language_german">Deutsch</string>
+    
+    <!-- Quick Ball Menu Items -->
+    <!-- Navigation -->
+    <string name="menu_home">होम</string>
+    <string name="menu_back">वापस</string>
+    <string name="menu_recent">हाल के ऐप्स</string>
+    
+    <!-- Display -->
+    <string name="menu_brightness_up">चमक बढ़ाएं</string>
+    <string name="menu_brightness_down">चमक घटाएं</string>
+    <string name="menu_torch">टॉर्च</string>
+    
+    <!-- Volume & Sound -->
+    <string name="menu_volume_up">आवाज़ बढ़ाएं</string>
+    <string name="menu_volume_down">आवाज़ घटाएं</string>
+    <string name="menu_silent">मौन</string>
+    <string name="menu_vibration">कंपन</string>
+    
+    <!-- Connectivity -->
+    <string name="menu_wifi">वाई-फाई</string>
+    <string name="menu_bluetooth">ब्लूटूथ</string>
+    <string name="menu_mobile_data">मोबाइल डेटा</string>
+    
+    <!-- Utilities -->
+    <string name="menu_screenshot">स्क्रीनशॉट</string>
+    <string name="menu_lock_screen">स्क्रीन लॉक करें</string>
+
 </resources>

@@ -25,6 +25,10 @@
     <!-- Show On Lock Screen -->
     <string name="show_on_lock_screen_title">在锁屏上显示</string>
 
+    <!-- Hide On Landscape -->
+    <string name="hide_on_landscape_title">横屏时隐藏</string>
+    <string name="hide_on_landscape_description">设备处于横屏模式时隐藏快球</string>
+
     <!-- Accessibility Permission -->
     <string name="accessibility_permission_title">无障碍服务</string>
     <string name="accessibility_permission_description">允许快球显示浮动覆盖层，\n控制音量并锁定您的设备</string>
@@ -51,6 +55,8 @@
     <string name="dialog_button_accept">接受</string>
 
     <!-- Select Shortcut Fragment -->
+    <string name="quick_settings_title">快速设置</string>
+    <string name="other_title">其他</string>
     <string name="apps_title">应用</string>
     <string name="select_shortcut_title">选择快捷方式</string>
     <string name="select_shortcut_description">选择一个快捷方式来替换当前的</string>
@@ -59,6 +65,8 @@
 
     <!-- Hide Automatically Fragment -->
     <string name="app_icon">应用图标</string>
+    <string name="select_all">全选</string>
+    <string name="deselect_all">取消全选</string>
 
     <!-- Language Settings -->
     <string name="language_title">语言</string>
@@ -66,4 +74,35 @@
     <string name="language_english">English</string>
     <string name="language_hindi">हिंदी</string>
     <string name="language_chinese">中文</string>
+    <string name="language_italian">Italiano</string>
+    <string name="language_portuguese">Português</string>
+    <string name="language_spanish">Español</string>
+    <string name="language_german">Deutsch</string>
+    
+    <!-- Quick Ball Menu Items -->
+    <!-- Navigation -->
+    <string name="menu_home">主页</string>
+    <string name="menu_back">返回</string>
+    <string name="menu_recent">最近应用</string>
+    
+    <!-- Display -->
+    <string name="menu_brightness_up">增加亮度</string>
+    <string name="menu_brightness_down">降低亮度</string>
+    <string name="menu_torch">手电筒</string>
+    
+    <!-- Volume & Sound -->
+    <string name="menu_volume_up">增加音量</string>
+    <string name="menu_volume_down">降低音量</string>
+    <string name="menu_silent">静音</string>
+    <string name="menu_vibration">振动</string>
+    
+    <!-- Connectivity -->
+    <string name="menu_wifi">Wi-Fi</string>
+    <string name="menu_bluetooth">蓝牙</string>
+    <string name="menu_mobile_data">移动数据</string>
+    
+    <!-- Utilities -->
+    <string name="menu_screenshot">截屏</string>
+    <string name="menu_lock_screen">锁屏</string>
+
 </resources>

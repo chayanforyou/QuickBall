@@ -2,6 +2,7 @@ package io.github.chayanforyou.quickball.domain
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.core.content.edit
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -12,6 +13,7 @@ object PreferenceManager {
     private const val PREFS_NAME = "quick_ball_prefs"
     private const val KEY_QUICK_BALL_ENABLED = "quick_ball_enabled"
     private const val KEY_SHOW_ON_LOCK_SCREEN = "show_on_lock_screen"
+    private const val KEY_HIDE_ON_LANDSCAPE = "hide_on_landscape"
     private const val KEY_SELECTED_MENU_ITEMS = "selected_menu_items"
     private const val KEY_SELECTED_APPS = "selected_apps"
     private const val KEY_LANGUAGE = "language"
@@ -41,6 +43,16 @@ object PreferenceManager {
             putBoolean(KEY_SHOW_ON_LOCK_SCREEN, enabled)
         }
     }
+
+    fun isHideOnLandscapeEnabled(context: Context): Boolean {
+        return getPreferences(context).getBoolean(KEY_HIDE_ON_LANDSCAPE, false)
+    }
+
+    fun setHideOnLandscapeEnabled(context: Context, enabled: Boolean) {
+        getPreferences(context).edit {
+            putBoolean(KEY_HIDE_ON_LANDSCAPE, enabled)
+        }
+    }
     
     fun getSelectedMenuItems(context: Context): List<QuickBallMenuItemModel> {
         val prefs = getPreferences(context)
@@ -53,7 +65,9 @@ object PreferenceManager {
                 val type = object : TypeToken<List<QuickBallMenuItemModel>>() {}.type
                 gson.fromJson<List<QuickBallMenuItemModel>>(json, type) ?: getDefaultSelectedItems()
             } catch (e: Exception) {
-                android.util.Log.w("PreferenceManager", "Failed to deserialize menu items", e)
+                Log.w("PreferenceManager", "Failed to deserialize menu items, migrating to new format", e)
+                // Clear the old data and return defaults
+                prefs.edit { remove(KEY_SELECTED_MENU_ITEMS) }
                 getDefaultSelectedItems()
             }
         }
@@ -66,7 +80,7 @@ object PreferenceManager {
                 putString(KEY_SELECTED_MENU_ITEMS, json) 
             }
         } catch (e: Exception) {
-            android.util.Log.e("PreferenceManager", "Failed to save menu items", e)
+            Log.e("PreferenceManager", "Failed to save menu items", e)
         }
     }
     

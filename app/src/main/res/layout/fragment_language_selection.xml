@@ -13,7 +13,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingHorizontal="@dimen/padding_16dp">
+        android:paddingHorizontal="@dimen/padding_16dp"
+        android:paddingBottom="@dimen/padding_24dp">
 
         <TextView
             android:layout_width="match_parent"

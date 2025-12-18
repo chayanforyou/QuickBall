@@ -55,7 +55,7 @@ class QuickBallActionHandler(
     }
 
     override fun onMenuAction(menuItem: QuickBallMenuItemModel) {
-        AnalyticsHelper.trackShortcutUsage(menuItem)
+        AnalyticsHelper.trackShortcutUsage(accessibilityService, menuItem)
         
         when (menuItem.action) {
             MenuAction.VOLUME_UP -> performVolumeUpAction()

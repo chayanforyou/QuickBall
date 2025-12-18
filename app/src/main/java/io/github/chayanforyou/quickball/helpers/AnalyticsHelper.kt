@@ -17,10 +17,10 @@ object AnalyticsHelper {
     /**
      * Track shortcut usage with detailed parameters
      */
-    fun trackShortcutUsage(menuItem: QuickBallMenuItemModel) {
+    fun trackShortcutUsage(context: Context, menuItem: QuickBallMenuItemModel) {
         firebaseAnalytics?.let { analytics ->
             val bundle = Bundle().apply {
-                putString("shortcut_title", menuItem.title)
+                putString("shortcut_title", menuItem.getTitle(context))
                 putString("system_action", getActionCategory(menuItem.action))
                 menuItem.packageName?.let { putString("target_package", it) }
                 putLong("timestamp", System.currentTimeMillis())

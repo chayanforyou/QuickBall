@@ -1,7 +1,5 @@
 package io.github.chayanforyou.quickball.ui.fragments
 
-import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,8 +8,6 @@ import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import io.github.chayanforyou.quickball.databinding.FragmentLanguageSelectionBinding
-import io.github.chayanforyou.quickball.domain.PreferenceManager
-import io.github.chayanforyou.quickball.ui.MainActivity
 import io.github.chayanforyou.quickball.ui.adapters.LanguageAdapter
 import io.github.chayanforyou.quickball.utils.LanguageUtils
 
@@ -51,8 +47,7 @@ class LanguageSelectionSheet : BottomSheetDialogFragment() {
             languages = languages,
             currentLanguage = currentLanguage,
             onLanguageSelected = { selectedLanguage ->
-                PreferenceManager.setLanguage(requireContext(), selectedLanguage.code)
-                restartActivity()
+                LanguageUtils.setLanguage(requireContext(), selectedLanguage)
                 dismiss()
             }
         )
@@ -61,13 +56,6 @@ class LanguageSelectionSheet : BottomSheetDialogFragment() {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = languageAdapter
         }
-    }
-
-    private fun restartActivity() {
-        val intent = Intent(requireContext(), MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-        startActivity(intent)
-        (requireContext() as Activity).finish()
     }
 
     override fun onDestroyView() {

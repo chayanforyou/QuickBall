@@ -1,5 +1,6 @@
 package io.github.chayanforyou.quickball.ui.adapters
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -7,8 +8,8 @@ import io.github.chayanforyou.quickball.databinding.ItemInstalledAppBinding
 import io.github.chayanforyou.quickball.domain.models.InstalledAppModel
 
 class InstalledAppListAdapter(
-    var apps: List<InstalledAppModel>,
-    private val onToggleChanged: (InstalledAppModel, Boolean) -> Unit
+    private val apps: List<InstalledAppModel>,
+    private val onToggleChanged: (InstalledAppModel, Boolean) -> Unit,
 ) : RecyclerView.Adapter<InstalledAppListAdapter.InstalledAppListViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InstalledAppListViewHolder {
@@ -22,6 +23,30 @@ class InstalledAppListAdapter(
     }
 
     override fun getItemCount(): Int = apps.size
+
+    fun getSelectedCount(): Int = apps.count { it.isSelected }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun selectAll() {
+        apps.forEach { app ->
+            if (!app.isSelected) {
+                app.isSelected = true
+                onToggleChanged(app, true)
+            }
+        }
+        notifyDataSetChanged()
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun deselectAll() {
+        apps.forEach { app ->
+            if (app.isSelected) {
+                app.isSelected = false
+                onToggleChanged(app, false)
+            }
+        }
+        notifyDataSetChanged()
+    }
 
     inner class InstalledAppListViewHolder(private val binding: ItemInstalledAppBinding) :
         RecyclerView.ViewHolder(binding.root) {
