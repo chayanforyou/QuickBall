@@ -350,7 +350,6 @@ class QuickBallFloatingButton(
 
         floatingBall?.post {
             ensureMenuCreated()
-//            showMenuOverlay()
             floatingMenu?.open(true)
         }
     }
@@ -551,7 +550,6 @@ class QuickBallFloatingButton(
             !isAnimatingStash -> {
                 floatingMenu?.takeUnless { it.isOpen() }?.let {
                     ensureMenuCreated()
-//                    showMenuOverlay()
                 }
                 floatingMenu?.toggle(true)
             }
