@@ -52,7 +52,7 @@ class SelectAppsFragment : Fragment() {
     }
 
     private fun loadAppsAsync() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             try {
                 val apps = withContext(Dispatchers.IO) {
                     requireContext().loadInstalledApps()
@@ -60,8 +60,8 @@ class SelectAppsFragment : Fragment() {
 
                 setupRecyclerView(apps)
                 hideLoadingState()
-            } catch (_: Exception) {
-                hideLoadingState()
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
@@ -79,7 +79,6 @@ class SelectAppsFragment : Fragment() {
             adapter = appListAdapter
         }
     }
-
 
     private fun handleAppSelection(selectedApp: InstalledAppModel) {
         val appMenuItem = QuickBallMenuItemModel.createAppMenuItem(

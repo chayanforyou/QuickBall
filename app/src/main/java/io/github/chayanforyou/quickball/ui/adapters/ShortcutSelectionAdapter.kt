@@ -27,7 +27,7 @@ class ShortcutSelectionAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(item: QuickBallMenuItemModel) = with(binding) {
-            tvMenuTitle.text = item.title
+            tvMenuTitle.text = item.getTitle(root.context)
             root.isEnabled = !item.isSelected
             root.alpha = if (item.isSelected) 0.5f else 1f
 

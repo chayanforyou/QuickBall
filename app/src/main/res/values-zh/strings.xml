@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">快球</string>
+    <string name="made_by">由 Chayan 用 ❤️ 制作</string>
+    <string name="version_format">版本：v%s</string>
+    <string name="remove_battery_restriction">不要杀死我的应用</string>
+    <string name="support_me">如果您喜欢我的作品。\n请考虑支持我</string>
+
+    <!-- Accessibility Service (for AndroidManifest.xml) -->
+    <string name="accessibility_service_description">快球浮动球服务，在您的屏幕上提供浮动球覆盖层，以便快速访问功能。</string>
+
+    <!-- Home Fragment -->
+    <string name="home_title">快球</string>
+    <string name="enable_quick_ball">开启快球</string>
+    <string name="settings_label">设置</string>
+
+    <!-- Shortcut -->
+    <string name="shortcuts_title">选择快捷方式</string>
+    <string name="shortcut_description">快捷方式描述。</string>
+
+    <!-- Hide Automatically -->
+    <string name="hide_automatically_title">自动隐藏</string>
+    <string name="hide_automatically_description">在选定的应用中隐藏快球。</string>
+
+    <!-- Show On Lock Screen -->
+    <string name="show_on_lock_screen_title">在锁屏上显示</string>
+
+    <!-- Hide On Landscape -->
+    <string name="hide_on_landscape_title">横屏时隐藏</string>
+    <string name="hide_on_landscape_description">设备处于横屏模式时隐藏快球</string>
+
+    <!-- Accessibility Permission -->
+    <string name="accessibility_permission_title">无障碍服务</string>
+    <string name="accessibility_permission_description">允许快球显示浮动覆盖层，\n控制音量并锁定您的设备</string>
+    <string name="accessibility_permission_status">无障碍权限状态</string>
+
+    <!-- System Settings Permission -->
+    <string name="system_settings_title">修改系统设置</string>
+    <string name="system_settings_description">允许快球调整屏幕亮度</string>
+    <string name="system_settings_permission_status">系统设置权限状态</string>
+
+    <!-- Device Admin Permission -->
+    <string name="device_admin_title">设备管理员</string>
+    <string name="device_admin_description">在较旧的 Android 版本上锁屏所需</string>
+    <string name="device_admin_permission_status">设备管理员权限状态</string>
+
+    <!-- Permission Dialog Messages -->
+    <string name="accessibility_dialog_title">需要无障碍权限</string>
+    <string name="accessibility_dialog_message">快球需要无障碍服务来实现其核心功能，显示浮动球覆盖层并执行系统操作，如音量控制、亮度调节和屏幕锁定。\n\n无障碍服务对于应用程序正常工作并从屏幕上的任何位置提供对设备控件的快速访问至关重要。\n\n它从不收集或共享任何数据！它专注于隐私，应用程序不发送任何网络请求。</string>
+
+    <string name="system_settings_dialog_title">需要系统设置权限</string>
+    <string name="system_settings_dialog_message">快球需要系统设置权限来修改屏幕亮度级别，以提供亮度控制功能。\n\n浮动球菜单中的亮度增加和减少控件需要此权限才能正常工作。\n\n它从不收集或共享任何数据！它专注于隐私，应用程序不发送任何网络请求。</string>
+
+    <string name="dialog_button_quit">退出</string>
+    <string name="dialog_button_accept">接受</string>
+
+    <!-- Select Shortcut Fragment -->
+    <string name="quick_settings_title">快速设置</string>
+    <string name="other_title">其他</string>
+    <string name="apps_title">应用</string>
+    <string name="select_shortcut_title">选择快捷方式</string>
+    <string name="select_shortcut_description">选择一个快捷方式来替换当前的</string>
+    <string name="menu_icon_description">菜单项图标</string>
+    <string name="drag_handle_description">拖动以重新排序</string>
+
+    <!-- Hide Automatically Fragment -->
+    <string name="app_icon">应用图标</string>
+    <string name="select_all">全选</string>
+    <string name="deselect_all">取消全选</string>
+
+    <!-- Language Settings -->
+    <string name="language_title">语言</string>
+    <string name="language_description">选择应用语言</string>
+    <string name="language_english">English</string>
+    <string name="language_hindi">हिंदी</string>
+    <string name="language_chinese">中文</string>
+    <string name="language_italian">Italiano</string>
+    <string name="language_portuguese">Português</string>
+    <string name="language_spanish">Español</string>
+    <string name="language_german">Deutsch</string>
+    
+    <!-- Quick Ball Menu Items -->
+    <!-- Navigation -->
+    <string name="menu_home">主页</string>
+    <string name="menu_back">返回</string>
+    <string name="menu_recent">最近应用</string>
+    
+    <!-- Display -->
+    <string name="menu_brightness_up">增加亮度</string>
+    <string name="menu_brightness_down">降低亮度</string>
+    <string name="menu_torch">手电筒</string>
+    
+    <!-- Volume & Sound -->
+    <string name="menu_volume_up">增加音量</string>
+    <string name="menu_volume_down">降低音量</string>
+    <string name="menu_silent">静音</string>
+    <string name="menu_vibration">振动</string>
+    
+    <!-- Connectivity -->
+    <string name="menu_wifi">Wi-Fi</string>
+    <string name="menu_bluetooth">蓝牙</string>
+    <string name="menu_mobile_data">移动数据</string>
+    
+    <!-- Utilities -->
+    <string name="menu_screenshot">截屏</string>
+    <string name="menu_lock_screen">锁屏</string>
+
+</resources>

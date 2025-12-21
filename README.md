@@ -23,6 +23,7 @@ A floating ball that provides quick access to system functions like volume, brig
 - **Auto-Hide**: Automatically hides on lock screen and shows on unlock
 - **Draggable**: Touch and drag to move anywhere on screen
 - **Auto-Snap**: Snaps to screen edges when released
+- **Multi-Language Support**: Available in English, Hindi (हिंदी), and Chinese (中文)
 
 ## How to Use
 
@@ -36,6 +37,10 @@ A floating ball that provides quick access to system functions like volume, brig
    - **Drag**: Move the ball anywhere on screen
    - **Tap**: Open circular menu with quick actions
    - **Auto-Hide**: Ball automatically hides when screen locks
+4. **Change Language**:
+   - Tap the language icon in the toolbar
+   - Select from English, Hindi, or Chinese
+   - App will restart with the new language
 
 ## Video Sample
 

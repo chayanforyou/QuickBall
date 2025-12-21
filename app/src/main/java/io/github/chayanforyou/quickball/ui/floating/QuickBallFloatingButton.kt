@@ -435,7 +435,6 @@ class QuickBallFloatingButton(
                 }
 
                 override fun onMenuClosed(menu: QuickBallFloatingMenu) {
-//                    hideMenuOverlay()
                     floatingBall?.post { updateMenuIcon() }
                     onMenuStateChangedListener?.invoke(false)
                 }

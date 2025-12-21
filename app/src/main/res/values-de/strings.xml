@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Quick Ball</string>
+    <string name="made_by">Mit ❤️ von Chayan erstellt</string>
+    <string name="version_format">Version: v%s</string>
+    <string name="remove_battery_restriction">Meine App nicht beenden</string>
+    <string name="support_me">Wenn dir meine Arbeit gefällt.\nbitte erwäge mich zu unterstützen</string>
+
+    <!-- Accessibility Service (for AndroidManifest.xml) -->
+    <string name="accessibility_service_description">QuickBall-Dienst, der eine schwebende Kugel auf Ihrem Bildschirm für schnellen Zugriff auf Funktionen bereitstellt.</string>
+
+    <!-- Home Fragment -->
+    <string name="home_title">Quick ball</string>
+    <string name="enable_quick_ball">Quick ball aktivieren</string>
+    <string name="settings_label">Einstellungen</string>
+
+    <!-- Shortcut -->
+    <string name="shortcuts_title">Verknüpfungen auswählen</string>
+    <string name="shortcut_description">Verknüpfungsbeschreibung.</string>
+
+    <!-- Hide Automatically -->
+    <string name="hide_automatically_title">Automatisch ausblenden</string>
+    <string name="hide_automatically_description">Quick ball in ausgewählten Apps ausblenden.</string>
+
+    <!-- Show On Lock Screen -->
+    <string name="show_on_lock_screen_title">Auf Sperrbildschirm anzeigen</string>
+
+    <!-- Hide On Landscape -->
+    <string name="hide_on_landscape_title">Im Querformat ausblenden</string>
+    <string name="hide_on_landscape_description">Quick ball ausblenden, wenn das Gerät im Querformat ist</string>
+
+    <!-- Accessibility Permission -->
+    <string name="accessibility_permission_title">Bedienungshilfen-Dienst</string>
+    <string name="accessibility_permission_description">Ermöglicht QuickBall, schwebende Überlagerung anzuzeigen,\nLautstärke zu steuern und Ihr Gerät zu sperren</string>
+    <string name="accessibility_permission_status">Status der Bedienungshilfen-Berechtigung</string>
+
+    <!-- System Settings Permission -->
+    <string name="system_settings_title">Systemeinstellungen ändern</string>
+    <string name="system_settings_description">Ermöglicht QuickBall, die Bildschirmhelligkeit anzupassen</string>
+    <string name="system_settings_permission_status">Status der Systemeinstellungen-Berechtigung</string>
+
+    <!-- Device Admin Permission -->
+    <string name="device_admin_title">Geräteadministrator</string>
+    <string name="device_admin_description">Erforderlich für Bildschirmsperre auf älteren Android-Versionen</string>
+    <string name="device_admin_permission_status">Status der Geräteadministrator-Berechtigung</string>
+
+    <!-- Permission Dialog Messages -->
+    <string name="accessibility_dialog_title">Bedienungshilfen-Berechtigung erforderlich</string>
+    <string name="accessibility_dialog_message">QuickBall benötigt einen Bedienungshilfen-Dienst für seine Kernfunktionalität, um eine schwebende Kugelüberlagerung anzuzeigen und Systemaktionen wie Lautstärkeregelung, Helligkeitsanpassung und Bildschirmsperre durchzuführen.\n\nDer Bedienungshilfen-Dienst ist unerlässlich, damit die App ordnungsgemäß funktioniert und schnellen Zugriff auf Gerätesteuerungen von überall auf Ihrem Bildschirm bietet.\n\nEs sammelt oder teilt niemals Daten! Es ist auf Datenschutz ausgerichtet und die App sendet keine Netzwerkanfragen.</string>
+
+    <string name="system_settings_dialog_title">Systemeinstellungen-Berechtigung erforderlich</string>
+    <string name="system_settings_dialog_message">QuickBall benötigt die Systemeinstellungen-Berechtigung, um Bildschirmhelligkeitsstufen zu ändern, um Helligkeitssteuerungsfunktionen bereitzustellen.\n\nDiese Berechtigung ist erforderlich, damit die Helligkeitserhöhungs- und -verringerungssteuerungen im schwebenden Kugelmenü ordnungsgemäß funktionieren.\n\nEs sammelt oder teilt niemals Daten! Es ist auf Datenschutz ausgerichtet und die App sendet keine Netzwerkanfragen.</string>
+
+    <string name="dialog_button_quit">Beenden</string>
+    <string name="dialog_button_accept">Akzeptieren</string>
+
+    <!-- Select Shortcut Fragment -->
+    <string name="quick_settings_title">Schnelleinstellungen</string>
+    <string name="other_title">Andere</string>
+    <string name="apps_title">Apps</string>
+    <string name="select_shortcut_title">Verknüpfung auswählen</string>
+    <string name="select_shortcut_description">Wählen Sie eine Verknüpfung, um die aktuelle zu ersetzen</string>
+    <string name="menu_icon_description">Menüelement-Symbol</string>
+    <string name="drag_handle_description">Zum Neuordnen ziehen</string>
+
+    <!-- Hide Automatically Fragment -->
+    <string name="app_icon">App-Symbol</string>
+    <string name="select_all">Alle auswählen</string>
+    <string name="deselect_all">Alle abwählen</string>
+
+    <!-- Language Settings -->
+    <string name="language_title">Sprache</string>
+    <string name="language_description">App-Sprache wählen</string>
+    <string name="language_english">English</string>
+    <string name="language_hindi">हिंदी</string>
+    <string name="language_chinese">中文</string>
+    <string name="language_italian">Italiano</string>
+    <string name="language_portuguese">Português</string>
+    <string name="language_spanish">Español</string>
+    <string name="language_german">Deutsch</string>
+    
+    <!-- Quick Ball Menu Items -->
+    <!-- Navigation -->
+    <string name="menu_home">Startseite</string>
+    <string name="menu_back">Zurück</string>
+    <string name="menu_recent">Letzte Apps</string>
+    
+    <!-- Display -->
+    <string name="menu_brightness_up">Helligkeit erhöhen</string>
+    <string name="menu_brightness_down">Helligkeit verringern</string>
+    <string name="menu_torch">Taschenlampe</string>
+    
+    <!-- Volume & Sound -->
+    <string name="menu_volume_up">Lautstärke erhöhen</string>
+    <string name="menu_volume_down">Lautstärke verringern</string>
+    <string name="menu_silent">Stumm</string>
+    <string name="menu_vibration">Vibration</string>
+    
+    <!-- Connectivity -->
+    <string name="menu_wifi">WLAN</string>
+    <string name="menu_bluetooth">Bluetooth</string>
+    <string name="menu_mobile_data">Mobile Daten</string>
+    
+    <!-- Utilities -->
+    <string name="menu_screenshot">Screenshot</string>
+    <string name="menu_lock_screen">Bildschirm sperren</string>
+
+</resources>

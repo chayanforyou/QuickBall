@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Quick Ball</string>
+    <string name="made_by">Feito com ❤️ por Chayan</string>
+    <string name="version_format">Versão: v%s</string>
+    <string name="remove_battery_restriction">Não mate meu aplicativo</string>
+    <string name="support_me">Se você ama meu trabalho.\npor favor considere me apoiar</string>
+
+    <!-- Accessibility Service (for AndroidManifest.xml) -->
+    <string name="accessibility_service_description">Serviço QuickBall que fornece uma bola flutuante na tela para acesso rápido aos recursos.</string>
+
+    <!-- Home Fragment -->
+    <string name="home_title">Quick ball</string>
+    <string name="enable_quick_ball">Ativar Quick ball</string>
+    <string name="settings_label">Configurações</string>
+
+    <!-- Shortcut -->
+    <string name="shortcuts_title">Selecionar atalhos</string>
+    <string name="shortcut_description">Descrição do atalho.</string>
+
+    <!-- Hide Automatically -->
+    <string name="hide_automatically_title">Ocultar automaticamente</string>
+    <string name="hide_automatically_description">Ocultar Quick ball nos aplicativos selecionados.</string>
+
+    <!-- Show On Lock Screen -->
+    <string name="show_on_lock_screen_title">Mostrar na tela de bloqueio</string>
+
+    <!-- Hide On Landscape -->
+    <string name="hide_on_landscape_title">Ocultar no modo paisagem</string>
+    <string name="hide_on_landscape_description">Ocultar Quick ball quando o dispositivo estiver no modo paisagem</string>
+
+    <!-- Accessibility Permission -->
+    <string name="accessibility_permission_title">Serviço de acessibilidade</string>
+    <string name="accessibility_permission_description">Permite que o QuickBall exiba sobreposição flutuante,\ncontrole o volume e bloqueie seu dispositivo</string>
+    <string name="accessibility_permission_status">Status da permissão de acessibilidade</string>
+
+    <!-- System Settings Permission -->
+    <string name="system_settings_title">Modificar configurações do sistema</string>
+    <string name="system_settings_description">Permite que o QuickBall ajuste o brilho da tela</string>
+    <string name="system_settings_permission_status">Status da permissão de configurações do sistema</string>
+
+    <!-- Device Admin Permission -->
+    <string name="device_admin_title">Administrador do dispositivo</string>
+    <string name="device_admin_description">Necessário para bloqueio de tela em versões antigas do Android</string>
+    <string name="device_admin_permission_status">Status da permissão de administrador do dispositivo</string>
+
+    <!-- Permission Dialog Messages -->
+    <string name="accessibility_dialog_title">Permissão de acessibilidade necessária</string>
+    <string name="accessibility_dialog_message">O QuickBall requer um serviço de acessibilidade para sua funcionalidade principal, para exibir uma sobreposição de bola flutuante e executar ações do sistema como controle de volume, ajuste de brilho e bloqueio de tela.\n\nO serviço de acessibilidade é essencial para que o aplicativo funcione corretamente e forneça acesso rápido aos controles do dispositivo de qualquer lugar da tela.\n\nEle nunca coleta ou compartilha nenhum dado! É focado em privacidade e o aplicativo não envia nenhuma solicitação de rede.</string>
+
+    <string name="system_settings_dialog_title">Permissão de configurações do sistema necessária</string>
+    <string name="system_settings_dialog_message">O QuickBall requer permissão de configurações do sistema para modificar os níveis de brilho da tela a fim de fornecer recursos de controle de brilho.\n\nEsta permissão é necessária para que os controles de aumento e diminuição de brilho no menu da bola flutuante funcionem corretamente.\n\nEle nunca coleta ou compartilha nenhum dado! É focado em privacidade e o aplicativo não envia nenhuma solicitação de rede.</string>
+
+    <string name="dialog_button_quit">Sair</string>
+    <string name="dialog_button_accept">Aceitar</string>
+
+    <!-- Select Shortcut Fragment -->
+    <string name="quick_settings_title">Configurações rápidas</string>
+    <string name="other_title">Outro</string>
+    <string name="apps_title">Aplicativos</string>
+    <string name="select_shortcut_title">Selecionar atalho</string>
+    <string name="select_shortcut_description">Escolha um atalho para substituir o atual</string>
+    <string name="menu_icon_description">Ícone do item de menu</string>
+    <string name="drag_handle_description">Arraste para reordenar</string>
+
+    <!-- Hide Automatically Fragment -->
+    <string name="app_icon">Ícone do aplicativo</string>
+    <string name="select_all">Selecionar tudo</string>
+    <string name="deselect_all">Desmarcar tudo</string>
+
+    <!-- Language Settings -->
+    <string name="language_title">Idioma</string>
+    <string name="language_description">Escolher idioma do aplicativo</string>
+    <string name="language_english">English</string>
+    <string name="language_hindi">हिंदी</string>
+    <string name="language_chinese">中文</string>
+    <string name="language_italian">Italiano</string>
+    <string name="language_portuguese">Português</string>
+    <string name="language_spanish">Español</string>
+    <string name="language_german">Deutsch</string>
+    
+    <!-- Quick Ball Menu Items -->
+    <!-- Navigation -->
+    <string name="menu_home">Início</string>
+    <string name="menu_back">Voltar</string>
+    <string name="menu_recent">Aplicativos recentes</string>
+    
+    <!-- Display -->
+    <string name="menu_brightness_up">Aumentar brilho</string>
+    <string name="menu_brightness_down">Diminuir brilho</string>
+    <string name="menu_torch">Lanterna</string>
+    
+    <!-- Volume & Sound -->
+    <string name="menu_volume_up">Aumentar volume</string>
+    <string name="menu_volume_down">Diminuir volume</string>
+    <string name="menu_silent">Silencioso</string>
+    <string name="menu_vibration">Vibração</string>
+    
+    <!-- Connectivity -->
+    <string name="menu_wifi">Wi-Fi</string>
+    <string name="menu_bluetooth">Bluetooth</string>
+    <string name="menu_mobile_data">Dados móveis</string>
+    
+    <!-- Utilities -->
+    <string name="menu_screenshot">Captura de tela</string>
+    <string name="menu_lock_screen">Bloquear tela</string>
+
+</resources>

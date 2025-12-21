@@ -1,8 +1,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/language_settings"
+        android:icon="@drawable/ic_language"
+        android:title="@string/language_title"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/remove_battery_restriction"
-        android:icon="@drawable/ic_help"
+        android:icon="@drawable/ic_battery_restriction"
         android:title="@string/remove_battery_restriction"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
 </menu>

@@ -20,14 +20,15 @@
 
     <ImageView
         android:id="@+id/iv_menu_icon"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_marginStart="26dp"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="@dimen/margin_24dp"
         android:contentDescription="@string/menu_icon_description"
         android:scaleType="centerInside"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/iv_drag_handle"
         app:layout_constraintTop_toTopOf="parent"
+        app:tint="?colorOnSurface"
         tools:src="@drawable/ic_volume_up" />
 
     <TextView
@@ -35,8 +36,8 @@
         style="@style/TextAppearance.Material3.BodyLarge"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="8dp"
+        android:layout_marginStart="@dimen/margin_16dp"
+        android:layout_marginEnd="@dimen/margin_8dp"
         android:ellipsize="end"
         android:maxLines="1"
         app:layout_constraintBottom_toBottomOf="parent"

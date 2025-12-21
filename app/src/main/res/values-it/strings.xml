@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Quick Ball</string>
+    <string name="made_by">Realizzato con ❤️ da Chayan</string>
+    <string name="version_format">Versione: v%s</string>
+    <string name="remove_battery_restriction">Non chiudere la mia app</string>
+    <string name="support_me">Se ami il mio lavoro.\nper favore considera di supportarmi</string>
+
+    <!-- Accessibility Service (for AndroidManifest.xml) -->
+    <string name="accessibility_service_description">Servizio QuickBall che fornisce una sfera fluttuante sullo schermo per un accesso rapido alle funzionalità.</string>
+
+    <!-- Home Fragment -->
+    <string name="home_title">Quick ball</string>
+    <string name="enable_quick_ball">Attiva Quick ball</string>
+    <string name="settings_label">Impostazioni</string>
+
+    <!-- Shortcut -->
+    <string name="shortcuts_title">Seleziona scorciatoie</string>
+    <string name="shortcut_description">Descrizione scorciatoia.</string>
+
+    <!-- Hide Automatically -->
+    <string name="hide_automatically_title">Nascondi automaticamente</string>
+    <string name="hide_automatically_description">Nascondi Quick ball nelle app selezionate.</string>
+
+    <!-- Show On Lock Screen -->
+    <string name="show_on_lock_screen_title">Mostra sulla schermata di blocco</string>
+
+    <!-- Hide On Landscape -->
+    <string name="hide_on_landscape_title">Nascondi in orizzontale</string>
+    <string name="hide_on_landscape_description">Nascondi Quick ball quando il dispositivo è in modalità orizzontale</string>
+
+    <!-- Accessibility Permission -->
+    <string name="accessibility_permission_title">Servizio di accessibilità</string>
+    <string name="accessibility_permission_description">Consente a QuickBall di visualizzare l\'overlay fluttuante,\ncontrollare il volume e bloccare il dispositivo</string>
+    <string name="accessibility_permission_status">Stato autorizzazione accessibilità</string>
+
+    <!-- System Settings Permission -->
+    <string name="system_settings_title">Modifica impostazioni di sistema</string>
+    <string name="system_settings_description">Consente a QuickBall di regolare la luminosità dello schermo</string>
+    <string name="system_settings_permission_status">Stato autorizzazione impostazioni di sistema</string>
+
+    <!-- Device Admin Permission -->
+    <string name="device_admin_title">Amministratore dispositivo</string>
+    <string name="device_admin_description">Richiesto per il blocco schermo su versioni Android precedenti</string>
+    <string name="device_admin_permission_status">Stato autorizzazione amministratore dispositivo</string>
+
+    <!-- Permission Dialog Messages -->
+    <string name="accessibility_dialog_title">Autorizzazione accessibilità richiesta</string>
+    <string name="accessibility_dialog_message">QuickBall richiede un servizio di accessibilità per la sua funzionalità principale, per visualizzare un overlay con sfera fluttuante ed eseguire azioni di sistema come controllo del volume, regolazione della luminosità e blocco dello schermo.\n\nIl servizio di accessibilità è essenziale affinché l\'app funzioni correttamente e fornisca un accesso rapido ai controlli del dispositivo da qualsiasi punto dello schermo.\n\nNon raccoglie né condivide mai alcun dato! È focalizzato sulla privacy e l\'app non invia alcuna richiesta di rete.</string>
+
+    <string name="system_settings_dialog_title">Autorizzazione impostazioni di sistema richiesta</string>
+    <string name="system_settings_dialog_message">QuickBall richiede l\'autorizzazione alle impostazioni di sistema per modificare i livelli di luminosità dello schermo al fine di fornire funzionalità di controllo della luminosità.\n\nQuesta autorizzazione è necessaria affinché i controlli di aumento e diminuzione della luminosità nel menu della sfera fluttuante funzionino correttamente.\n\nNon raccoglie né condivide mai alcun dato! È focalizzato sulla privacy e l\'app non invia alcuna richiesta di rete.</string>
+
+    <string name="dialog_button_quit">Esci</string>
+    <string name="dialog_button_accept">Accetta</string>
+
+    <!-- Select Shortcut Fragment -->
+    <string name="quick_settings_title">Impostazioni rapide</string>
+    <string name="other_title">Altro</string>
+    <string name="apps_title">App</string>
+    <string name="select_shortcut_title">Seleziona scorciatoia</string>
+    <string name="select_shortcut_description">Scegli una scorciatoia per sostituire quella attuale</string>
+    <string name="menu_icon_description">Icona voce di menu</string>
+    <string name="drag_handle_description">Trascina per riordinare</string>
+
+    <!-- Hide Automatically Fragment -->
+    <string name="app_icon">Icona app</string>
+    <string name="select_all">Seleziona tutto</string>
+    <string name="deselect_all">Deseleziona tutto</string>
+
+    <!-- Language Settings -->
+    <string name="language_title">Lingua</string>
+    <string name="language_description">Scegli la lingua dell\'app</string>
+    <string name="language_english">English</string>
+    <string name="language_hindi">हिंदी</string>
+    <string name="language_chinese">中文</string>
+    <string name="language_italian">Italiano</string>
+    <string name="language_portuguese">Português</string>
+    <string name="language_spanish">Español</string>
+    <string name="language_german">Deutsch</string>
+    
+    <!-- Quick Ball Menu Items -->
+    <!-- Navigation -->
+    <string name="menu_home">Home</string>
+    <string name="menu_back">Indietro</string>
+    <string name="menu_recent">App recenti</string>
+    
+    <!-- Display -->
+    <string name="menu_brightness_up">Aumenta luminosità</string>
+    <string name="menu_brightness_down">Diminuisci luminosità</string>
+    <string name="menu_torch">Torcia</string>
+    
+    <!-- Volume & Sound -->
+    <string name="menu_volume_up">Aumenta volume</string>
+    <string name="menu_volume_down">Diminuisci volume</string>
+    <string name="menu_silent">Silenzioso</string>
+    <string name="menu_vibration">Vibrazione</string>
+    
+    <!-- Connectivity -->
+    <string name="menu_wifi">Wi-Fi</string>
+    <string name="menu_bluetooth">Bluetooth</string>
+    <string name="menu_mobile_data">Dati mobili</string>
+    
+    <!-- Utilities -->
+    <string name="menu_screenshot">Screenshot</string>
+    <string name="menu_lock_screen">Blocca schermo</string>
+
+</resources>

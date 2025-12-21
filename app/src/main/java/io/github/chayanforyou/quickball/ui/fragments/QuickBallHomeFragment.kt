@@ -99,6 +99,10 @@ class QuickBallHomeFragment : Fragment() {
             PreferenceManager.setShowOnLockScreenEnabled(requireContext(), isChecked)
         }
 
+        binding.switchHideOnLandscape.setOnCheckedChangeListener { _, isChecked ->
+            PreferenceManager.setHideOnLandscapeEnabled(requireContext(), isChecked)
+        }
+
         binding.layoutShortcutsSelection.setOnClickListener {
             val action = QuickBallHomeFragmentDirections.actionQuickBallHomeFragmentToShortcutMenuFragment()
             findNavController().navigate(action)
@@ -108,6 +112,10 @@ class QuickBallHomeFragment : Fragment() {
             val action = QuickBallHomeFragmentDirections.actionQuickBallHomeFragmentToAutoHideSettingsFragment()
             findNavController().navigate(action)
         }
+
+//        binding.buttonSupportMe.setOnClickListener {
+//
+//        }
 
         binding.layoutFooter.setOnClickListener {
             val url = "https://github.com/chayanforyou/QuickBall"
@@ -162,6 +170,10 @@ class QuickBallHomeFragment : Fragment() {
         // Restore lock screen preference
         binding.switchEnableOnLockScreen.isChecked = PreferenceManager.isShowOnLockScreenEnabled(requireContext())
         binding.switchEnableOnLockScreen.jumpDrawablesToCurrentState()
+        
+        // Restore hide on landscape preference
+        binding.switchHideOnLandscape.isChecked = PreferenceManager.isHideOnLandscapeEnabled(requireContext())
+        binding.switchHideOnLandscape.jumpDrawablesToCurrentState()
     }
 
     private fun hasAllRequiredPermissions(): Boolean {

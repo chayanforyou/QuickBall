@@ -15,6 +15,7 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import io.github.chayanforyou.quickball.R
 import io.github.chayanforyou.quickball.databinding.ActivityMainBinding
+import io.github.chayanforyou.quickball.ui.fragments.LanguageSelectionSheet
 import io.github.chayanforyou.quickball.ui.fragments.OptimizationRemoverSheet
 
 class MainActivity : AppCompatActivity() {
@@ -64,6 +65,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when(item.itemId) {
+            R.id.language_settings -> {
+                LanguageSelectionSheet.show(supportFragmentManager)
+                true
+            }
             R.id.remove_battery_restriction -> {
                 OptimizationRemoverSheet.show(supportFragmentManager)
                 true
