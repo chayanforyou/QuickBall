@@ -51,7 +51,7 @@
         <!-- Accessibility Service for Floating Ball -->
         <service
             android:name=".core.QuickBallService"
-            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:configChanges="orientation|screenSize|uiMode"
             android:exported="true"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>

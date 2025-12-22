@@ -76,7 +76,7 @@ class QuickBallService : AccessibilityService() {
         val actionHandler = QuickBallActionHandler(this) {
             floatingBall?.apply {
                 hideMenuIfOpen()
-                stash()
+                stash(animated = true)
             }
         }
 
@@ -91,30 +91,32 @@ class QuickBallService : AccessibilityService() {
     /* -------------------- Visibility engine -------------------- */
 
     private fun updateBallVisibility() {
+        val ball = floatingBall ?: return
+
         if (!isEnabled) {
             hideBall()
             return
         }
 
-        // LOCK STATE
+        // Lock state
         if (isLocked) {
             if (showOnLockScreen) {
+                ball.hideMenuIfOpen()
                 showBall()
-                adjustPosition()
+                ball.stash()
             } else {
                 hideBall()
             }
             return
         }
 
-        // UNLOCKED STATE
+        // Unlock state
         if (hideForLandscape || isAutoHideApp()) {
             hideBall()
             return
         }
 
         showBall()
-        adjustPosition()
     }
 
     private fun isAutoHideApp(): Boolean {
@@ -127,7 +129,7 @@ class QuickBallService : AccessibilityService() {
     private fun showBall() {
         floatingBall?.takeUnless { it.isVisible() }?.apply {
             show()
-            stash(animated = false)
+            stash()
             resetStashTimer()
         }
     }
@@ -140,10 +142,10 @@ class QuickBallService : AccessibilityService() {
         }
     }
 
-    private fun stashBall(animated: Boolean = true) {
+    private fun stashBall() {
         floatingBall?.takeIf {
             !isDragging && !it.isMenuOpen()
-        }?.stash(animated)
+        }?.stash(animated = true)
     }
 
     /* -------------------- Timers -------------------- */
@@ -168,6 +170,10 @@ class QuickBallService : AccessibilityService() {
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         val pkg = getCurrentAppPackage() ?: return
+
+        // Skip System UI completely
+        if (pkg == "com.android.systemui") return
+
         if (pkg == lastPackage) return
         lastPackage = pkg
 
@@ -189,13 +195,17 @@ class QuickBallService : AccessibilityService() {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         updateBallVisibility()
+
+        val ball = floatingBall ?: return
+        if (!ball.isVisible() || isDragging) return
+
+        adjustPosition()
     }
 
     /* -------------------- Helpers -------------------- */
 
     private fun adjustPosition() {
         val ball = floatingBall ?: return
-        if (!ball.isVisible() || isDragging) return
 
         when (resources.configuration.orientation) {
             Configuration.ORIENTATION_LANDSCAPE -> ball.moveToLandscapePosition()
@@ -203,6 +213,7 @@ class QuickBallService : AccessibilityService() {
         }
         ball.forceStash()
     }
+
 
     private fun getCurrentAppPackage(): String? {
         return runCatching {
