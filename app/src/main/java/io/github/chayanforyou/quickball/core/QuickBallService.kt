@@ -207,11 +207,22 @@ class QuickBallService : AccessibilityService() {
     private fun adjustPosition() {
         val ball = floatingBall ?: return
 
-        when (resources.configuration.orientation) {
-            Configuration.ORIENTATION_LANDSCAPE -> ball.moveToLandscapePosition()
-            else -> ball.moveToPortraitPosition()
+        handler.post {
+            when (resources.configuration.orientation) {
+                Configuration.ORIENTATION_LANDSCAPE -> ball.moveToLandscapePosition()
+                else -> ball.moveToPortraitPosition()
+            }
         }
-        ball.forceStash()
+
+//        handler.post {
+//            if (ball.isVisible() && !isDragging) {
+//                when (resources.configuration.orientation) {
+//                    Configuration.ORIENTATION_LANDSCAPE -> ball.moveToLandscapePosition()
+//                    else -> ball.moveToPortraitPosition()
+//                }
+//                ball.forceStash()
+//            }
+//        }
     }
 
 
