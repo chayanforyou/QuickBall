@@ -136,7 +136,6 @@ class QuickBallService : AccessibilityService() {
 
     private fun hideBall() {
         floatingBall?.apply {
-            hideMenuIfOpen()
             hide()
             cancelStashTimer()
         }
@@ -195,10 +194,6 @@ class QuickBallService : AccessibilityService() {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         updateBallVisibility()
-
-        val ball = floatingBall ?: return
-        if (!ball.isVisible() || isDragging) return
-
         adjustPosition()
     }
 
@@ -207,13 +202,15 @@ class QuickBallService : AccessibilityService() {
     private fun adjustPosition() {
         val ball = floatingBall ?: return
 
-        when (resources.configuration.orientation) {
-            Configuration.ORIENTATION_LANDSCAPE -> ball.moveToLandscapePosition()
-            else -> ball.moveToPortraitPosition()
+        handler.post {
+            if (ball.isVisible() && !isDragging) {
+                when (resources.configuration.orientation) {
+                    Configuration.ORIENTATION_LANDSCAPE -> ball.moveToLandscapePosition()
+                    else -> ball.moveToPortraitPosition()
+                }
+            }
         }
-        ball.forceStash()
     }
-
 
     private fun getCurrentAppPackage(): String? {
         return runCatching {
@@ -222,6 +219,7 @@ class QuickBallService : AccessibilityService() {
     }
 
     private fun QuickBallFloatingButton.hideMenuIfOpen() {
+        println("hideMenuIfOpen.......")
         if (isMenuOpen()) hideMenu()
     }
 
