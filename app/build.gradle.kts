@@ -16,8 +16,8 @@ android {
         applicationId = "io.github.chayanforyou.quickball"
         minSdk = 21
         targetSdk = 36
-        versionCode = 8
-        versionName = "3.3.1"
+        versionCode = 9
+        versionName = "3.3.2"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -33,11 +33,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
     buildFeatures {
         viewBinding = true
