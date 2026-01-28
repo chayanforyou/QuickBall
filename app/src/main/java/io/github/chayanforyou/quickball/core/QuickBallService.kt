@@ -2,7 +2,10 @@ package io.github.chayanforyou.quickball.core
 
 import android.accessibilityservice.AccessibilityService
 import android.app.KeyguardManager
-import android.content.*
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Handler
@@ -12,6 +15,13 @@ import io.github.chayanforyou.quickball.domain.PreferenceManager
 import io.github.chayanforyou.quickball.domain.handlers.QuickBallActionHandler
 import io.github.chayanforyou.quickball.ui.floating.QuickBallFloatingButton
 import io.github.chayanforyou.quickball.utils.ToastUtil
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 
 class QuickBallService : AccessibilityService() {
 
@@ -23,6 +33,7 @@ class QuickBallService : AccessibilityService() {
     private var floatingBall: QuickBallFloatingButton? = null
     private var isDragging = false
     private var lastPackage: String? = null
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     private val handler = Handler(Looper.getMainLooper())
     private val stashDelay = 2500L
@@ -67,6 +78,7 @@ class QuickBallService : AccessibilityService() {
         unregisterReceiverSafe(screenReceiver)
         handler.removeCallbacksAndMessages(null)
         ToastUtil.destroy()
+        serviceScope.cancel()
         super.onDestroy()
     }
 
@@ -168,15 +180,17 @@ class QuickBallService : AccessibilityService() {
     /* -------------------- Accessibility -------------------- */
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        val pkg = getCurrentAppPackage() ?: return
+        serviceScope.launch {
+            val pkg = getCurrentAppPackageAsync() ?: return@launch
 
-        // Skip System UI completely
-        if (pkg == "com.android.systemui") return
+            // Skip System UI completely
+            if (pkg == "com.android.systemui") return@launch
 
-        if (pkg == lastPackage) return
-        lastPackage = pkg
+            if (pkg == lastPackage) return@launch
+            lastPackage = pkg
 
-        updateBallVisibility()
+            updateBallVisibility()
+        }
     }
 
     override fun onInterrupt() {}
@@ -218,8 +232,17 @@ class QuickBallService : AccessibilityService() {
         }.getOrNull() ?: lastPackage
     }
 
+    private suspend fun getCurrentAppPackageAsync(): String? = withContext(Dispatchers.IO) {
+        try {
+            withTimeoutOrNull(1000L) {
+                rootInActiveWindow?.packageName?.toString()
+            } ?: lastPackage
+        } catch (_: Exception) {
+            lastPackage
+        }
+    }
+
     private fun QuickBallFloatingButton.hideMenuIfOpen() {
-        println("hideMenuIfOpen.......")
         if (isMenuOpen()) hideMenu()
     }
 
