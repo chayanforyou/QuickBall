@@ -10,14 +10,7 @@
    <a href="https://github.com/chayanforyou/QuickBall">
      <img src="https://github.com/user-attachments/assets/a6228dcc-7b5a-428d-8582-ead8c2e95fea">
    </a>
-   <!-- <span style="font-size: 0.9em"> Install the latest version from <b>Google Play Store</b></span> -->
 </p>
-
-<!-- <p align="center">
-   <a href="https://play.google.com/store/apps/details?id=io.github.chayanforyou.quickball" align="center">
-       <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Google_Play_Store_badge_EN.svg/2560px-Google_Play_Store_badge_EN.svg.png" width="20%" height="20%" />
-   </a>
-</p> -->
 
 QuickBall is a lightweight floating assistive ball for Android that provides quick access to essential system actions like volume control, brightness adjustment, and screen lock.
 
@@ -25,15 +18,31 @@ It stays visible above all apps, giving you instant system control from anywhere
 
 ⭐ **If you find this project useful, please consider giving it a star!**
 
+<p align="left">
+   <a href="https://play.google.com/store/apps/details?id=io.github.chayanforyou.quickball">
+       <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Google_Play_Store_badge_EN.svg/2560px-Google_Play_Store_badge_EN.svg.png" width="15%"/>
+   </a>
+</p>
+
 ## Features
 
-- **Quick Actions**: Access volume, brightness, and lock screen controls instantly
-- **Always Visible**: Floating ball appears over all apps when unlocked
-- **Smart Positioning**: Remembers last position after screen unlock
-- **Auto-Hide**: Automatically hides on lock screen and shows on unlock
-- **Draggable**: Touch and drag to move anywhere on screen
-- **Auto-Snap**: Snaps to screen edges when released
-- **Multi-Language Support**: Available in English, Hindi (हिंदी), and Chinese (中文)
+- **Quick Actions**<br>
+  Instantly control **volume, brightness, and lock screen**.
+- **Always Visible**<br>
+  Floating ball appears above all apps when the device is unlocked.
+- **Smart Position Memory**<br>
+  Remembers the last position of the ball after screen unlock.
+- **Auto-Hide on Lock Screen**<br>
+  Automatically hides when the screen is locked.
+- **Draggable & Movable**<br>
+  Drag and place the ball anywhere on the screen.
+- **Auto Edge Snap**<br>
+  Snaps to the nearest screen edge when released.
+- **Multi-Language Support**<br>
+  Available in:
+  * English
+  * Hindi (हिंदी)
+  * Chinese (中文)
 
 ### Video Demo
 https://github.com/user-attachments/assets/3e32ba87-19fc-4ff4-b40f-c29e26c10b68
