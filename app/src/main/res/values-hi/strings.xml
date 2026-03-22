@@ -29,6 +29,10 @@
     <string name="hide_on_landscape_title">लैंडस्केप में छुपाएं</string>
     <string name="hide_on_landscape_description">डिवाइस लैंडस्केप मोड में होने पर क्विक बॉल छुपाएं</string>
 
+    <!-- Stick to Edge -->
+    <string name="stick_to_edge_title">किनारे से चिपकाएं</string>
+    <string name="stick_to_edge_description">निष्क्रियता के बाद स्वचालित रूप से स्क्रीन के किनारे पर जाएं</string>
+
     <!-- Accessibility Permission -->
     <string name="accessibility_permission_title">पहुंच सेवा</string>
     <string name="accessibility_permission_description">क्विकबॉल को फ्लोटिंग ओवरले प्रदर्शित करने,\nवॉल्यूम नियंत्रित करने और आपके डिवाइस को लॉक करने की अनुमति देता है</string>

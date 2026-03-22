@@ -67,9 +67,8 @@ class QuickBallFloatingButton(
     /* Callbacks                                           */
     /* --------------------------------------------------- */
 
-    private var onStashStateChangedListener: ((Boolean) -> Unit)? = null
-    private var onDragStateChangedListener: ((Boolean) -> Unit)? = null
-    private var onMenuStateChangedListener: ((Boolean) -> Unit)? = null
+    var onDragStateChanged: ((Boolean) -> Unit)? = null
+    var onInteractionEnded: (() -> Unit)? = null
 
     /* --------------------------------------------------- */
     /* Touch listener                                      */
@@ -137,18 +136,26 @@ class QuickBallFloatingButton(
     /* --------------------------------------------------- */
 
     fun setDragging(isDragging: Boolean) {
-        onDragStateChangedListener?.invoke(isDragging)
+        onDragStateChanged?.invoke(isDragging)
     }
 
     /* --------------------------------------------------- */
     /* Stash / Unstash                                     */
     /* --------------------------------------------------- */
 
-    fun stash(animated: Boolean = false) {
-        if (!isVisible || isStashed || isAnimatingStash || floatingBall == null) return
+    fun stash(animated: Boolean = true) {
+        val view = floatingBall ?: return
+        if (!isVisible || isStashed || isAnimatingStash) return
+
+        if (!PreferenceManager.isStickToEdgeEnabled(context)) {
+            if (animated) animateAlpha(1f, 0.4f)
+            else view.alpha = 0.4f
+            isStashed = true
+            return
+        }
 
         try {
-            val lp = floatingBall!!.layoutParams as WindowManager.LayoutParams
+            val lp = view.layoutParams as WindowManager.LayoutParams
             val isOnLeft = lp.x < displayMetrics.widthPixels / 2
             val targetX = if (isOnLeft) -stashOffset
             else displayMetrics.widthPixels - ballSize + stashOffset
@@ -158,26 +165,22 @@ class QuickBallFloatingButton(
                 animateToPosition(lp.x, lp.y, targetX, lp.y) {
                     isStashed = true
                     isAnimatingStash = false
-                    onStashStateChangedListener?.invoke(true)
                 }
                 animateAlpha(1f, 0.4f)
             } else {
                 lp.x = targetX
-                windowManager.updateViewLayout(floatingBall, lp)
-                floatingBall?.alpha = 0.4f
+                windowManager.updateViewLayout(view, lp)
+                view.alpha = 0.4f
                 isStashed = true
-                onStashStateChangedListener?.invoke(true)
+                isAnimatingStash = false
             }
-        } catch (e: IllegalArgumentException) {
-            Log.w(TAG, "View not attached to window manager, skipping stash", e)
-            isAnimatingStash = false
         } catch (e: Exception) {
             Log.e(TAG, "Error stashing floating ball", e)
             isAnimatingStash = false
         }
     }
 
-    fun unstash(animated: Boolean = true) {
+    fun unstash(animated: Boolean = true, onComplete: (() -> Unit)? = null) {
         if (!isVisible || floatingBall == null) return
 
         if (isAnimatingStash) isAnimatingStash = false
@@ -191,8 +194,8 @@ class QuickBallFloatingButton(
             if (animated) {
                 animateToPosition(lp.x, lp.y, targetX, lp.y, 50L) {
                     isStashed = false
-                    onStashStateChangedListener?.invoke(false)
-                    openFloatingMenu()
+                    onInteractionEnded?.invoke()
+                    onComplete?.invoke()
                 }
                 animateAlpha(0.4f, 1f, 50L)
             } else {
@@ -200,11 +203,9 @@ class QuickBallFloatingButton(
                 windowManager.updateViewLayout(floatingBall, lp)
                 floatingBall?.alpha = 1f
                 isStashed = false
-                onStashStateChangedListener?.invoke(false)
-                openFloatingMenu()
+                onInteractionEnded?.invoke()
+                onComplete?.invoke()
             }
-        } catch (e: IllegalArgumentException) {
-            Log.w(TAG, "View not attached to window manager, skipping unstash", e)
         } catch (e: Exception) {
             Log.e(TAG, "Error unstashing floating ball", e)
         }
@@ -212,6 +213,12 @@ class QuickBallFloatingButton(
 
     fun forceStash() {
         if (!isVisible || floatingBall == null) return
+
+        if (!PreferenceManager.isStickToEdgeEnabled(context)) {
+            floatingBall?.alpha = 0.4f
+            isStashed = true
+            return
+        }
 
         try {
             val lp = floatingBall!!.layoutParams as WindowManager.LayoutParams
@@ -222,9 +229,6 @@ class QuickBallFloatingButton(
             windowManager.updateViewLayout(floatingBall, lp)
             floatingBall?.alpha = 0.4f
             isStashed = true
-            onStashStateChangedListener?.invoke(true)
-        } catch (e: IllegalArgumentException) {
-            Log.w(TAG, "View not attached to window manager, skipping force stash", e)
         } catch (e: Exception) {
             Log.e(TAG, "Error force stashing floating ball", e)
         }
@@ -237,10 +241,12 @@ class QuickBallFloatingButton(
     fun hideMenu(animated: Boolean = false) {
         floatingMenu?.takeIf { it.isOpen() }?.apply {
             if (isAnimating()) {
-                doOnAnimationEnd { if (it) {
-                    close(animated)
-                    resetIconToDefault()
-                }}
+                doOnAnimationEnd {
+                    if (it) {
+                        close(animated)
+                        resetIconToDefault()
+                    }
+                }
             } else {
                 close(animated)
                 resetIconToDefault()
@@ -250,7 +256,10 @@ class QuickBallFloatingButton(
 
     fun handleBallClick() {
         when {
-            isStashed -> unstash()
+            isStashed -> unstash(onComplete = {
+                openFloatingMenu()
+            })
+
             !isAnimatingStash -> {
                 ensureMenuCreated()
                 floatingMenu?.toggle(true)
@@ -310,7 +319,7 @@ class QuickBallFloatingButton(
 
     fun snapToEdge(view: View) {
         if (!isViewAttached()) return
-        
+
         try {
             val lp = view.layoutParams as WindowManager.LayoutParams
 
@@ -327,8 +336,6 @@ class QuickBallFloatingButton(
 
             windowManager.updateViewLayout(view, lp)
             savePositionForCurrentOrientation()
-        } catch (e: IllegalArgumentException) {
-            Log.w(TAG, "View not attached to window manager, skipping snap to edge", e)
         } catch (e: Exception) {
             Log.e(TAG, "Error snapping to edge", e)
         }
@@ -356,14 +363,12 @@ class QuickBallFloatingButton(
 
     private fun moveInstant(x: Int, y: Int) {
         if (!isViewAttached()) return
-        
+
         try {
             val lp = floatingBall!!.layoutParams as WindowManager.LayoutParams
             lp.x = x
             lp.y = y
             windowManager.updateViewLayout(floatingBall, lp)
-        } catch (e: IllegalArgumentException) {
-            Log.w(TAG, "View not attached to window manager, skipping position update", e)
         } catch (e: Exception) {
             Log.e(TAG, "Error updating view layout", e)
         }
@@ -375,25 +380,25 @@ class QuickBallFloatingButton(
             Configuration.ORIENTATION_LANDSCAPE ->
                 if (!PreferenceManager.isHideOnLandscapeEnabled(context))
                     landscapePosition = Pair(lp.x, lp.y)
+
             else -> portraitPosition = Pair(lp.x, lp.y)
         }
     }
 
     private fun restoreLastPosition() {
         if (!isVisible || floatingBall == null) return
-        
+
         try {
             val lp = floatingBall!!.layoutParams as WindowManager.LayoutParams
             val saved = if (context.resources.configuration.orientation ==
-                Configuration.ORIENTATION_LANDSCAPE) landscapePosition else portraitPosition
+                Configuration.ORIENTATION_LANDSCAPE
+            ) landscapePosition else portraitPosition
 
             saved?.let {
                 lp.x = it.first
                 lp.y = it.second
                 windowManager.updateViewLayout(floatingBall, lp)
             }
-        } catch (e: IllegalArgumentException) {
-            Log.w(TAG, "View not attached to window manager, skipping position restore", e)
         } catch (e: Exception) {
             Log.e(TAG, "Error restoring position", e)
         }
@@ -460,33 +465,40 @@ class QuickBallFloatingButton(
         interpolator: Interpolator = STASH_INTERPOLATOR,
         onEnd: () -> Unit = {}
     ) {
-        ValueAnimator.ofFloat(0f, 1f).apply {
-            this.duration = duration
-            this.interpolator = interpolator
-            addUpdateListener { animator ->
-                if (!isViewAttached()) {
-                    animator.cancel()
-                    return@addUpdateListener
+        val view = floatingBall ?: return
+
+        view.post {
+            if (!isViewAttached()) return@post
+
+            ValueAnimator.ofFloat(0f, 1f).apply {
+                this.duration = duration
+                this.interpolator = interpolator
+                addUpdateListener { animator ->
+                    if (!isViewAttached()) {
+                        animator.cancel()
+                        return@addUpdateListener
+                    }
+
+                    try {
+                        val p = animator.animatedValue as Float
+                        moveInstant(
+                            (startX + (endX - startX) * p).toInt(),
+                            (startY + (endY - startY) * p).toInt()
+                        )
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error during position animation", e)
+                        animator.cancel()
+                    }
                 }
-                
-                try {
-                    val p = animator.animatedValue as Float
-                    moveInstant(
-                        (startX + (endX - startX) * p).toInt(),
-                        (startY + (endY - startY) * p).toInt()
-                    )
-                } catch (e: IllegalArgumentException) {
-                    Log.w(TAG, "View detached during animation update, cancelling", e)
-                    animator.cancel()
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error during position animation", e)
-                    animator.cancel()
-                }
+
+                addListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        onEnd()
+                    }
+                })
+
+                start()
             }
-            addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) = onEnd()
-            })
-            start()
         }
     }
 
@@ -496,9 +508,11 @@ class QuickBallFloatingButton(
         duration: Long = 200L,
         interpolator: Interpolator = STASH_INTERPOLATOR
     ) {
-        floatingBall?.let { view ->
-            if (!isViewAttached()) return
-            
+        val view = floatingBall ?: return
+
+        view.post {
+            if (!isViewAttached()) return@post
+
             ObjectAnimator.ofFloat(view, View.ALPHA, from, to).apply {
                 this.duration = duration
                 this.interpolator = interpolator
@@ -518,7 +532,8 @@ class QuickBallFloatingButton(
 
         if (floatingMenu == null ||
             lastMenuSideOnLeft != onLeft ||
-            lastMenuItemsHash != currentHash) {
+            lastMenuItemsHash != currentHash
+        ) {
 
             recreateMenu()
             lastMenuSideOnLeft = onLeft
@@ -550,12 +565,11 @@ class QuickBallFloatingButton(
             stateChangeListener = object : QuickBallFloatingMenu.MenuStateChangeListener {
                 override fun onMenuOpened(menu: QuickBallFloatingMenu) {
                     updateMenuIcon()
-                    onMenuStateChangedListener?.invoke(true)
                 }
 
                 override fun onMenuClosed(menu: QuickBallFloatingMenu) {
                     updateMenuIcon()
-                    onMenuStateChangedListener?.invoke(false)
+                    onInteractionEnded?.invoke()
                 }
             },
             menuItemClickListener = object : MenuItemClickListener {
@@ -610,19 +624,4 @@ class QuickBallFloatingButton(
         return lp.x < displayMetrics.widthPixels / 2
     }
 
-    /* --------------------------------------------------- */
-    /* Listener setters                                    */
-    /* --------------------------------------------------- */
-
-    fun setOnStashStateChangedListener(listener: ((Boolean) -> Unit)?) {
-        onStashStateChangedListener = listener
-    }
-
-    fun setOnDragStateChangedListener(listener: ((Boolean) -> Unit)?) {
-        onDragStateChangedListener = listener
-    }
-
-    fun setOnMenuStateChangedListener(listener: ((Boolean) -> Unit)?) {
-        onMenuStateChangedListener = listener
-    }
 }

@@ -29,6 +29,10 @@
     <string name="hide_on_landscape_title">Im Querformat ausblenden</string>
     <string name="hide_on_landscape_description">Quick ball ausblenden, wenn das Gerät im Querformat ist</string>
 
+    <!-- Stick to Edge -->
+    <string name="stick_to_edge_title">Am Rand anheften</string>
+    <string name="stick_to_edge_description">Nach Inaktivität automatisch zum Bildschirmrand bewegen</string>
+
     <!-- Accessibility Permission -->
     <string name="accessibility_permission_title">Bedienungshilfen-Dienst</string>
     <string name="accessibility_permission_description">Ermöglicht QuickBall, schwebende Überlagerung anzuzeigen,\nLautstärke zu steuern und Ihr Gerät zu sperren</string>

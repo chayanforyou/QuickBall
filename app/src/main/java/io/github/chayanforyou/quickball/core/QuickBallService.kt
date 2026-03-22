@@ -1,6 +1,7 @@
 package io.github.chayanforyou.quickball.core
 
 import android.accessibilityservice.AccessibilityService
+import android.annotation.SuppressLint
 import android.app.KeyguardManager
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -23,11 +24,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 
+@SuppressLint("AccessibilityPolicy")
 class QuickBallService : AccessibilityService() {
 
     companion object {
-        const val ACTION_ENABLE_QUICK_BALL = "io.github.chayanforyou.quickball.ENABLE_QUICK_BALL"
-        const val ACTION_DISABLE_QUICK_BALL = "io.github.chayanforyou.quickball.DISABLE_QUICK_BALL"
+        const val ACTION_ENABLE = "io.github.chayanforyou.quickball.ENABLE_QUICK_BALL"
+        const val ACTION_DISABLE = "io.github.chayanforyou.quickball.DISABLE_QUICK_BALL"
+        const val ACTION_STASH = "io.github.chayanforyou.quickball.STASH_QUICK_BALL"
+        const val ACTION_UNSTASH = "io.github.chayanforyou.quickball.UNSTASH_QUICK_BALL"
     }
 
     private var floatingBall: QuickBallFloatingButton? = null
@@ -36,8 +40,8 @@ class QuickBallService : AccessibilityService() {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     private val handler = Handler(Looper.getMainLooper())
-    private val stashDelay = 2500L
-    private val stashRunnable = Runnable { stashBall() }
+    private val inactivityDelay = 2500L
+    private val inactivityRunnable = Runnable { onInactivityTimeout() }
 
     private val keyguard by lazy {
         getSystemService(KEYGUARD_SERVICE) as KeyguardManager
@@ -67,8 +71,10 @@ class QuickBallService : AccessibilityService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
-            ACTION_ENABLE_QUICK_BALL -> showBall()
-            ACTION_DISABLE_QUICK_BALL -> hideBall()
+            ACTION_ENABLE -> showBall()
+            ACTION_DISABLE -> hideBall()
+            ACTION_STASH -> stashBall()
+            ACTION_UNSTASH -> unstashBall()
         }
         return START_STICKY
     }
@@ -81,22 +87,20 @@ class QuickBallService : AccessibilityService() {
         serviceScope.cancel()
         super.onDestroy()
     }
-
     /* -------------------- Initialization -------------------- */
 
     private fun initFloatingBall() {
         val actionHandler = QuickBallActionHandler(this) {
             floatingBall?.apply {
                 hideMenuIfOpen()
-                stash(animated = true)
+                stash()
             }
         }
 
         floatingBall = QuickBallFloatingButton(this, actionHandler).apply {
             initialize()
-            setOnStashStateChangedListener { if (!it) resetStashTimer() }
-            setOnDragStateChangedListener(::onDragStateChanged)
-            setOnMenuStateChangedListener { if (!it) resetStashTimer() }
+            onInteractionEnded = ::resetInactivityTimer
+            onDragStateChanged = ::onDragStateChanged
         }
     }
 
@@ -115,7 +119,7 @@ class QuickBallService : AccessibilityService() {
             if (showOnLockScreen) {
                 ball.hideMenuIfOpen()
                 showBall()
-                ball.stash()
+                ball.stash(animated = false)
             } else {
                 hideBall()
             }
@@ -141,40 +145,56 @@ class QuickBallService : AccessibilityService() {
     private fun showBall() {
         floatingBall?.takeUnless { it.isVisible() }?.apply {
             show()
-            stash()
-            resetStashTimer()
+            stash(animated = false)
+            startInactivityTimer()
         }
     }
 
     private fun hideBall() {
         floatingBall?.apply {
             hide()
-            cancelStashTimer()
+            cancelInactivityTimer()
         }
     }
 
     private fun stashBall() {
         floatingBall?.takeIf {
+            it.isVisible()
+        }?.forceStash()
+    }
+
+    private fun unstashBall() {
+        floatingBall?.takeIf {
+            it.isVisible()
+        }?.unstash()
+    }
+
+    private fun onInactivityTimeout() {
+        floatingBall?.takeIf {
             !isDragging && !it.isMenuOpen()
-        }?.stash(animated = true)
+        }?.stash()
     }
 
     /* -------------------- Timers -------------------- */
 
-    private fun resetStashTimer() {
-        handler.removeCallbacks(stashRunnable)
-        handler.postDelayed(stashRunnable, stashDelay)
+    private fun startInactivityTimer() {
+        handler.postDelayed(inactivityRunnable, inactivityDelay)
     }
 
-    private fun cancelStashTimer() {
-        handler.removeCallbacks(stashRunnable)
+    private fun cancelInactivityTimer() {
+        handler.removeCallbacks(inactivityRunnable)
+    }
+
+    private fun resetInactivityTimer() {
+        cancelInactivityTimer()
+        startInactivityTimer()
     }
 
     /* -------------------- Drag -------------------- */
 
     private fun onDragStateChanged(dragging: Boolean) {
         isDragging = dragging
-        if (dragging) cancelStashTimer() else resetStashTimer()
+        if (dragging) cancelInactivityTimer() else resetInactivityTimer()
     }
 
     /* -------------------- Accessibility -------------------- */

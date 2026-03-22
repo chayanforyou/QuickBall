@@ -29,6 +29,10 @@
     <string name="hide_on_landscape_title">横屏时隐藏</string>
     <string name="hide_on_landscape_description">设备处于横屏模式时隐藏快球</string>
 
+    <!-- Stick to Edge -->
+    <string name="stick_to_edge_title">吸附边缘</string>
+    <string name="stick_to_edge_description">无操作后自动移动到屏幕边缘</string>
+
     <!-- Accessibility Permission -->
     <string name="accessibility_permission_title">无障碍服务</string>
     <string name="accessibility_permission_description">允许快球显示浮动覆盖层，\n控制音量并锁定您的设备</string>
