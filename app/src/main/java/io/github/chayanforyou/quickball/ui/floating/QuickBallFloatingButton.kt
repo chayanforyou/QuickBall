@@ -2,6 +2,7 @@ package io.github.chayanforyou.quickball.ui.floating
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.Context
@@ -148,9 +149,16 @@ class QuickBallFloatingButton(
         if (!isVisible || isStashed || isAnimatingStash) return
 
         if (!PreferenceManager.isStickToEdgeEnabled(context)) {
-            if (animated) animateAlpha(1f, 0.4f)
-            else view.alpha = 0.4f
-            isStashed = true
+            if (animated) {
+                isAnimatingStash = true
+                animateFade(1f, 0.4f) {
+                    isStashed = true
+                    isAnimatingStash = false
+                }
+            } else {
+                view.alpha = 0.4f
+                isStashed = true
+            }
             return
         }
 
@@ -162,21 +170,18 @@ class QuickBallFloatingButton(
 
             if (animated) {
                 isAnimatingStash = true
-                animateToPosition(lp.x, lp.y, targetX, lp.y) {
+                animateMoveAndFade(lp.x, lp.y, targetX, lp.y, 1f, 0.4f) {
                     isStashed = true
                     isAnimatingStash = false
                 }
-                animateAlpha(1f, 0.4f)
             } else {
                 lp.x = targetX
                 windowManager.updateViewLayout(view, lp)
                 view.alpha = 0.4f
                 isStashed = true
-                isAnimatingStash = false
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error stashing floating ball", e)
-            isAnimatingStash = false
         }
     }
 
@@ -192,12 +197,11 @@ class QuickBallFloatingButton(
             else displayMetrics.widthPixels - ballSize - ballMargin
 
             if (animated) {
-                animateToPosition(lp.x, lp.y, targetX, lp.y, 50L) {
+                animateMoveAndFade(lp.x, lp.y, targetX, lp.y, 0.4f, 1f, 50L) {
                     isStashed = false
                     onInteractionEnded?.invoke()
                     onComplete?.invoke()
                 }
-                animateAlpha(0.4f, 1f, 50L)
             } else {
                 lp.x = targetX
                 windowManager.updateViewLayout(floatingBall, lp)
@@ -458,9 +462,11 @@ class QuickBallFloatingButton(
     /* Animations                                          */
     /* --------------------------------------------------- */
 
-    private fun animateToPosition(
+    private fun animateMoveAndFade(
         startX: Int, startY: Int,
         endX: Int, endY: Int,
+        fromAlpha: Float,
+        toAlpha: Float,
         duration: Long = 200L,
         interpolator: Interpolator = STASH_INTERPOLATOR,
         onEnd: () -> Unit = {}
@@ -470,43 +476,66 @@ class QuickBallFloatingButton(
         view.post {
             if (!isViewAttached()) return@post
 
-            ValueAnimator.ofFloat(0f, 1f).apply {
-                this.duration = duration
-                this.interpolator = interpolator
-                addUpdateListener { animator ->
-                    if (!isViewAttached()) {
-                        animator.cancel()
-                        return@addUpdateListener
-                    }
+            try {
+                val animators = mutableListOf<Animator>()
 
-                    try {
+                // Position animator
+                val positionAnimator = ValueAnimator.ofFloat(0f, 1f).apply {
+                    this.duration = duration
+                    this.interpolator = interpolator
+
+                    addUpdateListener { animator ->
+                        if (!isViewAttached()) {
+                            animator.cancel()
+                            return@addUpdateListener
+                        }
+
                         val p = animator.animatedValue as Float
                         moveInstant(
                             (startX + (endX - startX) * p).toInt(),
                             (startY + (endY - startY) * p).toInt()
                         )
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Error during position animation", e)
-                        animator.cancel()
                     }
                 }
+                animators.add(positionAnimator)
 
-                addListener(object : AnimatorListenerAdapter() {
-                    override fun onAnimationEnd(animation: Animator) {
-                        onEnd()
-                    }
-                })
+                // Alpha animator
+                val alphaAnimator = ObjectAnimator.ofFloat(
+                    view,
+                    View.ALPHA,
+                    fromAlpha,
+                    toAlpha
+                ).apply {
+                    this.duration = duration
+                    this.interpolator = interpolator
+                }
+                animators.add(alphaAnimator)
 
-                start()
+                // Play together
+                AnimatorSet().apply {
+                    playTogether(animators)
+
+                    addListener(object : AnimatorListenerAdapter() {
+                        override fun onAnimationEnd(animation: Animator) {
+                            onEnd()
+                        }
+                    })
+
+                    start()
+                }
+
+            } catch (e: Exception) {
+                Log.e(TAG, "Animation error", e)
             }
         }
     }
 
-    private fun animateAlpha(
+    private fun animateFade(
         from: Float,
         to: Float,
         duration: Long = 200L,
-        interpolator: Interpolator = STASH_INTERPOLATOR
+        interpolator: Interpolator = STASH_INTERPOLATOR,
+        onEnd: () -> Unit = {}
     ) {
         val view = floatingBall ?: return
 
@@ -516,6 +545,13 @@ class QuickBallFloatingButton(
             ObjectAnimator.ofFloat(view, View.ALPHA, from, to).apply {
                 this.duration = duration
                 this.interpolator = interpolator
+
+                addListener(object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        onEnd()
+                    }
+                })
+
                 start()
             }
         }
