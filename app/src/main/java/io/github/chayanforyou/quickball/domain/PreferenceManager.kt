@@ -12,6 +12,7 @@ import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
 object PreferenceManager {
     private const val PREFS_NAME = "quick_ball_prefs"
     private const val KEY_QUICK_BALL_ENABLED = "quick_ball_enabled"
+    private const val KEY_BALL_SIZE = "ball_size"
     private const val KEY_STICK_TO_EDGE = "stick_to_edge"
     private const val KEY_SHOW_ON_LOCK_SCREEN = "show_on_lock_screen"
     private const val KEY_HIDE_ON_LANDSCAPE = "hide_on_landscape"
@@ -32,6 +33,16 @@ object PreferenceManager {
     fun setQuickBallEnabled(context: Context, enabled: Boolean) {
         getPreferences(context).edit {
             putBoolean(KEY_QUICK_BALL_ENABLED, enabled)
+        }
+    }
+
+    fun getBallSize(context: Context): Float {
+        return getPreferences(context).getFloat(KEY_BALL_SIZE, 45f)
+    }
+
+    fun setBallSize(context: Context, size: Float) {
+        getPreferences(context).edit {
+            putFloat(KEY_BALL_SIZE, size)
         }
     }
 

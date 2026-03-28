@@ -49,7 +49,7 @@ class QuickBallFloatingButton(
     private var floatingBall: View? = null
     private var floatingMenu: QuickBallFloatingMenu? = null
 
-    private val ballSize = dp2px(45f)
+    private var ballSize = dp2px(45f)
     private val ballMargin = dp2px(5f)
     private val stashOffset = dp2px(24f)
     private val topBoundary = dp2px(100f)
@@ -63,6 +63,13 @@ class QuickBallFloatingButton(
 
     private var portraitPosition: Pair<Int, Int>? = null
     private var landscapePosition: Pair<Int, Int>? = null
+
+    /* --------------------------------------------------- */
+    /* Derived state                                    */
+    /* --------------------------------------------------- */
+
+    private val floatingBallSize get() = PreferenceManager.getBallSize(context)
+    private val isStickToEdge get() = PreferenceManager.isStickToEdgeEnabled(context)
 
     /* --------------------------------------------------- */
     /* Callbacks                                           */
@@ -91,7 +98,30 @@ class QuickBallFloatingButton(
     /* --------------------------------------------------- */
 
     fun initialize() {
+        ballSize = dp2px(floatingBallSize)
         floatingBall = createFloatingBall()
+    }
+
+    /* --------------------------------------------------- */
+    /* Size Update                                         */
+    /* --------------------------------------------------- */
+
+    fun updateSize() {
+        if (!isVisible || floatingBall == null) return
+
+        hide()
+        initialize()
+        show()
+
+        floatingBall?.post {
+            floatingBall?.let { snapToEdge(it) }
+
+            if (isStickToEdge) {
+                forceStash()
+            }
+
+            recreateMenu()
+        }
     }
 
     /* --------------------------------------------------- */

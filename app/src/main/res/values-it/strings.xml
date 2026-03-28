@@ -30,8 +30,12 @@
     <string name="hide_on_landscape_description">Nascondi Quick ball quando il dispositivo è in modalità orizzontale</string>
 
     <!-- Stick to Edge -->
-    <string name="stick_to_edge_title">Aggancia al bordo</string>
+    <string name="stick_to_edge_title">Aggancia al bordo dopo inattività</string>
     <string name="stick_to_edge_description">Sposta automaticamente al bordo dello schermo dopo l\'inattività</string>
+
+    <!-- Ball Size -->
+    <string name="ball_size_title">Dimensione sfera</string>
+    <string name="ball_size_description">Regola la dimensione della sfera fluttuante</string>
 
     <!-- Accessibility Permission -->
     <string name="accessibility_permission_title">Servizio di accessibilità</string>

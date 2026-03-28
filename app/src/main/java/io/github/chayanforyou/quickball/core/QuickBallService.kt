@@ -28,10 +28,11 @@ import kotlinx.coroutines.withTimeoutOrNull
 class QuickBallService : AccessibilityService() {
 
     companion object {
-        const val ACTION_ENABLE = "io.github.chayanforyou.quickball.ENABLE_QUICK_BALL"
-        const val ACTION_DISABLE = "io.github.chayanforyou.quickball.DISABLE_QUICK_BALL"
-        const val ACTION_STASH = "io.github.chayanforyou.quickball.STASH_QUICK_BALL"
-        const val ACTION_UNSTASH = "io.github.chayanforyou.quickball.UNSTASH_QUICK_BALL"
+        const val ACTION_ENABLE = "io.github.chayanforyou.quickball.action.ENABLE"
+        const val ACTION_DISABLE = "io.github.chayanforyou.quickball.action.DISABLE"
+        const val ACTION_STASH = "io.github.chayanforyou.quickball.action.STASH"
+        const val ACTION_UNSTASH = "io.github.chayanforyou.quickball.action.UNSTASH"
+        const val ACTION_UPDATE_SIZE = "io.github.chayanforyou.quickball.action.UPDATE_SIZE"
     }
 
     private var floatingBall: QuickBallFloatingButton? = null
@@ -75,6 +76,7 @@ class QuickBallService : AccessibilityService() {
             ACTION_DISABLE -> hideBall()
             ACTION_STASH -> stashBall()
             ACTION_UNSTASH -> unstashBall()
+            ACTION_UPDATE_SIZE -> updateBallSize()
         }
         return START_STICKY
     }
@@ -167,6 +169,10 @@ class QuickBallService : AccessibilityService() {
         floatingBall?.takeIf {
             it.isVisible()
         }?.unstash()
+    }
+
+    private fun updateBallSize() {
+        floatingBall?.updateSize()
     }
 
     private fun onInactivityTimeout() {

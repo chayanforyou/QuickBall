@@ -30,8 +30,12 @@
     <string name="hide_on_landscape_description">Quick ball ausblenden, wenn das Gerät im Querformat ist</string>
 
     <!-- Stick to Edge -->
-    <string name="stick_to_edge_title">Am Rand anheften</string>
+    <string name="stick_to_edge_title">Am Rand anheften nach Inaktivität</string>
     <string name="stick_to_edge_description">Nach Inaktivität automatisch zum Bildschirmrand bewegen</string>
+
+    <!-- Ball Size -->
+    <string name="ball_size_title">Kugelgröße</string>
+    <string name="ball_size_description">Größe der schwebenden Kugel anpassen</string>
 
     <!-- Accessibility Permission -->
     <string name="accessibility_permission_title">Bedienungshilfen-Dienst</string>

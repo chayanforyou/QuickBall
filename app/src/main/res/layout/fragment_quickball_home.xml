@@ -4,12 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/padding_16dp">
+    android:paddingHorizontal="@dimen/padding_16dp"
+    android:paddingTop="@dimen/padding_16dp">
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scroll_content"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginBottom="@dimen/margin_16dp"
         android:fillViewport="true"
         app:layout_constraintBottom_toTopOf="@id/layout_footer"
         app:layout_constraintEnd_toEndOf="parent"
@@ -170,6 +172,52 @@
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
                         <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/layout_ball_size"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="?attr/selectableItemBackground"
+                            android:paddingTop="@dimen/padding_16dp">
+
+                            <TextView
+                                android:id="@+id/tv_ball_size_title"
+                                style="@style/TextAppearance.Material3.BodyLarge"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginHorizontal="@dimen/margin_24dp"
+                                android:text="@string/ball_size_title"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                            <TextView
+                                android:id="@+id/tv_ball_size_description"
+                                style="@style/TextAppearance.Material3.BodySmall"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginHorizontal="@dimen/margin_24dp"
+                                android:layout_marginTop="4dp"
+                                android:alpha="0.7"
+                                android:text="@string/ball_size_description"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@id/tv_ball_size_title" />
+
+                            <com.google.android.material.slider.Slider
+                                android:id="@+id/slider_ball_size"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginHorizontal="@dimen/margin_12dp"
+                                android:layout_marginTop="8dp"
+                                android:stepSize="1"
+                                android:valueFrom="40"
+                                android:valueTo="60"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@id/tv_ball_size_description" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
                             android:id="@+id/layout_stick_to_edge"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -184,22 +232,10 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginEnd="8dp"
                                 android:text="@string/stick_to_edge_title"
+                                app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintEnd_toStartOf="@id/switch_stick_to_edge"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="parent" />
-
-                            <TextView
-                                android:id="@+id/tv_stick_to_edge_description"
-                                style="@style/TextAppearance.Material3.BodySmall"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:layout_marginEnd="8dp"
-                                android:alpha="0.7"
-                                android:text="@string/stick_to_edge_description"
-                                app:layout_constraintEnd_toStartOf="@id/switch_stick_to_edge"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toBottomOf="@id/tv_stick_to_edge_title" />
 
                             <com.google.android.material.materialswitch.MaterialSwitch
                                 android:id="@+id/switch_stick_to_edge"
@@ -297,53 +333,60 @@
                     app:layout_constraintTop_toTopOf="@id/settings_card" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <!-- Support Button -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/button_support_me"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/margin_40dp"
-                android:fontFamily="@font/cookie"
-                android:paddingHorizontal="@dimen/padding_12dp"
-                android:text="@string/support_me"
-                android:textAlignment="viewStart"
-                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
-                app:icon="@drawable/ic_heart"
-                app:iconSize="28dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/layout_settings_container"
-                app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Medium" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
 
     <!-- Footer -->
-    <LinearLayout
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/layout_footer"
-        android:layout_width="match_parent"
+        style="?materialCardViewFilledStyle"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:paddingTop="@dimen/padding_16dp"
+        android:background="?attr/colorSurfaceContainer"
+        app:cardBackgroundColor="?attr/colorSurfaceContainer"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Large">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/made_by"
-            android:textAppearance="@style/TextAppearance.Material3.BodyMedium" />
+            android:background="?attr/selectableItemBackground"
+            android:paddingHorizontal="@dimen/padding_20dp"
+            android:paddingVertical="@dimen/padding_12dp">
 
-        <TextView
-            android:id="@+id/tv_version"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/margin_4dp"
-            android:alpha="0.7"
-            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-            tools:text="Version: 1.0.0" />
-    </LinearLayout>
+            <TextView
+                android:id="@+id/tv_version"
+                style="@style/TextAppearance.Material3.BodyMedium"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/button_support_me"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="v1.0.0" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/button_support_me"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:fontFamily="@font/cookie"
+                android:paddingHorizontal="@dimen/padding_10dp"
+                android:src="@drawable/ic_arrow_forward"
+                android:text="@string/support_me"
+                android:textAlignment="viewStart"
+                android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                app:icon="@drawable/ic_coffee"
+                app:iconSize="28dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:shapeAppearance="@style/ShapeAppearance.Material3.Corner.Medium" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
