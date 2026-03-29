@@ -8,8 +8,8 @@ import io.github.chayanforyou.quickball.domain.handlers.MenuAction
 
 data class QuickBallMenuItemModel(
     val action: MenuAction,
-    @DrawableRes val iconRes: Int,
-    @StringRes val titleRes: Int,
+    @field:DrawableRes val iconRes: Int,
+    @field:StringRes val titleRes: Int,
     val isSelected: Boolean = false,
     val packageName: String? = null,
     val appTitle: String? = null
@@ -123,6 +123,12 @@ data class QuickBallMenuItemModel(
     }
 
     fun getTitle(context: Context): String {
-        return appTitle ?: if (titleRes != 0) context.getString(titleRes) else ""
+        return appTitle ?: if (titleRes != 0) {
+            try {
+                context.getString(titleRes)
+            } catch (_: Exception) {
+                ""
+            }
+        } else ""
     }
 }
