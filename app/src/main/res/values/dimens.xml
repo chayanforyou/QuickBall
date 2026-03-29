@@ -10,6 +10,7 @@
     <dimen name="margin_30dp">30dp</dimen>
     <dimen name="margin_40dp">40dp</dimen>
     <dimen name="margin_50dp">50dp</dimen>
+    <dimen name="padding_10dp">10dp</dimen>
     <dimen name="padding_12dp">12dp</dimen>
     <dimen name="padding_16dp">16dp</dimen>
     <dimen name="padding_18dp">18dp</dimen>

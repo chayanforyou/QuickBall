@@ -2,6 +2,7 @@ package io.github.chayanforyou.quickball.ui.fragments
 
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -69,13 +70,15 @@ class QuickBallHomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupClickListeners()
-        updatePermissionStates()
         showVersionInfo()
     }
 
     override fun onResume() {
         super.onResume()
+        removeSwitchListeners()
         updatePermissionStates()
+        updateSettingsEnabledState()
+        setupSwitchListeners()
         checkAndShowPermissionDialogs()
     }
 
@@ -87,29 +90,15 @@ class QuickBallHomeFragment : Fragment() {
 
     // Event Listeners
     private fun setupClickListeners() {
-        binding.switchEnableQuickBall.setOnCheckedChangeListener { _, isChecked ->
-            when {
-                isChecked && hasAllRequiredPermissions() -> enableQuickBall()
-                isChecked && !hasAllRequiredPermissions() -> handleMissingPermissions()
-                !isChecked -> disableQuickBall()
-            }
-        }
-
-        binding.switchEnableOnLockScreen.setOnCheckedChangeListener { _, isChecked ->
-            PreferenceManager.setShowOnLockScreenEnabled(requireContext(), isChecked)
-        }
-
-        binding.switchHideOnLandscape.setOnCheckedChangeListener { _, isChecked ->
-            PreferenceManager.setHideOnLandscapeEnabled(requireContext(), isChecked)
-        }
-
         binding.layoutShortcutsSelection.setOnClickListener {
-            val action = QuickBallHomeFragmentDirections.actionQuickBallHomeFragmentToShortcutMenuFragment()
+            val action =
+                QuickBallHomeFragmentDirections.actionQuickBallHomeFragmentToShortcutMenuFragment()
             findNavController().navigate(action)
         }
 
         binding.layoutAutoHideSettings.setOnClickListener {
-            val action = QuickBallHomeFragmentDirections.actionQuickBallHomeFragmentToAutoHideSettingsFragment()
+            val action =
+                QuickBallHomeFragmentDirections.actionQuickBallHomeFragmentToAutoHideSettingsFragment()
             findNavController().navigate(action)
         }
 
@@ -126,24 +115,101 @@ class QuickBallHomeFragment : Fragment() {
         }
     }
 
+    private fun setupSwitchListeners() {
+        binding.switchEnableQuickBall.setOnCheckedChangeListener { _, isChecked ->
+            when {
+                isChecked && hasAllRequiredPermissions() -> enableQuickBall()
+                isChecked && !hasAllRequiredPermissions() -> handleMissingPermissions()
+                !isChecked -> disableQuickBall()
+            }
+
+            updateSettingsEnabledState()
+        }
+
+        binding.switchStickToEdge.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) stashQuickBall() else unstashQuickBall()
+        }
+
+        binding.switchEnableOnLockScreen.setOnCheckedChangeListener { _, isChecked ->
+            PreferenceManager.setShowOnLockScreenEnabled(requireContext(), isChecked)
+        }
+
+        binding.switchHideOnLandscape.setOnCheckedChangeListener { _, isChecked ->
+            PreferenceManager.setHideOnLandscapeEnabled(requireContext(), isChecked)
+        }
+
+        binding.sliderBallSize.addOnChangeListener { _, value, fromUser ->
+            if (fromUser) updateQuickBallSize(value)
+        }
+    }
+
+    private fun removeSwitchListeners() {
+        binding.switchEnableQuickBall.setOnCheckedChangeListener(null)
+        binding.switchStickToEdge.setOnCheckedChangeListener(null)
+        binding.switchEnableOnLockScreen.setOnCheckedChangeListener(null)
+        binding.switchHideOnLandscape.setOnCheckedChangeListener(null)
+    }
+
+    private fun updateSettingsEnabledState() {
+        val isQuickBallOn = PreferenceManager.isQuickBallEnabled(requireContext())
+        binding.touchBlockerView.visibility = if (isQuickBallOn) View.GONE else View.VISIBLE
+        binding.settingsCard.alpha = if (isQuickBallOn) 1f else 0.6f
+    }
+
     private fun showVersionInfo() {
-        binding.tvVersion.text = getString(R.string.version_format, BuildConfig.VERSION_NAME)
+        binding.tvVersion.text = String.format("v%s", BuildConfig.VERSION_NAME)
     }
 
     // Quick Ball Control
+    private fun handleQuickBall(action: String, preferenceUpdate: (Context) -> Unit) {
+        val context = requireContext()
+
+        preferenceUpdate(context)
+
+        context.startService(
+            Intent(context, QuickBallService::class.java).apply {
+                this.action = action
+            }
+        )
+    }
+
     private fun enableQuickBall() {
-        requireContext().let { context ->
-            PreferenceManager.setQuickBallEnabled(context, true)
-            context.startService(Intent(context, QuickBallService::class.java)
-                .setAction(QuickBallService.ACTION_ENABLE_QUICK_BALL))
+        handleQuickBall(
+            action = QuickBallService.ACTION_ENABLE
+        ) {
+            PreferenceManager.setQuickBallEnabled(it, true)
         }
     }
 
     private fun disableQuickBall() {
-        requireContext().let { context ->
-            PreferenceManager.setQuickBallEnabled(context, false)
-            context.startService(Intent(context, QuickBallService::class.java)
-                .setAction(QuickBallService.ACTION_DISABLE_QUICK_BALL))
+        handleQuickBall(
+            action = QuickBallService.ACTION_DISABLE
+        ) {
+            PreferenceManager.setQuickBallEnabled(it, false)
+        }
+    }
+
+    private fun stashQuickBall() {
+        handleQuickBall(
+            action = QuickBallService.ACTION_STASH
+        ) {
+            PreferenceManager.setStickToEdgeEnabled(it, true)
+        }
+    }
+
+    private fun unstashQuickBall() {
+        handleQuickBall(
+            action = QuickBallService.ACTION_UNSTASH
+        ) {
+            PreferenceManager.setStickToEdgeEnabled(it, false)
+        }
+    }
+
+    private fun updateQuickBallSize(value: Float) {
+        handleQuickBall(
+            action = QuickBallService.ACTION_UPDATE_SIZE
+        ) {
+            PreferenceManager.setBallSize(it, value)
         }
     }
 
@@ -165,17 +231,28 @@ class QuickBallHomeFragment : Fragment() {
 
         // Restore saved state if permissions are available
         if (allPermissionsGranted) {
-            binding.switchEnableQuickBall.isChecked = PreferenceManager.isQuickBallEnabled(requireContext())
+            binding.switchEnableQuickBall.isChecked =
+                PreferenceManager.isQuickBallEnabled(requireContext())
             binding.switchEnableQuickBall.jumpDrawablesToCurrentState()
         }
-        
+
         // Restore lock screen preference
-        binding.switchEnableOnLockScreen.isChecked = PreferenceManager.isShowOnLockScreenEnabled(requireContext())
+        binding.switchEnableOnLockScreen.isChecked =
+            PreferenceManager.isShowOnLockScreenEnabled(requireContext())
         binding.switchEnableOnLockScreen.jumpDrawablesToCurrentState()
-        
+
         // Restore hide on landscape preference
-        binding.switchHideOnLandscape.isChecked = PreferenceManager.isHideOnLandscapeEnabled(requireContext())
+        binding.switchHideOnLandscape.isChecked =
+            PreferenceManager.isHideOnLandscapeEnabled(requireContext())
         binding.switchHideOnLandscape.jumpDrawablesToCurrentState()
+
+        // Restore stick to edge preference
+        binding.switchStickToEdge.isChecked =
+            PreferenceManager.isStickToEdgeEnabled(requireContext())
+        binding.switchStickToEdge.jumpDrawablesToCurrentState()
+
+        // Restore ball size preference
+        binding.sliderBallSize.value = PreferenceManager.getBallSize(requireContext())
     }
 
     private fun hasAllRequiredPermissions(): Boolean {
@@ -184,7 +261,8 @@ class QuickBallHomeFragment : Fragment() {
 
     // Permission Checks
     private fun isAccessibilityServiceEnabled(): Boolean {
-        val accessibilityManager = getSystemService(requireContext(), AccessibilityManager::class.java)
+        val accessibilityManager =
+            getSystemService(requireContext(), AccessibilityManager::class.java)
         val enabledServices = accessibilityManager?.getEnabledAccessibilityServiceList(
             AccessibilityServiceInfo.FEEDBACK_ALL_MASK
         ) ?: return false
@@ -197,7 +275,10 @@ class QuickBallHomeFragment : Fragment() {
     private fun canModifySystemSettings(): Boolean {
         return try {
             when {
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> Settings.System.canWrite(requireContext())
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> Settings.System.canWrite(
+                    requireContext()
+                )
+
                 else -> true // Older versions don't require this permission
             }
         } catch (_: Exception) {
@@ -209,9 +290,15 @@ class QuickBallHomeFragment : Fragment() {
     private fun openAccessibilitySettings() {
         try {
             val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
-                val key = ComponentName(requireContext().packageName, QuickBallService::class.java.name).flattenToString()
+                val key = ComponentName(
+                    requireContext().packageName,
+                    QuickBallService::class.java.name
+                ).flattenToString()
                 putExtra(":settings:fragment_args_key", key)
-                putExtra(":settings:show_fragment_args", bundleOf(":settings:fragment_args_key" to key))
+                putExtra(
+                    ":settings:show_fragment_args",
+                    bundleOf(":settings:fragment_args_key" to key)
+                )
             }
             requestPermission(intent, PermissionType.ACCESSIBILITY)
         } catch (_: Exception) {
@@ -228,6 +315,7 @@ class QuickBallHomeFragment : Fragment() {
                     }
                     requestPermission(intent, PermissionType.SYSTEM_SETTINGS)
                 }
+
                 else -> showToast("System settings permission is not required on this Android version")
             }
         } catch (_: Exception) {
@@ -254,7 +342,7 @@ class QuickBallHomeFragment : Fragment() {
     private fun showToast(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
-    
+
     // Permission Dialog Management
     private fun checkAndShowPermissionDialogs() {
         if (!isAccessibilityServiceEnabled()) {

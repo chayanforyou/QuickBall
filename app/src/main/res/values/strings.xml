@@ -28,6 +28,14 @@
     <string name="hide_on_landscape_title">Hide on Landscape</string>
     <string name="hide_on_landscape_description">Hide Quick ball when device is in landscape mode</string>
 
+    <!-- Stick to Edge -->
+    <string name="stick_to_edge_title">Stick to edge after inactivity</string>
+    <string name="stick_to_edge_description">Automatically move to screen edge after inactivity</string>
+
+    <!-- Ball Size -->
+    <string name="ball_size_title">Ball size</string>
+    <string name="ball_size_description">Adjust the size of the floating ball</string>
+
     <!-- Accessibility Permission -->
     <string name="accessibility_permission_title">Accessibility Service</string>
     <string name="accessibility_permission_description">Allows QuickBall to display floating overlay,\ncontrol volume, and lock your device</string>

@@ -29,6 +29,14 @@
     <string name="hide_on_landscape_title">Ocultar en horizontal</string>
     <string name="hide_on_landscape_description">Ocultar Quick ball cuando el dispositivo esté en modo horizontal</string>
 
+    <!-- Stick to Edge -->
+    <string name="stick_to_edge_title">Fijar al borde tras inactividad</string>
+    <string name="stick_to_edge_description">Mover automáticamente al borde de la pantalla tras inactividad</string>
+
+    <!-- Ball Size -->
+    <string name="ball_size_title">Tamaño de la bola</string>
+    <string name="ball_size_description">Ajustar el tamaño de la bola flotante</string>
+
     <!-- Accessibility Permission -->
     <string name="accessibility_permission_title">Servicio de accesibilidad</string>
     <string name="accessibility_permission_description">Permite a QuickBall mostrar superposición flotante,\ncontrolar el volumen y bloquear tu dispositivo</string>

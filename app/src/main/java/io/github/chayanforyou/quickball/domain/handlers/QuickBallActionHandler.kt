@@ -15,7 +15,6 @@ import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
-import io.github.chayanforyou.quickball.helpers.AnalyticsHelper
 import io.github.chayanforyou.quickball.utils.ToastUtil
 
 class QuickBallActionHandler(
@@ -55,8 +54,6 @@ class QuickBallActionHandler(
     }
 
     override fun onMenuAction(menuItem: QuickBallMenuItemModel) {
-        AnalyticsHelper.trackShortcutUsage(accessibilityService, menuItem)
-        
         when (menuItem.action) {
             MenuAction.VOLUME_UP -> performVolumeUpAction()
             MenuAction.VOLUME_DOWN -> performVolumeDownAction()
