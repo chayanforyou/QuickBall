@@ -1,0 +1,2 @@
+- You can now change the Quick Ball size
+- Added option to stick to edge or keep it free

@@ -1,0 +1,1 @@
+A Quick Action Ball that gives fast access to controls —volume, brightness, lock
