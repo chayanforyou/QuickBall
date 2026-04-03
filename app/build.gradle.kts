@@ -24,6 +24,24 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    flavorDimensions += "app"
+
+    productFlavors {
+        create("market") {
+            dimension = "app"
+            isDefault = true
+        }
+        create("foss") {
+            dimension = "app"
+            versionNameSuffix = "-foss"
+
+            dependenciesInfo {
+                includeInApk = false
+                includeInBundle = false
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
@@ -34,16 +52,29 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+
     kotlinOptions {
         jvmTarget = "17"
     }
+
     buildFeatures {
         viewBinding = true
         buildConfig = true
+    }
+
+    applicationVariants.all {
+        val variant = this
+        variant.outputs
+            .map { it as com.android.build.gradle.internal.api.BaseVariantOutputImpl }
+            .forEach { output ->
+                output.outputFileName =
+                    "quick-ball-${android.defaultConfig.versionName}-${variant.buildType.name}.apk"
+            }
     }
 }
 
@@ -54,9 +85,11 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
-    implementation(libs.doki)
     implementation(libs.gson)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // Doki only for Google Play flavor
+    "marketImplementation"(libs.doki)
 }
