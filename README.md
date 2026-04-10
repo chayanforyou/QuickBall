@@ -50,7 +50,10 @@ It stays visible above all apps, giving you instant system control from anywhere
   * Chinese (中文)
 
 ### Video Demo
-https://github.com/user-attachments/assets/3e32ba87-19fc-4ff4-b40f-c29e26c10b68
+
+https://github.com/user-attachments/assets/88e81c62-662b-432e-9b87-879fe35a8ac7
+
+Video source [HowToMen](https://youtu.be/XkdY3jvGOgM?t=44)
 
 ## How to Use
 
