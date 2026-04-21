@@ -97,6 +97,7 @@
     <string name="menu_brightness_up">Aumenta luminosità</string>
     <string name="menu_brightness_down">Diminuisci luminosità</string>
     <string name="menu_torch">Torcia</string>
+    <string name="menu_auto_rotate">Rotazione automatica</string>
     
     <!-- Volume & Sound -->
     <string name="menu_volume_up">Aumenta volume</string>
@@ -108,6 +109,7 @@
     <string name="menu_wifi">Wi-Fi</string>
     <string name="menu_bluetooth">Bluetooth</string>
     <string name="menu_mobile_data">Dati mobili</string>
+    <string name="menu_airplane_mode">Modalità aereo</string>
     
     <!-- Utilities -->
     <string name="menu_screenshot">Screenshot</string>

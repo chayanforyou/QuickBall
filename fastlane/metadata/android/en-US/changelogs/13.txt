@@ -1,0 +1,2 @@
+- Added shortcuts for Auto-rotate and Airplane mode
+- Added options to enable Autostart and disable battery optimization

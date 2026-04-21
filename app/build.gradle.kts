@@ -18,28 +18,10 @@ android {
         applicationId = "io.github.chayanforyou.quickball"
         minSdk = 21
         targetSdk = 36
-        versionCode = 12
-        versionName = "4.1.0"
+        versionCode = 13
+        versionName = "4.2.0"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    flavorDimensions += "app"
-
-    productFlavors {
-        create("market") {
-            dimension = "app"
-            isDefault = true
-        }
-        create("foss") {
-            dimension = "app"
-            versionNameSuffix = "-foss"
-
-            dependenciesInfo {
-                includeInApk = false
-                includeInBundle = false
-            }
-        }
     }
 
     buildTypes {
@@ -67,15 +49,14 @@ android {
         buildConfig = true
     }
 
-    applicationVariants.all {
-        val variant = this
-        variant.outputs
-            .map { it as com.android.build.gradle.internal.api.BaseVariantOutputImpl }
-            .forEach { output ->
-                output.outputFileName =
-                    "quick-ball-${android.defaultConfig.versionName}-${variant.buildType.name}.apk"
-            }
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
     }
+}
+
+base {
+    archivesName = "quick-ball-${android.defaultConfig.versionName}"
 }
 
 dependencies {
@@ -89,7 +70,4 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-
-    // Doki only for Google Play flavor
-    "marketImplementation"(libs.doki)
 }

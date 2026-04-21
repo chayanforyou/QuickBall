@@ -97,6 +97,7 @@
     <string name="menu_brightness_up">चमक बढ़ाएं</string>
     <string name="menu_brightness_down">चमक घटाएं</string>
     <string name="menu_torch">टॉर्च</string>
+    <string name="menu_auto_rotate">ऑटो रोटेट</string>
     
     <!-- Volume & Sound -->
     <string name="menu_volume_up">आवाज़ बढ़ाएं</string>
@@ -108,6 +109,7 @@
     <string name="menu_wifi">वाई-फाई</string>
     <string name="menu_bluetooth">ब्लूटूथ</string>
     <string name="menu_mobile_data">मोबाइल डेटा</string>
+    <string name="menu_airplane_mode">हवाई जहाज़ मोड</string>
     
     <!-- Utilities -->
     <string name="menu_screenshot">स्क्रीनशॉट</string>

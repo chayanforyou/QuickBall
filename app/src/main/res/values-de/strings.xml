@@ -97,6 +97,7 @@
     <string name="menu_brightness_up">Helligkeit erhöhen</string>
     <string name="menu_brightness_down">Helligkeit verringern</string>
     <string name="menu_torch">Taschenlampe</string>
+    <string name="menu_auto_rotate">Automatisch drehen</string>
     
     <!-- Volume & Sound -->
     <string name="menu_volume_up">Lautstärke erhöhen</string>
@@ -108,6 +109,7 @@
     <string name="menu_wifi">WLAN</string>
     <string name="menu_bluetooth">Bluetooth</string>
     <string name="menu_mobile_data">Mobile Daten</string>
+    <string name="menu_airplane_mode">Flugmodus</string>
     
     <!-- Utilities -->
     <string name="menu_screenshot">Screenshot</string>
