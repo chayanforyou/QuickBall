@@ -22,10 +22,10 @@ It stays visible above all apps, giving you instant system control from anywhere
 
 <div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
     <a href="https://play.google.com/store/apps/details?id=io.github.chayanforyou.quickball">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Google_Play_Store_badge_EN.svg/2560px-Google_Play_Store_badge_EN.svg.png" width="200" height="60" />
+        <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" width="200">
     </a>
     <a href="https://f-droid.org/en/packages/io.github.chayanforyou.quickball">
-       <img src="https://i.ibb.co.com/RvKJRjF/get-it-on-en.webp" alt="Get it on F-Droid" width="200" height=60">
+       <img src="https://upload.wikimedia.org/wikipedia/commons/a/a3/Get_it_on_F-Droid_(material_design).svg" width="200">
     </a>
 </div>
 
