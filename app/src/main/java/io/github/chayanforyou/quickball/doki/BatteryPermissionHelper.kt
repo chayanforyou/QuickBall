@@ -62,10 +62,10 @@ object BatteryPermissionHelper {
     private val BRAND_XIAOMI = "xiaomi"
     private val BRAND_XIAOMI_POCO = "poco"
     private val BRAND_XIAOMI_REDMI = "redmi"
-    private val PACKAGE_XIAOMI_MAIN = "com.miui.securitycenter"
-    private val PACKAGE_XIAOMI_FALLBACK = "com.miui.powerkeeper"
-    private val PACKAGE_XIAOMI_COMPONENT = "com.miui.powercenter.legacypowerrank.PowerDetailActivity"
-    private val PACKAGE_XIAOMI_COMPONENT_FALLBACK = "com.miui.powerkeeper.ui.HiddenAppsConfigActivity"
+    private val PACKAGE_XIAOMI_MAIN = "com.miui.powerkeeper"
+    private val PACKAGE_XIAOMI_FALLBACK = "com.miui.securitycenter"
+    private val PACKAGE_XIAOMI_COMPONENT = "com.miui.powerkeeper.ui.HiddenAppsConfigActivity"
+    private val PACKAGE_XIAOMI_COMPONENT_FALLBACK = "com.miui.powercenter.legacypowerrank.PowerDetailActivity"
 
     /* ZTE */
     private val BRAND_ZTE = "zte"
