@@ -1,0 +1,1 @@
+- Fix battery optimization on Xiaomi devices
