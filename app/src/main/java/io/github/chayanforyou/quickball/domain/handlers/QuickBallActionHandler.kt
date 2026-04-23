@@ -29,15 +29,16 @@ class QuickBallActionHandler(
         private const val BRIGHTNESS_STEP = 15
     }
 
-    private val audioManager: AudioManager by lazy {
-        accessibilityService.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-    }
-
+    private val context: Context = accessibilityService.applicationContext
     private val handler = Handler(Looper.getMainLooper())
     private var torchOn = false
 
-    private fun showToast(message: String) {
-        ToastUtil.show(accessibilityService, message)
+    private val audioManager: AudioManager by lazy {
+        context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    }
+
+    private val wifiManager: WifiManager by lazy {
+        context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
     }
 
     private inline fun runDelayed(
@@ -53,12 +54,24 @@ class QuickBallActionHandler(
         }, delayMillis)
     }
 
+    private fun showToast(message: String) {
+        ToastUtil.show(accessibilityService, message)
+    }
+
+    private fun canWriteSettings(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Settings.System.canWrite(accessibilityService)
+        } else {
+            true
+        }
+    }
+
     override fun onMenuAction(menuItem: QuickBallMenuItemModel) {
         when (menuItem.action) {
             MenuAction.VOLUME_UP -> performVolumeUpAction()
             MenuAction.VOLUME_DOWN -> performVolumeDownAction()
-            MenuAction.BRIGHTNESS_UP -> changeBrightness(true)
-            MenuAction.BRIGHTNESS_DOWN -> changeBrightness(false)
+            MenuAction.BRIGHTNESS_UP -> changeBrightness(increase = true)
+            MenuAction.BRIGHTNESS_DOWN -> changeBrightness(increase = false)
             MenuAction.LOCK_SCREEN -> performLockScreenAction()
             MenuAction.SCREENSHOT -> performScreenshotAction()
             MenuAction.WIFI_TOGGLE -> toggleWifi()
@@ -67,6 +80,8 @@ class QuickBallActionHandler(
             MenuAction.SILENT_TOGGLE -> toggleSilentMode()
             MenuAction.VIBRATE_TOGGLE -> toggleVibrateMode()
             MenuAction.TORCH_TOGGLE -> toggleTorch()
+            MenuAction.AUTO_ROTATE_TOGGLE -> toggleAutoRotate()
+            MenuAction.AIRPLANE_MODE_TOGGLE -> toggleAirplaneMode()
             MenuAction.HOME -> performHomeAction()
             MenuAction.BACK -> performBackAction()
             MenuAction.RECENT -> performMenuAction()
@@ -122,7 +137,7 @@ class QuickBallActionHandler(
 
     // -------------------- Brightness --------------------
     private fun changeBrightness(increase: Boolean) {
-        if (!canModifyBrightness()) {
+        if (!canWriteSettings()) {
             Log.w(TAG, "Cannot modify brightness - permission not granted")
             return
         }
@@ -135,14 +150,6 @@ class QuickBallActionHandler(
         }
 
         setBrightness(newBrightness)
-    }
-
-    private fun canModifyBrightness(): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            Settings.System.canWrite(accessibilityService)
-        } else {
-            true
-        }
     }
 
     private fun getCurrentBrightness(): Int {
@@ -176,7 +183,6 @@ class QuickBallActionHandler(
 
     // -------------------- Silent Mode --------------------
     private fun toggleSilentMode() {
-        val context = accessibilityService.applicationContext
         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -216,10 +222,8 @@ class QuickBallActionHandler(
         }
     }
 
-
     // -------------------- Vibration Mode --------------------
     private fun toggleVibrateMode() {
-        val context = accessibilityService.applicationContext
         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
         val newMode = when (audioManager.ringerMode) {
@@ -258,7 +262,7 @@ class QuickBallActionHandler(
             torchOn = !torchOn
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 cameraManager.setTorchMode(cameraId, torchOn)
-                showToast(getTorchText(torchOn))
+                showToast(if (torchOn) "Torch ON" else "Torch OFF")
             } else {
                 showToast("Torch is not supported on this device.")
             }
@@ -267,15 +271,8 @@ class QuickBallActionHandler(
         }
     }
 
-    private fun getTorchText(isOn: Boolean): String {
-        return if (isOn) "Torch ON" else "Torch OFF"
-    }
-
     // -------------------- Connectivity --------------------
     private fun toggleWifi() {
-        val context = accessibilityService.applicationContext
-        val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
-
         runDelayed {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 context.startActivity(Intent(Settings.Panel.ACTION_WIFI).apply {
@@ -289,7 +286,6 @@ class QuickBallActionHandler(
     }
 
     private fun toggleBluetooth() {
-        val context = accessibilityService.applicationContext
         runDelayed {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 context.startActivity(Intent(Settings.ACTION_BLUETOOTH_SETTINGS).apply {
@@ -305,8 +301,6 @@ class QuickBallActionHandler(
     }
 
     private fun toggleMobileData() {
-        val context = accessibilityService.applicationContext
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             runDelayed {
                 context.startActivity(Intent(Settings.ACTION_DATA_ROAMING_SETTINGS).apply {
@@ -346,6 +340,37 @@ class QuickBallActionHandler(
             accessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_LOCK_SCREEN)
         } else {
             showToast("Lock screen not supported on this device.")
+        }
+    }
+
+    // -------------------- Auto Rotate --------------------
+    private fun toggleAutoRotate() {
+        if (!canWriteSettings()) {
+            Log.w(TAG, "Cannot modify rotation - permission not granted")
+            return
+        }
+
+        val current = Settings.System.getInt(
+            accessibilityService.contentResolver,
+            Settings.System.ACCELEROMETER_ROTATION, 0
+        )
+        val newValue = if (current == 1) 0 else 1
+        Settings.System.putInt(
+            accessibilityService.contentResolver,
+            Settings.System.ACCELEROMETER_ROTATION,
+            newValue
+        )
+        showToast(if (newValue == 1) "Auto-rotate ON" else "Auto-rotate OFF")
+    }
+
+    // -------------------- Airplane Mode --------------------
+    private fun toggleAirplaneMode() {
+        runDelayed {
+            context.startActivity(
+                Intent(Settings.ACTION_AIRPLANE_MODE_SETTINGS).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+            )
         }
     }
 

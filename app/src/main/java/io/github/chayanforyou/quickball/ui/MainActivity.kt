@@ -17,7 +17,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import io.github.chayanforyou.quickball.R
 import io.github.chayanforyou.quickball.databinding.ActivityMainBinding
 import io.github.chayanforyou.quickball.ui.fragments.LanguageSelectionSheet
-import io.github.chayanforyou.quickball.ui.fragments.OptimizationRemoverSheet
+import io.github.chayanforyou.quickball.doki.DokiContentView
 
 class MainActivity : AppCompatActivity() {
 
@@ -83,7 +83,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             R.id.remove_battery_restriction -> {
-                OptimizationRemoverSheet.show(supportFragmentManager)
+                DokiContentView.show(supportFragmentManager)
                 true
             }
 

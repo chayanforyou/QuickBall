@@ -96,6 +96,7 @@
     <string name="menu_brightness_up">Brightness Up</string>
     <string name="menu_brightness_down">Brightness Down</string>
     <string name="menu_torch">Torch</string>
+    <string name="menu_auto_rotate">Auto Rotate</string>
     
     <!-- Volume & Sound -->
     <string name="menu_volume_up">Volume Up</string>
@@ -107,6 +108,7 @@
     <string name="menu_wifi">Wi-Fi</string>
     <string name="menu_bluetooth">Bluetooth</string>
     <string name="menu_mobile_data">Mobile Data</string>
+    <string name="menu_airplane_mode">Airplane Mode</string>
     
     <!-- Utilities -->
     <string name="menu_screenshot">Screenshot</string>

@@ -209,9 +209,6 @@ class QuickBallService : AccessibilityService() {
         serviceScope.launch {
             val pkg = getCurrentAppPackageAsync() ?: return@launch
 
-            // Skip System UI completely
-            if (pkg == "com.android.systemui") return@launch
-
             if (pkg == lastPackage) return@launch
             lastPackage = pkg
 

@@ -50,6 +50,11 @@ data class QuickBallMenuItemModel(
                 iconRes = R.drawable.ic_torch,
                 titleRes = R.string.menu_torch,
             ),
+            QuickBallMenuItemModel(
+                action = MenuAction.AUTO_ROTATE_TOGGLE,
+                iconRes = R.drawable.ic_screen_rotation,
+                titleRes = R.string.menu_auto_rotate,
+            ),
 
             // Volume & Sound
             QuickBallMenuItemModel(
@@ -88,6 +93,11 @@ data class QuickBallMenuItemModel(
                 action = MenuAction.MOBILE_DATA_TOGGLE,
                 iconRes = R.drawable.ic_mobile_data,
                 titleRes = R.string.menu_mobile_data,
+            ),
+            QuickBallMenuItemModel(
+                action = MenuAction.AIRPLANE_MODE_TOGGLE,
+                iconRes = R.drawable.ic_airplane_mode,
+                titleRes = R.string.menu_airplane_mode,
             ),
 
             // Utilities

@@ -22,11 +22,13 @@ enum class MenuAction {
     BRIGHTNESS_UP,
     BRIGHTNESS_DOWN,
     TORCH_TOGGLE,
+    AUTO_ROTATE_TOGGLE,
 
     // Connectivity
     WIFI_TOGGLE,
     BLUETOOTH_TOGGLE,
     MOBILE_DATA_TOGGLE,
+    AIRPLANE_MODE_TOGGLE,
 
     // Utilities
     SCREENSHOT,

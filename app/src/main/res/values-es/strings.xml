@@ -97,6 +97,7 @@
     <string name="menu_brightness_up">Aumentar brillo</string>
     <string name="menu_brightness_down">Disminuir brillo</string>
     <string name="menu_torch">Linterna</string>
+    <string name="menu_auto_rotate">Rotación automática</string>
     
     <!-- Volume & Sound -->
     <string name="menu_volume_up">Subir volumen</string>
@@ -108,6 +109,7 @@
     <string name="menu_wifi">Wi-Fi</string>
     <string name="menu_bluetooth">Bluetooth</string>
     <string name="menu_mobile_data">Datos móviles</string>
+    <string name="menu_airplane_mode">Modo avión</string>
     
     <!-- Utilities -->
     <string name="menu_screenshot">Captura de pantalla</string>

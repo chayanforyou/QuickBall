@@ -97,6 +97,7 @@
     <string name="menu_brightness_up">增加亮度</string>
     <string name="menu_brightness_down">降低亮度</string>
     <string name="menu_torch">手电筒</string>
+    <string name="menu_auto_rotate">自动旋转</string>
     
     <!-- Volume & Sound -->
     <string name="menu_volume_up">增加音量</string>
@@ -108,6 +109,7 @@
     <string name="menu_wifi">Wi-Fi</string>
     <string name="menu_bluetooth">蓝牙</string>
     <string name="menu_mobile_data">移动数据</string>
+    <string name="menu_airplane_mode">飞行模式</string>
     
     <!-- Utilities -->
     <string name="menu_screenshot">截屏</string>
