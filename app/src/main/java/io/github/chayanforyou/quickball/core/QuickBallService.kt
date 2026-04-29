@@ -16,13 +16,6 @@ import io.github.chayanforyou.quickball.domain.PreferenceManager
 import io.github.chayanforyou.quickball.domain.handlers.QuickBallActionHandler
 import io.github.chayanforyou.quickball.ui.floating.QuickBallFloatingButton
 import io.github.chayanforyou.quickball.utils.ToastUtil
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
 
 @SuppressLint("AccessibilityPolicy")
 class QuickBallService : AccessibilityService() {
@@ -33,12 +26,23 @@ class QuickBallService : AccessibilityService() {
         const val ACTION_STASH = "io.github.chayanforyou.quickball.action.STASH"
         const val ACTION_UNSTASH = "io.github.chayanforyou.quickball.action.UNSTASH"
         const val ACTION_UPDATE_SIZE = "io.github.chayanforyou.quickball.action.UPDATE_SIZE"
+
+        private const val APP_PACKAGE_PREFIX = "io.github.chayanforyou.quickball"
+        private val EXCLUDED_APPS = setOf(
+            "com.android.systemui",
+            "com.android.intentresolver",
+            "com.google.android.permissioncontroller",
+            "android.uid.system:1000",
+            "com.google.android.googlequicksearchbox",
+            "android",
+            "com.google.android.gms",
+            "com.google.android.webview"
+        )
     }
 
     private var floatingBall: QuickBallFloatingButton? = null
     private var isDragging = false
-    private var lastPackage: String? = null
-    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private var lastForegroundPackage = ""
 
     private val handler = Handler(Looper.getMainLooper())
     private val inactivityDelay = 2500L
@@ -86,7 +90,6 @@ class QuickBallService : AccessibilityService() {
         unregisterReceiverSafe(screenReceiver)
         handler.removeCallbacksAndMessages(null)
         ToastUtil.destroy()
-        serviceScope.cancel()
         super.onDestroy()
     }
     /* -------------------- Initialization -------------------- */
@@ -138,8 +141,8 @@ class QuickBallService : AccessibilityService() {
     }
 
     private fun isAutoHideApp(): Boolean {
-        val pkg = getCurrentAppPackage()
-        return pkg == null || pkg in autoHideApps
+        val pkg = lastForegroundPackage
+        return pkg in autoHideApps
     }
 
     /* -------------------- Ball actions -------------------- */
@@ -205,15 +208,45 @@ class QuickBallService : AccessibilityService() {
 
     /* -------------------- Accessibility -------------------- */
 
-    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        serviceScope.launch {
-            val pkg = getCurrentAppPackageAsync() ?: return@launch
+    override fun onAccessibilityEvent(event: AccessibilityEvent) {
+        // Extract and validate package name
+        val packageName = event.packageName?.toString() ?: return
 
-            if (pkg == lastPackage) return@launch
-            lastPackage = pkg
-
-            updateBallVisibility()
+        // Skip own package or app is excluded
+        if (!shouldHandlePackage(packageName)) {
+            return
         }
+
+        try {
+            onForegroundPackageChanged(packageName)
+        } catch (_: Exception) {
+            println("Error processing package locking for $packageName")
+        }
+    }
+
+    private fun shouldHandlePackage(packageName: String): Boolean {
+        // Skip excluded packages
+        if (packageName == APP_PACKAGE_PREFIX ||
+            packageName in EXCLUDED_APPS
+        ) {
+            return false
+        }
+
+        // Skip known recents classes
+        return true
+    }
+
+    private fun onForegroundPackageChanged(packageName: String) {
+        val currentForegroundPackage = packageName
+        val triggeringPackage = lastForegroundPackage
+        lastForegroundPackage = currentForegroundPackage
+
+        // Skip if triggering package is excluded
+        if (triggeringPackage in autoHideApps) {
+            return
+        }
+
+        updateBallVisibility()
     }
 
     override fun onInterrupt() {}
@@ -249,21 +282,6 @@ class QuickBallService : AccessibilityService() {
         }
     }
 
-    private fun getCurrentAppPackage(): String? {
-        return runCatching {
-            rootInActiveWindow?.packageName?.toString()
-        }.getOrNull() ?: lastPackage
-    }
-
-    private suspend fun getCurrentAppPackageAsync(): String? = withContext(Dispatchers.IO) {
-        try {
-            withTimeoutOrNull(1000L) {
-                rootInActiveWindow?.packageName?.toString()
-            } ?: lastPackage
-        } catch (_: Exception) {
-            lastPackage
-        }
-    }
 
     private fun QuickBallFloatingButton.hideMenuIfOpen() {
         if (isMenuOpen()) hideMenu()
