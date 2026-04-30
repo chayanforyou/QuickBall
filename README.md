@@ -49,7 +49,7 @@ It stays visible above all apps, giving you instant system control from anywhere
   * Hindi (हिंदी)
   * Chinese (中文)
 
-### Video Demo
+## Video Demo
 
 https://github.com/user-attachments/assets/88e81c62-662b-432e-9b87-879fe35a8ac7
 
@@ -75,7 +75,34 @@ Video source [HowToMen](https://youtu.be/XkdY3jvGOgM?t=44)
 ## Security Note
 
 QuickBall requires Accessibility and Device Admin permissions to perform system actions.
-
 These permissions are only used for QuickBall functionality.
-
 The app does not access, store, or monitor any personal data.
+
+## Contributing
+
+<a href="https://github.com/chayanforyou/QuickBall/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=chayanforyou/QuickBall" />
+</a>
+
+We welcome contributions from the community! Whether you're fixing a bug, adding a new feature, or improving documentation, your help is appreciated.
+
+## Star History
+
+<picture>
+  <source
+    srcset="https://api.star-history.com/svg?repos=chayanforyou/QuickBall&type=Date&theme=dark"
+    media="(prefers-color-scheme: dark)"
+  />
+  <source
+    srcset="https://api.star-history.com/svg?repos=chayanforyou/QuickBall&type=Date"
+    media="(prefers-color-scheme: light)"
+  />
+  <img
+    src="https://api.star-history.com/svg?repos=chayanforyou/QuickBall&type=Date"
+    alt="Star History Chart"
+  />
+</picture>
+
+## License
+
+This project is licensed under the GPL-3.0 License - see the [LICENSE](LICENSE) file for details.
