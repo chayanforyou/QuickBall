@@ -4,10 +4,15 @@
         android:id="@+id/language_settings"
         android:icon="@drawable/ic_language"
         android:title="@string/language_title"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
     <item
         android:id="@+id/remove_battery_restriction"
         android:icon="@drawable/ic_battery_restriction"
         android:title="@string/remove_battery_restriction"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/github_repository"
+        android:icon="@drawable/ic_github"
+        android:title="@string/github_repository"
+        app:showAsAction="always" />
 </menu>

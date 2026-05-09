@@ -4,6 +4,7 @@
     <string name="made_by">Mit ❤️ von Chayan erstellt</string>
     <string name="version_format">Version: v%s</string>
     <string name="remove_battery_restriction">Meine App nicht beenden</string>
+    <string name="github_repository">GitHub-Repository</string>
     <string name="support_me">Wenn dir meine Arbeit gefällt.\nbitte erwäge mich zu unterstützen</string>
 
     <!-- Accessibility Service (for AndroidManifest.xml) -->

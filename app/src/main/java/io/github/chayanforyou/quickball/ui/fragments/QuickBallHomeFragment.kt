@@ -20,7 +20,6 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import io.github.chayanforyou.quickball.BuildConfig
-import io.github.chayanforyou.quickball.R
 import io.github.chayanforyou.quickball.core.QuickBallService
 import io.github.chayanforyou.quickball.databinding.FragmentQuickballHomeBinding
 import io.github.chayanforyou.quickball.domain.PreferenceManager
@@ -104,12 +103,6 @@ class QuickBallHomeFragment : Fragment() {
 
         binding.buttonSupportMe.setOnClickListener {
             val url = "https://chayanforyou.gumroad.com/coffee"
-            val intent = Intent(Intent.ACTION_VIEW, url.toUri())
-            startActivity(intent)
-        }
-
-        binding.layoutFooter.setOnClickListener {
-            val url = "https://github.com/chayanforyou/QuickBall"
             val intent = Intent(Intent.ACTION_VIEW, url.toUri())
             startActivity(intent)
         }

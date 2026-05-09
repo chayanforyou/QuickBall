@@ -388,14 +388,14 @@ object AutoStartPermissionHelper {
      *
      * @param context
      * @param intents list of intents
-     *
      * @return true if an activity was opened, false otherwise
      */
-    private fun openAutoStartScreen(context: Context, intents: List<Intent>): Boolean {
+    private fun startScreen(context: Context, intents: List<Intent>): Boolean {
         intents.forEach {
             if (isActivityFound(context, it)) {
-                startIntent(context, it)
-                return@openAutoStartScreen true
+                return runCatching {
+                    startIntent(context, it)
+                }.isSuccess
             }
         }
         return false
@@ -418,7 +418,7 @@ object AutoStartPermissionHelper {
         open: Boolean
     ): Boolean {
         return if (packages.any { isPackageExists(context, it) }) {
-            if (open) openAutoStartScreen(context, intents)
+            if (open) startScreen(context, intents)
             else areActivitiesFound(context, intents)
         } else false
     }
@@ -437,7 +437,7 @@ object AutoStartPermissionHelper {
         intentActions: List<Intent>,
         open: Boolean
     ): Boolean {
-        return if (open) openAutoStartScreen(context, intentActions)
+        return if (open) startScreen(context, intentActions)
         else areActivitiesFound(context, intentActions)
     }
 }

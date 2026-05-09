@@ -183,15 +183,16 @@ object BatteryPermissionHelper {
     }
 
     private fun startForSamsung(context: Context, open: Boolean, newTask: Boolean): Boolean {
-        return startFromAction(
-            context, listOf(getIntentFromAction(PACKAGE_SAMSUNG_ACTION, newTask)), open) ||
-                start(
-                    context,
-                    listOf(PACKAGE_SAMSUNG_MAIN, PACKAGE_SAMSUNG_FALLBACK),
-                    listOf(
-                        getIntent(PACKAGE_SAMSUNG_MAIN, PACKAGE_SAMSUNG_COMPONENT, newTask),
-                        getIntent(PACKAGE_SAMSUNG_FALLBACK, PACKAGE_SAMSUNG_COMPONENT_FALLBACK, newTask)),
-                    open)
+        return launchAppInfo(context, open, newTask)
+//        return startFromAction(
+//            context, listOf(getIntentFromAction(PACKAGE_SAMSUNG_ACTION, newTask)), open) ||
+//                start(
+//                    context,
+//                    listOf(PACKAGE_SAMSUNG_MAIN, PACKAGE_SAMSUNG_FALLBACK),
+//                    listOf(
+//                        getIntent(PACKAGE_SAMSUNG_MAIN, PACKAGE_SAMSUNG_COMPONENT, newTask),
+//                        getIntent(PACKAGE_SAMSUNG_FALLBACK, PACKAGE_SAMSUNG_COMPONENT_FALLBACK, newTask)),
+//                    open)
     }
 
     private fun startForXiaomi(context: Context, open: Boolean, newTask: Boolean): Boolean {
@@ -434,8 +435,9 @@ object BatteryPermissionHelper {
     private fun startScreen(context: Context, intents: List<Intent>): Boolean {
         intents.forEach {
             if (isActivityFound(context, it)) {
-                startIntent(context, it)
-                return@startScreen true
+                return runCatching {
+                    startIntent(context, it)
+                }.isSuccess
             }
         }
         return false
