@@ -12,6 +12,7 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.TextView
 import java.lang.ref.WeakReference
+import androidx.core.graphics.toColorInt
 
 object ToastUtil {
 
@@ -21,25 +22,33 @@ object ToastUtil {
     private val handler = Handler(Looper.getMainLooper())
 
     private fun getWindowManager(context: Context): WindowManager {
-        return windowManager ?: context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        return windowManager ?: (context.getSystemService(Context.WINDOW_SERVICE) as WindowManager).also {
+            windowManager = it
+        }
     }
 
     fun show(context: Context, message: String) {
         val wm = getWindowManager(context)
-
-        runnable?.let { handler.removeCallbacks(it) }
-
         var textView = textViewRef?.get()
 
         if (textView == null) {
-            textView = TextView(context).apply {
-                setPadding(42, 32, 42, 32)
+            val appContext = context.applicationContext
+            val density = appContext.resources.displayMetrics.density
+
+            textView = TextView(appContext).apply {
                 setTextColor(Color.WHITE)
                 textSize = 14f
+                setPadding(
+                    (16 * density).toInt(),
+                    (10 * density).toInt(),
+                    (16 * density).toInt(),
+                    (10 * density).toInt()
+                )
                 gravity = Gravity.CENTER
+
                 background = GradientDrawable().apply {
-                    cornerRadius = 80f
-                    setColor(Color.argb(0xBF, 0x2C, 0x2C, 0x2C))
+                    setColor("#BF2C2C2C".toColorInt())
+                    cornerRadius = 24f * density
                 }
             }
 
@@ -54,9 +63,9 @@ object ToastUtil {
                         WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
                 width = WindowManager.LayoutParams.WRAP_CONTENT
                 height = WindowManager.LayoutParams.WRAP_CONTENT
-                gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
-                y = 200
                 format = PixelFormat.TRANSLUCENT
+                gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
+                y = (72 * density).toInt()
             }
 
             try {
@@ -68,31 +77,30 @@ object ToastUtil {
             }
         }
 
-        textView.apply {
-            text = message
-            visibility = View.VISIBLE
-        }
+        textView.text = message
+        textView.visibility = View.VISIBLE
+        textView.alpha = 1f
+        textView.animate().cancel()
 
-        runnable = Runnable {
+        runnable?.let(handler::removeCallbacks)
+        Runnable {
             textView.animate()
                 .alpha(0f)
                 .setDuration(300L)
-                .withEndAction {
-                    textView.visibility = View.GONE
-                    textView.alpha = 1f
-                }
+                .withEndAction { textView.visibility = View.GONE }
                 .start()
+        }.also {
+            runnable = it
+            handler.postDelayed(it, 1200L)
         }
-        handler.postDelayed(runnable!!, 1200L)
     }
 
     fun destroy() {
         runnable?.let { handler.removeCallbacks(it) }
-        textViewRef?.get()?.let { view ->
-            try {
-                windowManager?.removeView(view)
-            } catch (e: Exception) {
-                e.printStackTrace()
+        textViewRef?.get()?.let { textView ->
+            runCatching {
+                textView.animate().cancel()
+                windowManager?.removeView(textView)
             }
         }
         textViewRef?.clear()

@@ -9,7 +9,6 @@ import android.content.Context
 import android.content.res.Configuration
 import android.graphics.PixelFormat
 import android.os.Build
-import android.util.DisplayMetrics
 import android.util.Log
 import android.view.Gravity
 import android.view.View
@@ -30,6 +29,8 @@ import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
 import io.github.chayanforyou.quickball.helpers.AnimationHelper
 import io.github.chayanforyou.quickball.ui.floating.QuickBallFloatingMenu.MenuItemClickListener
 import io.github.chayanforyou.quickball.utils.WidgetUtil.dp2px
+import io.github.chayanforyou.quickball.utils.getActualScreenHeight
+import io.github.chayanforyou.quickball.utils.getActualScreenWidth
 
 class QuickBallFloatingButton(
     private val context: Context,
@@ -41,7 +42,6 @@ class QuickBallFloatingButton(
         private val STASH_INTERPOLATOR = PathInterpolator(0.4f, 0f, 0.2f, 1f)
     }
 
-    private val displayMetrics: DisplayMetrics by lazy { context.resources.displayMetrics }
     private val windowManager: WindowManager by lazy {
         context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     }
@@ -84,7 +84,7 @@ class QuickBallFloatingButton(
 
     private val floatingBallTouchListener by lazy {
         QuickBallTouchListener(
-            displayMetrics = displayMetrics,
+            context = context,
             windowManager = windowManager,
             ballSize = ballSize,
             topBoundary = topBoundary,
@@ -194,9 +194,10 @@ class QuickBallFloatingButton(
 
         try {
             val lp = view.layoutParams as WindowManager.LayoutParams
-            val isOnLeft = lp.x < displayMetrics.widthPixels / 2
+            val screenWidth = windowManager.getActualScreenWidth()
+            val isOnLeft = lp.x < screenWidth / 2
             val targetX = if (isOnLeft) -stashOffset
-            else displayMetrics.widthPixels - ballSize + stashOffset
+            else screenWidth - ballSize + stashOffset
 
             if (animated) {
                 isAnimatingStash = true
@@ -222,9 +223,10 @@ class QuickBallFloatingButton(
 
         try {
             val lp = floatingBall!!.layoutParams as WindowManager.LayoutParams
-            val isOnLeft = lp.x < displayMetrics.widthPixels / 2
+            val screenWidth = windowManager.getActualScreenWidth()
+            val isOnLeft = lp.x < screenWidth / 2
             val targetX = if (isOnLeft) ballMargin
-            else displayMetrics.widthPixels - ballSize - ballMargin
+            else screenWidth - ballSize - ballMargin
 
             if (animated) {
                 animateMoveAndFade(lp.x, lp.y, targetX, lp.y, 0.4f, 1f, 50L) {
@@ -256,9 +258,10 @@ class QuickBallFloatingButton(
 
         try {
             val lp = floatingBall!!.layoutParams as WindowManager.LayoutParams
-            val isOnLeft = lp.x < displayMetrics.widthPixels / 2
+            val screenWidth = windowManager.getActualScreenWidth()
+            val isOnLeft = lp.x < screenWidth / 2
             lp.x = if (isOnLeft) -stashOffset
-            else displayMetrics.widthPixels - ballSize + stashOffset
+            else screenWidth - ballSize + stashOffset
 
             windowManager.updateViewLayout(floatingBall, lp)
             floatingBall?.alpha = 0.4f
@@ -316,15 +319,21 @@ class QuickBallFloatingButton(
     fun moveToLandscapePosition() {
         if (!isVisible || floatingBall == null) return
 
+        // Force refresh display metrics for new orientation
+        val screenWidth = windowManager.getActualScreenWidth()
+        val screenHeight = windowManager.getActualScreenHeight()
+        
         val position = landscapePosition ?: Pair(
-            displayMetrics.widthPixels - ballSize - ballMargin,
-            displayMetrics.heightPixels / 2 - ballSize / 2
+            screenWidth - ballSize - ballMargin,
+            screenHeight / 2 - ballSize / 2
         )
 
         // Post to ensure view is stable
         floatingBall?.post {
             if (isVisible && floatingBall != null) {
                 position.let { moveInstant(it.first, it.second) }
+                // Force snap to edge with updated metrics to ensure proper positioning
+                floatingBall?.let { snapToEdge(it) }
             }
             onMoveCompleted()
         }
@@ -333,15 +342,21 @@ class QuickBallFloatingButton(
     fun moveToPortraitPosition() {
         if (!isVisible || floatingBall == null) return
 
+        // Force refresh display metrics for new orientation
+        val screenWidth = windowManager.getActualScreenWidth()
+        val screenHeight = windowManager.getActualScreenHeight()
+        
         val position = portraitPosition ?: Pair(
-            displayMetrics.widthPixels - ballSize - ballMargin,
-            displayMetrics.heightPixels / 2 - ballSize / 2
+            screenWidth - ballSize - ballMargin,
+            screenHeight / 2 - ballSize / 2
         )
 
         // Post to ensure view is stable
         floatingBall?.post {
             if (isVisible && floatingBall != null) {
                 position.let { moveInstant(it.first, it.second) }
+                // Force snap to edge with updated metrics to ensure proper positioning
+                floatingBall?.let { snapToEdge(it) }
             }
             onMoveCompleted()
         }
@@ -356,16 +371,20 @@ class QuickBallFloatingButton(
 
         try {
             val lp = view.layoutParams as WindowManager.LayoutParams
+            
+            // Use actual screen dimensions to ensure correct edge positioning
+            val screenWidth = windowManager.getActualScreenWidth()
+            val screenHeight = windowManager.getActualScreenHeight()
 
-            lp.x = if (lp.x < displayMetrics.widthPixels / 2) {
+            lp.x = if (lp.x < screenWidth / 2) {
                 ballMargin
             } else {
-                displayMetrics.widthPixels - ballSize - ballMargin
+                screenWidth - ballSize - ballMargin
             }
 
             lp.y = lp.y.coerceIn(
                 topBoundary,
-                displayMetrics.heightPixels - ballSize - bottomBoundary
+                screenHeight - ballSize - bottomBoundary
             )
 
             windowManager.updateViewLayout(view, lp)
@@ -484,8 +503,11 @@ class QuickBallFloatingButton(
         width = ballSize
         height = ballSize
         gravity = Gravity.TOP or Gravity.START
-        x = displayMetrics.widthPixels - ballSize - ballMargin
-        y = displayMetrics.heightPixels / 2 - ballSize / 2
+        
+        // Use fresh display metrics for initial positioning
+        val currentMetrics = context.resources.displayMetrics
+        x = currentMetrics.widthPixels - ballSize - ballMargin
+        y = currentMetrics.heightPixels / 2 - ballSize / 2
     }
 
     /* --------------------------------------------------- */
@@ -687,7 +709,8 @@ class QuickBallFloatingButton(
 
     private fun isBallOnLeftSide(): Boolean {
         val lp = floatingBall?.layoutParams as? WindowManager.LayoutParams ?: return false
-        return lp.x < displayMetrics.widthPixels / 2
+        val screenWidth = windowManager.getActualScreenWidth()
+        return lp.x < screenWidth / 2
     }
 
 }

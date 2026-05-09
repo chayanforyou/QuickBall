@@ -4,6 +4,7 @@
     <string name="made_by">चयन द्वारा ❤️ के साथ बनाया गया</string>
     <string name="version_format">संस्करण: v%s</string>
     <string name="remove_battery_restriction">मेरे ऐप को बंद न करें</string>
+    <string name="github_repository">गिटहब रिपॉजिटरी</string>
     <string name="support_me">यदि आप मेरे काम से प्यार करते हैं।\nकृपया मेरा समर्थन करने पर विचार करें</string>
 
     <!-- Accessibility Service (for AndroidManifest.xml) -->

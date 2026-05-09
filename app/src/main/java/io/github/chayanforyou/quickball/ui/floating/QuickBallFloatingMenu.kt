@@ -23,6 +23,8 @@ import io.github.chayanforyou.quickball.domain.handlers.MenuAction
 import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
 import io.github.chayanforyou.quickball.helpers.AnimationHelper
 import io.github.chayanforyou.quickball.utils.WidgetUtil.dp2px
+import io.github.chayanforyou.quickball.utils.getActualScreenHeight
+import io.github.chayanforyou.quickball.utils.getActualScreenWidth
 import io.github.chayanforyou.quickball.utils.getAppIcon
 import kotlin.math.abs
 
@@ -198,7 +200,7 @@ class QuickBallFloatingMenu(
             overlayContainer = FrameLayout(mainActionView.context).apply {
                 isClickable = true
                 isFocusable = false
-                setOnTouchListener { v, event ->
+                setOnTouchListener { _, event ->
                     when (event.action) {
                         MotionEvent.ACTION_UP,
                         MotionEvent.ACTION_CANCEL,
@@ -274,9 +276,8 @@ class QuickBallFloatingMenu(
     }
 
     private fun calculateOverlayContainerParams(): WindowManager.LayoutParams {
-        val displayMetrics = mainActionView.context.resources.displayMetrics
-        val screenWidth = displayMetrics.widthPixels
-        val screenHeight = displayMetrics.heightPixels
+        val screenWidth = windowManager.getActualScreenWidth()
+        val screenHeight = windowManager.getActualScreenHeight()
 
         return getDefaultSystemWindowParams().apply {
             width = screenWidth
