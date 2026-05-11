@@ -1,0 +1,1 @@
+- Fix edge sticking issue on some devices in landscape mode

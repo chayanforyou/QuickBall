@@ -14,6 +14,7 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
+import androidx.core.net.toUri
 import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
 import io.github.chayanforyou.quickball.utils.ToastUtil
 
@@ -58,11 +59,23 @@ class QuickBallActionHandler(
         ToastUtil.show(accessibilityService, message)
     }
 
-    private fun canWriteSettings(): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            Settings.System.canWrite(accessibilityService)
-        } else {
-            true
+    private fun canWriteSettings() =
+        Build.VERSION.SDK_INT < Build.VERSION_CODES.M ||
+                Settings.System.canWrite(context)
+
+    private fun requestSystemSettingsPermission() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return
+
+        runCatching {
+            context.startActivity(
+                Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS).apply {
+                    data = "package:${context.packageName}".toUri()
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+            )
+            showToast("Allow 'Modify system settings' permission")
+        }.onFailure {
+            showToast("Could not request system settings permission")
         }
     }
 
@@ -138,7 +151,7 @@ class QuickBallActionHandler(
     // -------------------- Brightness --------------------
     private fun changeBrightness(increase: Boolean) {
         if (!canWriteSettings()) {
-            Log.w(TAG, "Cannot modify brightness - permission not granted")
+            requestSystemSettingsPermission()
             return
         }
 
@@ -346,7 +359,7 @@ class QuickBallActionHandler(
     // -------------------- Auto Rotate --------------------
     private fun toggleAutoRotate() {
         if (!canWriteSettings()) {
-            Log.w(TAG, "Cannot modify rotation - permission not granted")
+            requestSystemSettingsPermission()
             return
         }
 

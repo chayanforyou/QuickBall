@@ -301,15 +301,11 @@ class QuickBallHomeFragment : Fragment() {
 
     private fun requestModifySystemSettingsPermission() {
         try {
-            when {
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> {
-                    val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS).apply {
-                        data = "package:${requireContext().packageName}".toUri()
-                    }
-                    requestPermission(intent, PermissionType.SYSTEM_SETTINGS)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS).apply {
+                    data = "package:${requireContext().packageName}".toUri()
                 }
-
-                else -> showToast("System settings permission is not required on this Android version")
+                requestPermission(intent, PermissionType.SYSTEM_SETTINGS)
             }
         } catch (_: Exception) {
             showToast("Could not request system settings permission")
