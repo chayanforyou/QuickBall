@@ -1,10 +1,12 @@
 package io.github.chayanforyou.quickball.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
@@ -84,6 +86,13 @@ class MainActivity : AppCompatActivity() {
 
             R.id.remove_battery_restriction -> {
                 DokiContentView.show(supportFragmentManager)
+                true
+            }
+
+            R.id.github_repository -> {
+                val url = "https://github.com/chayanforyou/QuickBall"
+                val intent = Intent(Intent.ACTION_VIEW, url.toUri())
+                startActivity(intent)
                 true
             }
 

@@ -4,6 +4,7 @@
     <string name="made_by">由 Chayan 用 ❤️ 制作</string>
     <string name="version_format">版本：v%s</string>
     <string name="remove_battery_restriction">不要杀死我的应用</string>
+    <string name="github_repository">GitHub 仓库</string>
     <string name="support_me">如果您喜欢我的作品。\n请考虑支持我</string>
 
     <!-- Accessibility Service (for AndroidManifest.xml) -->

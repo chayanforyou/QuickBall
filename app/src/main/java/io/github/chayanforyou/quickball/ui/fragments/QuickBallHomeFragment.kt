@@ -20,7 +20,6 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import io.github.chayanforyou.quickball.BuildConfig
-import io.github.chayanforyou.quickball.R
 import io.github.chayanforyou.quickball.core.QuickBallService
 import io.github.chayanforyou.quickball.databinding.FragmentQuickballHomeBinding
 import io.github.chayanforyou.quickball.domain.PreferenceManager
@@ -104,12 +103,6 @@ class QuickBallHomeFragment : Fragment() {
 
         binding.buttonSupportMe.setOnClickListener {
             val url = "https://chayanforyou.gumroad.com/coffee"
-            val intent = Intent(Intent.ACTION_VIEW, url.toUri())
-            startActivity(intent)
-        }
-
-        binding.layoutFooter.setOnClickListener {
-            val url = "https://github.com/chayanforyou/QuickBall"
             val intent = Intent(Intent.ACTION_VIEW, url.toUri())
             startActivity(intent)
         }
@@ -308,15 +301,11 @@ class QuickBallHomeFragment : Fragment() {
 
     private fun requestModifySystemSettingsPermission() {
         try {
-            when {
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> {
-                    val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS).apply {
-                        data = "package:${requireContext().packageName}".toUri()
-                    }
-                    requestPermission(intent, PermissionType.SYSTEM_SETTINGS)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                val intent = Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS).apply {
+                    data = "package:${requireContext().packageName}".toUri()
                 }
-
-                else -> showToast("System settings permission is not required on this Android version")
+                requestPermission(intent, PermissionType.SYSTEM_SETTINGS)
             }
         } catch (_: Exception) {
             showToast("Could not request system settings permission")
