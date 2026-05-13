@@ -23,13 +23,12 @@ import io.github.chayanforyou.quickball.domain.handlers.MenuAction
 import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
 import io.github.chayanforyou.quickball.helpers.AnimationHelper
 import io.github.chayanforyou.quickball.utils.WidgetUtil.dp2px
-import io.github.chayanforyou.quickball.utils.getActualScreenHeight
-import io.github.chayanforyou.quickball.utils.getActualScreenWidth
 import io.github.chayanforyou.quickball.utils.getAppIcon
+import io.github.chayanforyou.quickball.utils.getScreenSize
 import kotlin.math.abs
 
 class QuickBallFloatingMenu(
-    private val mainActionView: View,
+    private val actionView: View,
     private val startAngle: Int,
     private val endAngle: Int,
     private val radius: Float,
@@ -40,7 +39,7 @@ class QuickBallFloatingMenu(
 ) {
 
     private val windowManager: WindowManager by lazy {
-        mainActionView.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        actionView.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     }
 
     private var overlayContainer: FrameLayout? = null
@@ -146,14 +145,14 @@ class QuickBallFloatingMenu(
     fun getActionViewCenter(): Point {
         val coords = getActionViewCoordinates()
         return Point(
-            coords.x + mainActionView.measuredWidth / 2,
-            coords.y + mainActionView.measuredHeight / 2
+            coords.x + actionView.measuredWidth / 2,
+            coords.y + actionView.measuredHeight / 2
         )
     }
 
     private fun getActionViewCoordinates(): Point {
         val coords = IntArray(2)
-        mainActionView.getLocationOnScreen(coords)
+        actionView.getLocationOnScreen(coords)
         return Point(coords[0], coords[1])
     }
 
@@ -197,7 +196,7 @@ class QuickBallFloatingMenu(
     @SuppressLint("ClickableViewAccessibility")
     private fun ensureOverlayContainer(): FrameLayout {
         if (overlayContainer == null) {
-            overlayContainer = FrameLayout(mainActionView.context).apply {
+            overlayContainer = FrameLayout(actionView.context).apply {
                 isClickable = true
                 isFocusable = false
                 setOnTouchListener { _, event ->
@@ -258,13 +257,13 @@ class QuickBallFloatingMenu(
     private fun updateButtonBounds() {
         val bounds = buttonBounds ?: return
         val location = IntArray(2)
-        mainActionView.getLocationOnScreen(location)
+        actionView.getLocationOnScreen(location)
 
         val containerLocation = IntArray(2)
         overlayContainer?.getLocationOnScreen(containerLocation) ?: return
 
-        val width = mainActionView.measuredWidth
-        val height = mainActionView.measuredHeight
+        val width = actionView.measuredWidth
+        val height = actionView.measuredHeight
 
         if (width > 0 && height > 0) {
             val relativeX = location[0] - containerLocation[0]
@@ -276,12 +275,11 @@ class QuickBallFloatingMenu(
     }
 
     private fun calculateOverlayContainerParams(): WindowManager.LayoutParams {
-        val screenWidth = windowManager.getActualScreenWidth()
-        val screenHeight = windowManager.getActualScreenHeight()
+        val (sWidth, sHeight) = windowManager.getScreenSize()
 
         return getDefaultSystemWindowParams().apply {
-            width = screenWidth
-            height = screenHeight
+            width = sWidth
+            height = sHeight
             x = 0
             y = 0
             gravity = Gravity.TOP or Gravity.START
@@ -392,7 +390,7 @@ class QuickBallFloatingMenu(
             stateChangeListener: MenuStateChangeListener? = null,
             menuItemClickListener: MenuItemClickListener? = null
         ) = QuickBallFloatingMenu(
-            mainActionView = actionView,
+            actionView = actionView,
             startAngle = startAngle,
             endAngle = endAngle,
             radius = radius,

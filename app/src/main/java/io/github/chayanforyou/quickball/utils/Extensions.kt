@@ -5,8 +5,12 @@ import android.content.pm.PackageManager
 import android.graphics.Point
 import android.graphics.drawable.Drawable
 import android.os.Build
+import android.util.DisplayMetrics
+import android.view.Display
 import android.view.WindowManager
+import android.view.WindowMetrics
 import androidx.core.content.ContextCompat
+import androidx.core.content.getSystemService
 import io.github.chayanforyou.quickball.domain.PreferenceManager
 import io.github.chayanforyou.quickball.domain.models.InstalledAppModel
 
@@ -44,7 +48,11 @@ fun Context.loadInstalledApps(sortBySelectedFirst: Boolean = false): List<Instal
         }
         .mapNotNull { appInfo ->
             val appName = packageManager.getApplicationLabel(appInfo).toString()
-            if (appName.isBlank() || appName.equals(appInfo.packageName, ignoreCase = true)) return@mapNotNull null
+            if (appName.isBlank() || appName.equals(
+                    appInfo.packageName,
+                    ignoreCase = true
+                )
+            ) return@mapNotNull null
             val icon = packageManager.getApplicationIcon(appInfo)
             InstalledAppModel(
                 appName = appName,
@@ -55,46 +63,48 @@ fun Context.loadInstalledApps(sortBySelectedFirst: Boolean = false): List<Instal
         }
 
     return if (sortBySelectedFirst) {
-        apps.sortedWith(compareByDescending<InstalledAppModel> { it.isSelected }.thenBy { it.appName.lowercase() })
+        apps.sortedWith(compareByDescending<InstalledAppModel> { it.isSelected }
+            .thenBy { it.appName.lowercase() })
     } else {
         apps.sortedBy { it.appName.lowercase() }
     }
 }
 
 /**
- * Get the actual screen width accounting for current orientation and system UI.
- * This is more reliable than DisplayMetrics, especially after orientation changes.
+ * Returns the actual screen size in pixels as a [Pair] of width and height.
  *
- * @return The actual screen width in pixels
+ * Compared to [DisplayMetrics], this provides more reliable dimensions
+ * across orientation changes, multi-window mode, and different system UI
+ * configurations.
+ *
+ * @return A [Pair] where:
+ * - first = screen width in pixels
+ * - second = screen height in pixels
  */
-fun WindowManager.getActualScreenWidth(): Int {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        currentWindowMetrics.bounds.width()
-    } else {
-        @Suppress("DEPRECATION")
-        val display = defaultDisplay
-        val realSize = Point()
-        @Suppress("DEPRECATION")
-        display.getRealSize(realSize)
-        realSize.x
-    }
+fun Context.getScreenSize(): Pair<Int, Int> {
+    return getSystemService<WindowManager>()?.getScreenSize() ?: (0 to 0)
 }
 
 /**
- * Get the actual screen height accounting for current orientation and system UI.
- * This is more reliable than DisplayMetrics, especially after orientation changes.
+ * Returns the actual screen size in pixels as a [Pair] of width and height.
  *
- * @return The actual screen height in pixels
+ * Uses [WindowMetrics] on Android R and above, and [Display.getRealSize]
+ * on older Android versions for compatibility.
+ *
+ * @return A [Pair] where:
+ * - first = screen width in pixels
+ * - second = screen height in pixels
  */
-fun WindowManager.getActualScreenHeight(): Int {
+fun WindowManager.getScreenSize(): Pair<Int, Int> {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        currentWindowMetrics.bounds.height()
+        val bounds = currentWindowMetrics.bounds
+        bounds.width() to bounds.height()
     } else {
         @Suppress("DEPRECATION")
-        val display = defaultDisplay
-        val realSize = Point()
-        @Suppress("DEPRECATION")
-        display.getRealSize(realSize)
-        realSize.y
+        Point().apply {
+            defaultDisplay.getRealSize(this)
+        }.let {
+            it.x to it.y
+        }
     }
 }

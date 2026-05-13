@@ -6,7 +6,7 @@ import android.view.ViewGroup
 
 object WidgetUtil {
     fun dp2px(dpValue: Float): Int {
-        var scale = Resources.getSystem().displayMetrics.density
+        val scale = Resources.getSystem().displayMetrics.density
         return (dpValue * scale + 0.5f).toInt()
     }
 

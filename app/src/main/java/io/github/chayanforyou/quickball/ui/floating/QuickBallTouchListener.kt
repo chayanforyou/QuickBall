@@ -1,18 +1,13 @@
 package io.github.chayanforyou.quickball.ui.floating
 
 import android.annotation.SuppressLint
-import android.content.Context
-import android.os.Build
-import android.util.DisplayMetrics
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
-import io.github.chayanforyou.quickball.utils.getActualScreenHeight
-import io.github.chayanforyou.quickball.utils.getActualScreenWidth
+import io.github.chayanforyou.quickball.utils.getScreenSize
 import kotlin.math.abs
 
 class QuickBallTouchListener(
-    private val context: Context,
     private val windowManager: WindowManager,
     private val ballSize: Int,
     private val topBoundary: Int,
@@ -79,13 +74,10 @@ class QuickBallTouchListener(
 
     private fun updateBallPosition(view: View, deltaX: Int, deltaY: Int) {
         val layoutParams = view.layoutParams as WindowManager.LayoutParams
-        
-        // Use actual screen dimensions to handle orientation changes properly
-        val screenWidth = windowManager.getActualScreenWidth()
-        val screenHeight = windowManager.getActualScreenHeight()
+        val (width, height) = windowManager.getScreenSize()
 
-        val newX = (initialX + deltaX).coerceIn(0, screenWidth - ballSize)
-        val newY = (initialY + deltaY).coerceIn(topBoundary, screenHeight - ballSize - bottomBoundary)
+        val newX = (initialX + deltaX).coerceIn(0, width - ballSize)
+        val newY = (initialY + deltaY).coerceIn(topBoundary, height - ballSize - bottomBoundary)
 
         if (layoutParams.x != newX || layoutParams.y != newY) {
             layoutParams.x = newX

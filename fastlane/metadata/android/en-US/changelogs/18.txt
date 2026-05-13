@@ -1,0 +1,1 @@
+- Fix stick issue on foldable devices.
