@@ -11,8 +11,9 @@ import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
 import android.widget.TextView
-import java.lang.ref.WeakReference
+import androidx.core.content.getSystemService
 import androidx.core.graphics.toColorInt
+import java.lang.ref.WeakReference
 
 object ToastUtil {
 
@@ -22,7 +23,7 @@ object ToastUtil {
     private val handler = Handler(Looper.getMainLooper())
 
     private fun getWindowManager(context: Context): WindowManager {
-        return windowManager ?: (context.getSystemService(Context.WINDOW_SERVICE) as WindowManager).also {
+        return windowManager ?: (context.getSystemService<WindowManager>() as WindowManager).also {
             windowManager = it
         }
     }

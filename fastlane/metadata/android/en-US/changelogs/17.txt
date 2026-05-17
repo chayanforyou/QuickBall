@@ -1,0 +1,1 @@
+- Fix ball positioning issue on foldable device.

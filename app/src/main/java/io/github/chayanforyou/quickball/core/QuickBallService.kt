@@ -12,6 +12,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.view.accessibility.AccessibilityEvent
+import androidx.core.content.getSystemService
 import io.github.chayanforyou.quickball.domain.PreferenceManager
 import io.github.chayanforyou.quickball.domain.handlers.QuickBallActionHandler
 import io.github.chayanforyou.quickball.ui.floating.QuickBallFloatingButton
@@ -48,9 +49,7 @@ class QuickBallService : AccessibilityService() {
     private val inactivityDelay = 2500L
     private val inactivityRunnable = Runnable { onInactivityTimeout() }
 
-    private val keyguard by lazy {
-        getSystemService(KEYGUARD_SERVICE) as KeyguardManager
-    }
+    private val keyguard by lazy { getSystemService<KeyguardManager>() as KeyguardManager }
 
     /* -------------------- Derived state -------------------- */
 
@@ -71,7 +70,7 @@ class QuickBallService : AccessibilityService() {
         super.onServiceConnected()
         initFloatingBall()
         registerScreenReceiver()
-        updateBallVisibility()
+        refreshBallVisibility()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -111,7 +110,7 @@ class QuickBallService : AccessibilityService() {
 
     /* -------------------- Visibility engine -------------------- */
 
-    private fun updateBallVisibility() {
+    private fun refreshBallVisibility() {
         val ball = floatingBall ?: return
 
         if (!isEnabled) {
@@ -219,8 +218,8 @@ class QuickBallService : AccessibilityService() {
 
         try {
             onForegroundPackageChanged(packageName)
-        } catch (_: Exception) {
-            println("Error processing package locking for $packageName")
+        } catch (e: Exception) {
+            println("Error processing package locking for $e")
         }
     }
 
@@ -246,7 +245,7 @@ class QuickBallService : AccessibilityService() {
             return
         }
 
-        updateBallVisibility()
+        refreshBallVisibility()
     }
 
     override fun onInterrupt() {}
@@ -255,7 +254,7 @@ class QuickBallService : AccessibilityService() {
 
     private val screenReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            updateBallVisibility()
+            refreshBallVisibility()
         }
     }
 
@@ -263,7 +262,7 @@ class QuickBallService : AccessibilityService() {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        updateBallVisibility()
+        refreshBallVisibility()
         adjustPosition()
     }
 
