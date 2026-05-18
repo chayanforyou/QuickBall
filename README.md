@@ -2,7 +2,7 @@
 
 ![GitHub stars](https://img.shields.io/github/stars/chayanforyou/QuickBall?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/chayanforyou/QuickBall?style=social)
-![GitHub license](https://img.shields.io/github/license/chayanforyou/QuickBall)
+[![GPL-3.0-or-later](https://img.shields.io/badge/License-GPL--3.0--or--later-blue.svg)](https://spdx.org/licenses/GPL-3.0-or-later.html)
 ![Platform](https://img.shields.io/badge/platform-Android-green)
 ![Kotlin](https://img.shields.io/badge/language-Kotlin-purple)
 
