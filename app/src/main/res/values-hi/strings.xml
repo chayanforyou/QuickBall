@@ -100,11 +100,16 @@
     <string name="menu_torch">टॉर्च</string>
     <string name="menu_auto_rotate">ऑटो रोटेट</string>
     
-    <!-- Volume & Sound -->
+    <!-- Media & Sound -->
     <string name="menu_volume_up">आवाज़ बढ़ाएं</string>
     <string name="menu_volume_down">आवाज़ घटाएं</string>
     <string name="menu_silent">मौन</string>
     <string name="menu_vibration">कंपन</string>
+    <string name="menu_play_pause">प्ले/पॉज़</string>
+    <string name="menu_next_track">अगला ट्रैक</string>
+    <string name="menu_previous_track">पिछला ट्रैक</string>
+    <string name="menu_volume_panel">वॉल्यूम पैनल खोलें</string>
+    <string name="menu_show_volume">वॉल्यूम दिखाएं</string>
     
     <!-- Connectivity -->
     <string name="menu_wifi">वाई-फाई</string>
@@ -115,5 +120,8 @@
     <!-- Utilities -->
     <string name="menu_screenshot">स्क्रीनशॉट</string>
     <string name="menu_lock_screen">स्क्रीन लॉक करें</string>
+    <string name="menu_notification">सूचनाएं</string>
+    <string name="menu_quick_settings">कंट्रोल सेंटर</string>
+    <string name="menu_power_dialog">पावर मेनू</string>
 
 </resources>

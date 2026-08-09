@@ -4,11 +4,11 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import io.github.chayanforyou.quickball.databinding.ItemShortcutSelectionBinding
-import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
+import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItem
 
 class ShortcutSelectionAdapter(
-    private var menuItems: List<QuickBallMenuItemModel>,
-    private val onItemClick: (QuickBallMenuItemModel) -> Unit
+    private var menuItems: List<QuickBallMenuItem>,
+    private val onItemClick: (QuickBallMenuItem) -> Unit
 ) : RecyclerView.Adapter<ShortcutSelectionAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -26,7 +26,7 @@ class ShortcutSelectionAdapter(
     inner class ViewHolder(private val binding: ItemShortcutSelectionBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: QuickBallMenuItemModel) = with(binding) {
+        fun bind(item: QuickBallMenuItem) = with(binding) {
             tvMenuTitle.text = item.getTitle(root.context)
             root.isEnabled = !item.isSelected
             root.alpha = if (item.isSelected) 0.5f else 1f

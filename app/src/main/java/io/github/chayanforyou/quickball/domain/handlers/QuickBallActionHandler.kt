@@ -14,14 +14,16 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
+import android.view.KeyEvent
 import androidx.core.net.toUri
-import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
+import io.github.chayanforyou.quickball.domain.models.MenuAction
+import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItem
 import io.github.chayanforyou.quickball.utils.ToastUtil
 
 class QuickBallActionHandler(
     private val accessibilityService: AccessibilityService,
     private val performStash: (() -> Unit)? = null
-) : QuickBallMenuActionHandler {
+) {
 
     companion object {
         private const val TAG = "QuickBallActionHandler"
@@ -79,7 +81,7 @@ class QuickBallActionHandler(
         }
     }
 
-    override fun onMenuAction(menuItem: QuickBallMenuItemModel) {
+    fun onMenuAction(menuItem: QuickBallMenuItem) {
         when (menuItem.action) {
             MenuAction.VOLUME_UP -> performVolumeUpAction()
             MenuAction.VOLUME_DOWN -> performVolumeDownAction()
@@ -92,12 +94,20 @@ class QuickBallActionHandler(
             MenuAction.MOBILE_DATA_TOGGLE -> toggleMobileData()
             MenuAction.SILENT_TOGGLE -> toggleSilentMode()
             MenuAction.VIBRATE_TOGGLE -> toggleVibrateMode()
+            MenuAction.MEDIA_PLAY_PAUSE -> mediaPlayPause()
+            MenuAction.MEDIA_NEXT -> mediaNext()
+            MenuAction.MEDIA_PREVIOUS -> mediaPrevious()
+            MenuAction.VOLUME_PANEL -> openVolumePanel()
+            MenuAction.SHOW_VOLUME -> showVolume()
             MenuAction.TORCH_TOGGLE -> toggleTorch()
             MenuAction.AUTO_ROTATE_TOGGLE -> toggleAutoRotate()
             MenuAction.AIRPLANE_MODE_TOGGLE -> toggleAirplaneMode()
             MenuAction.HOME -> performHomeAction()
             MenuAction.BACK -> performBackAction()
             MenuAction.RECENT -> performMenuAction()
+            MenuAction.NOTIFICATION -> performNotificationAction()
+            MenuAction.QUICK_SETTINGS -> performQuickSettingsAction()
+            MenuAction.POWER_DIALOG -> performPowerDialogAction()
             MenuAction.LAUNCH_APP -> launchApp(menuItem.packageName)
         }
     }
@@ -113,6 +123,18 @@ class QuickBallActionHandler(
 
     private fun performMenuAction() {
         accessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_RECENTS)
+    }
+
+    private fun performNotificationAction() {
+        accessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_NOTIFICATIONS)
+    }
+
+    private fun performQuickSettingsAction() {
+        accessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_QUICK_SETTINGS)
+    }
+
+    private fun performPowerDialogAction() {
+        accessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_POWER_DIALOG)
     }
 
     // -------------------- Volume Actions --------------------
@@ -146,6 +168,49 @@ class QuickBallActionHandler(
         val currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
         val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
         return (currentVolume * 100) / maxVolume
+    }
+
+    // -------------------- Media Controls --------------------
+    private fun sendMediaKeyEvent(keyCode: Int) {
+        val downEvent = KeyEvent(KeyEvent.ACTION_DOWN, keyCode)
+        val upEvent = KeyEvent(KeyEvent.ACTION_UP, keyCode)
+        audioManager.dispatchMediaKeyEvent(downEvent)
+        audioManager.dispatchMediaKeyEvent(upEvent)
+    }
+
+    private fun mediaPlayPause() {
+        sendMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)
+    }
+
+    private fun mediaNext() {
+        sendMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_NEXT)
+    }
+
+    private fun mediaPrevious() {
+        sendMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PREVIOUS)
+    }
+
+    private fun openVolumePanel() {
+        runDelayed {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                context.startActivity(Intent(Settings.Panel.ACTION_VOLUME).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                })
+            } else {
+                context.startActivity(Intent(Settings.ACTION_SOUND_SETTINGS).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                })
+            }
+        }
+    }
+
+    private fun showVolume() {
+        performStash?.invoke()
+        audioManager.adjustStreamVolume(
+            AudioManager.STREAM_MUSIC,
+            AudioManager.ADJUST_SAME,
+            AudioManager.FLAG_SHOW_UI
+        )
     }
 
     // -------------------- Brightness --------------------

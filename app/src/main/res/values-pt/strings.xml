@@ -100,11 +100,16 @@
     <string name="menu_torch">Lanterna</string>
     <string name="menu_auto_rotate">Rotação automática</string>
     
-    <!-- Volume & Sound -->
+    <!-- Media & Sound -->
     <string name="menu_volume_up">Aumentar volume</string>
     <string name="menu_volume_down">Diminuir volume</string>
     <string name="menu_silent">Silencioso</string>
     <string name="menu_vibration">Vibração</string>
+    <string name="menu_play_pause">Reproduzir/Pausar</string>
+    <string name="menu_next_track">Próxima faixa</string>
+    <string name="menu_previous_track">Faixa anterior</string>
+    <string name="menu_volume_panel">Abrir painel de volume</string>
+    <string name="menu_show_volume">Mostrar volume</string>
     
     <!-- Connectivity -->
     <string name="menu_wifi">Wi-Fi</string>
@@ -115,5 +120,8 @@
     <!-- Utilities -->
     <string name="menu_screenshot">Captura de tela</string>
     <string name="menu_lock_screen">Bloquear tela</string>
+    <string name="menu_notification">Notificação</string>
+    <string name="menu_quick_settings">Centro de controle</string>
+    <string name="menu_power_dialog">Menu de energia</string>
 
 </resources>

@@ -100,11 +100,16 @@
     <string name="menu_torch">Taschenlampe</string>
     <string name="menu_auto_rotate">Automatisch drehen</string>
     
-    <!-- Volume & Sound -->
+    <!-- Media & Sound -->
     <string name="menu_volume_up">Lautstärke erhöhen</string>
     <string name="menu_volume_down">Lautstärke verringern</string>
     <string name="menu_silent">Stumm</string>
     <string name="menu_vibration">Vibration</string>
+    <string name="menu_play_pause">Wiedergabe/Pause</string>
+    <string name="menu_next_track">Nächster Titel</string>
+    <string name="menu_previous_track">Vorheriger Titel</string>
+    <string name="menu_volume_panel">Lautstärkepanel öffnen</string>
+    <string name="menu_show_volume">Lautstärke anzeigen</string>
     
     <!-- Connectivity -->
     <string name="menu_wifi">WLAN</string>
@@ -115,5 +120,8 @@
     <!-- Utilities -->
     <string name="menu_screenshot">Screenshot</string>
     <string name="menu_lock_screen">Bildschirm sperren</string>
+    <string name="menu_notification">Benachrichtigung</string>
+    <string name="menu_quick_settings">Kontrollzentrum</string>
+    <string name="menu_power_dialog">Ein-/Aus-Menü</string>
 
 </resources>

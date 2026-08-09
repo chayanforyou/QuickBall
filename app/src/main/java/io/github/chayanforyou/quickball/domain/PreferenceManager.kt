@@ -6,8 +6,8 @@ import android.util.Log
 import androidx.core.content.edit
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import io.github.chayanforyou.quickball.domain.handlers.MenuAction
-import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
+import io.github.chayanforyou.quickball.domain.models.MenuAction
+import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItem
 
 object PreferenceManager {
     private const val PREFS_NAME = "quick_ball_prefs"
@@ -19,16 +19,20 @@ object PreferenceManager {
     private const val KEY_SELECTED_MENU_ITEMS = "selected_menu_items"
     private const val KEY_SELECTED_APPS = "selected_apps"
     private const val KEY_LANGUAGE = "language"
+    private const val KEY_PORTRAIT_IS_ON_RIGHT = "portrait_is_on_right"
+    private const val KEY_PORTRAIT_Y_FRACTION = "portrait_y_fraction"
+    private const val KEY_LANDSCAPE_IS_ON_RIGHT = "landscape_is_on_right"
+    private const val KEY_LANDSCAPE_Y_FRACTION = "landscape_y_fraction"
 
     private val gson = Gson()
-    private val menuItemListType = object : TypeToken<List<QuickBallMenuItemModel>>() {}.type
+    private val menuItemListType = object : TypeToken<List<QuickBallMenuItem>>() {}.type
 
     private fun getPreferences(context: Context): SharedPreferences {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     }
 
     fun isQuickBallEnabled(context: Context): Boolean {
-        return getPreferences(context).getBoolean(KEY_QUICK_BALL_ENABLED, false)
+        return getPreferences(context).getBoolean(KEY_QUICK_BALL_ENABLED, true)
     }
 
     fun setQuickBallEnabled(context: Context, enabled: Boolean) {
@@ -77,7 +81,7 @@ object PreferenceManager {
         }
     }
 
-    fun getSelectedMenuItems(context: Context): List<QuickBallMenuItemModel> {
+    fun getSelectedMenuItems(context: Context): List<QuickBallMenuItem> {
         val prefs = getPreferences(context)
         val json = prefs.getString(KEY_SELECTED_MENU_ITEMS, null)
         val defaultItems = getDefaultSelectedItems()
@@ -85,7 +89,7 @@ object PreferenceManager {
         if (json.isNullOrEmpty()) return defaultItems
 
         return try {
-            val items: List<QuickBallMenuItemModel>? =
+            val items: List<QuickBallMenuItem>? =
                 gson.fromJson(json, menuItemListType)
 
             items?.mapNotNull { item ->
@@ -94,7 +98,7 @@ object PreferenceManager {
                     item
                 } ?: run {
                     // System shortcut → remap
-                    QuickBallMenuItemModel.getMenuItemByAction(item.action)
+                    QuickBallMenuItem.getMenuItemByAction(item.action)
                 }
             } ?: defaultItems
 
@@ -104,7 +108,7 @@ object PreferenceManager {
         }
     }
 
-    fun updateMenuItemOrder(context: Context, reorderedItems: List<QuickBallMenuItemModel>) {
+    fun updateMenuItemOrder(context: Context, reorderedItems: List<QuickBallMenuItem>) {
         try {
             val json = gson.toJson(reorderedItems)
             getPreferences(context).edit {
@@ -115,7 +119,7 @@ object PreferenceManager {
         }
     }
 
-    private fun getDefaultSelectedItems(): List<QuickBallMenuItemModel> {
+    private fun getDefaultSelectedItems(): List<QuickBallMenuItem> {
         val defaultActions = listOf(
             MenuAction.VOLUME_UP,
             MenuAction.VOLUME_DOWN,
@@ -125,7 +129,7 @@ object PreferenceManager {
         )
 
         return defaultActions.mapNotNull { action ->
-            QuickBallMenuItemModel.getMenuItemByAction(action)
+            QuickBallMenuItem.getMenuItemByAction(action)
         }
     }
 
@@ -158,6 +162,36 @@ object PreferenceManager {
     fun setLanguage(context: Context, language: String) {
         getPreferences(context).edit {
             putString(KEY_LANGUAGE, language)
+        }
+    }
+
+    fun getPortraitIsOnRight(context: Context): Boolean {
+        return getPreferences(context).getBoolean(KEY_PORTRAIT_IS_ON_RIGHT, true)
+    }
+
+    fun getPortraitYFraction(context: Context): Float {
+        return getPreferences(context).getFloat(KEY_PORTRAIT_Y_FRACTION, 0.5f)
+    }
+
+    fun savePortraitPosition(context: Context, isOnRight: Boolean, yFraction: Float) {
+        getPreferences(context).edit {
+            putBoolean(KEY_PORTRAIT_IS_ON_RIGHT, isOnRight)
+            putFloat(KEY_PORTRAIT_Y_FRACTION, yFraction)
+        }
+    }
+
+    fun getLandscapeIsOnRight(context: Context): Boolean {
+        return getPreferences(context).getBoolean(KEY_LANDSCAPE_IS_ON_RIGHT, true)
+    }
+
+    fun getLandscapeYFraction(context: Context): Float {
+        return getPreferences(context).getFloat(KEY_LANDSCAPE_Y_FRACTION, 0.5f)
+    }
+
+    fun saveLandscapePosition(context: Context, isOnRight: Boolean, yFraction: Float) {
+        getPreferences(context).edit {
+            putBoolean(KEY_LANDSCAPE_IS_ON_RIGHT, isOnRight)
+            putFloat(KEY_LANDSCAPE_Y_FRACTION, yFraction)
         }
     }
 }

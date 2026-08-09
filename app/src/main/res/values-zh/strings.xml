@@ -100,11 +100,16 @@
     <string name="menu_torch">手电筒</string>
     <string name="menu_auto_rotate">自动旋转</string>
     
-    <!-- Volume & Sound -->
+    <!-- Media & Sound -->
     <string name="menu_volume_up">增加音量</string>
     <string name="menu_volume_down">降低音量</string>
     <string name="menu_silent">静音</string>
     <string name="menu_vibration">振动</string>
+    <string name="menu_play_pause">播放/暂停</string>
+    <string name="menu_next_track">下一首</string>
+    <string name="menu_previous_track">上一首</string>
+    <string name="menu_volume_panel">打开音量面板</string>
+    <string name="menu_show_volume">显示音量</string>
     
     <!-- Connectivity -->
     <string name="menu_wifi">Wi-Fi</string>
@@ -115,5 +120,8 @@
     <!-- Utilities -->
     <string name="menu_screenshot">截屏</string>
     <string name="menu_lock_screen">锁屏</string>
+    <string name="menu_notification">通知</string>
+    <string name="menu_quick_settings">控制中心</string>
+    <string name="menu_power_dialog">电源菜单</string>
 
 </resources>

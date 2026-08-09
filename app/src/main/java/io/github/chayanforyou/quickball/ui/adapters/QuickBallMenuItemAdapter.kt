@@ -6,12 +6,12 @@ import android.view.MotionEvent
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import io.github.chayanforyou.quickball.databinding.ItemQuickballMenuShortcutBinding
-import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
+import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItem
 import io.github.chayanforyou.quickball.utils.getAppIcon
 import java.util.Collections
 
 class QuickBallMenuItemAdapter(
-    private var menuItems: List<QuickBallMenuItemModel>,
+    private var menuItems: List<QuickBallMenuItem>,
     private val onStartDrag: (RecyclerView.ViewHolder) -> Unit,
     private val onItemClick: (Int) -> Unit,
 ) : RecyclerView.Adapter<QuickBallMenuItemAdapter.ViewHolder>() {
@@ -28,10 +28,10 @@ class QuickBallMenuItemAdapter(
 
     override fun getItemCount(): Int = menuItems.size
 
-    fun getCurrentItems(): MutableList<QuickBallMenuItemModel> = menuItems.toMutableList()
+    fun getCurrentItems(): MutableList<QuickBallMenuItem> = menuItems.toMutableList()
 
     @SuppressLint("NotifyDataSetChanged")
-    fun updateMenuItems(newMenuItems: List<QuickBallMenuItemModel>) {
+    fun updateMenuItems(newMenuItems: List<QuickBallMenuItem>) {
         menuItems = newMenuItems
         notifyDataSetChanged()
     }
@@ -45,7 +45,7 @@ class QuickBallMenuItemAdapter(
         RecyclerView.ViewHolder(binding.root) {
 
         @SuppressLint("ClickableViewAccessibility")
-        fun bind(item: QuickBallMenuItemModel) = with(binding) {
+        fun bind(item: QuickBallMenuItem) = with(binding) {
             when {
                 item.packageName != null -> {
                     val appIcon = root.context.getAppIcon(item.packageName)

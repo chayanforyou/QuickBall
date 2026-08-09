@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.github.chayanforyou.quickball.databinding.FragmentShortcutMenuBinding
 import io.github.chayanforyou.quickball.domain.PreferenceManager
-import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
+import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItem
 import io.github.chayanforyou.quickball.ui.adapters.QuickBallMenuItemAdapter
 import io.github.chayanforyou.quickball.helpers.MenuItemTouchHelper
 import io.github.chayanforyou.quickball.ui.viewmodels.MenuSelectionViewModel
@@ -88,7 +88,7 @@ class ShortcutMenuFragment : Fragment() {
         findNavController().navigate(action)
     }
     
-    private fun updateMenuItem(newMenuItem: QuickBallMenuItemModel) {
+    private fun updateMenuItem(newMenuItem: QuickBallMenuItem) {
         val currentPosition = viewModel.selectedPosition.value ?: return
         val currentItems = menuItemAdapter.getCurrentItems()
 

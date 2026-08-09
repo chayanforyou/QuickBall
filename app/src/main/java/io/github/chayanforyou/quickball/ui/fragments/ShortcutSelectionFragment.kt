@@ -10,7 +10,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.github.chayanforyou.quickball.databinding.FragmentShortcutSelectionBinding
 import io.github.chayanforyou.quickball.domain.PreferenceManager
-import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
+import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItem
 import io.github.chayanforyou.quickball.ui.adapters.ShortcutSelectionAdapter
 import io.github.chayanforyou.quickball.ui.viewmodels.MenuSelectionViewModel
 
@@ -38,7 +38,7 @@ class ShortcutSelectionFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        val allMenuItems = QuickBallMenuItemModel.getAllMenuItems()
+        val allMenuItems = QuickBallMenuItem.getAllMenuItems()
         val selectedActions = PreferenceManager.getSelectedMenuItems(requireContext())
             .mapTo(HashSet()) { it.action }
 
@@ -66,7 +66,7 @@ class ShortcutSelectionFragment : Fragment() {
         }
     }
 
-    private fun handleMenuItemSelection(selectedMenuItem: QuickBallMenuItemModel) {
+    private fun handleMenuItemSelection(selectedMenuItem: QuickBallMenuItem) {
         viewModel.setSelectedMenuItem(selectedMenuItem)
         findNavController().navigateUp()
     }

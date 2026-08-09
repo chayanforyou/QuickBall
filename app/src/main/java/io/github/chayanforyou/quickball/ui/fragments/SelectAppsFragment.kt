@@ -10,8 +10,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.github.chayanforyou.quickball.databinding.FragmentSelectAppsBinding
-import io.github.chayanforyou.quickball.domain.models.InstalledAppModel
-import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
+import io.github.chayanforyou.quickball.domain.models.InstalledApp
+import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItem
 import io.github.chayanforyou.quickball.ui.adapters.SelectAppListAdapter
 import io.github.chayanforyou.quickball.ui.viewmodels.MenuSelectionViewModel
 import io.github.chayanforyou.quickball.utils.loadInstalledApps
@@ -66,7 +66,7 @@ class SelectAppsFragment : Fragment() {
         }
     }
 
-    private fun setupRecyclerView(apps: List<InstalledAppModel>) {
+    private fun setupRecyclerView(apps: List<InstalledApp>) {
         appListAdapter = SelectAppListAdapter(
             apps = apps,
             onAppSelect = { app ->
@@ -80,11 +80,10 @@ class SelectAppsFragment : Fragment() {
         }
     }
 
-    private fun handleAppSelection(selectedApp: InstalledAppModel) {
-        val appMenuItem = QuickBallMenuItemModel.createAppMenuItem(
+    private fun handleAppSelection(selectedApp: InstalledApp) {
+        val appMenuItem = QuickBallMenuItem.createAppMenuItem(
             appName = selectedApp.appName,
-            packageName = selectedApp.packageName,
-            iconRes = android.R.drawable.sym_def_app_icon,
+            packageName = selectedApp.packageName
         )
         viewModel.setSelectedMenuItem(appMenuItem)
         // Navigate back to ShortcutMenuFragment

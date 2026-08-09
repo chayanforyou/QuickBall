@@ -14,7 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import io.github.chayanforyou.quickball.R
 import io.github.chayanforyou.quickball.databinding.FragmentAutoHideSettingsBinding
-import io.github.chayanforyou.quickball.domain.models.InstalledAppModel
+import io.github.chayanforyou.quickball.domain.models.InstalledApp
 import io.github.chayanforyou.quickball.ui.adapters.InstalledAppListAdapter
 import io.github.chayanforyou.quickball.domain.PreferenceManager
 import io.github.chayanforyou.quickball.utils.loadInstalledApps
@@ -74,7 +74,7 @@ class AutoHideSettingsFragment : Fragment() {
         }
     }
 
-    private fun setupRecyclerView(apps: List<InstalledAppModel>) {
+    private fun setupRecyclerView(apps: List<InstalledApp>) {
         appListAdapter = InstalledAppListAdapter(
             apps = apps,
             onToggleChanged = { app, isSelected ->
@@ -89,7 +89,7 @@ class AutoHideSettingsFragment : Fragment() {
         }
     }
 
-    private fun updateAppSelectionState(app: InstalledAppModel, isSelected: Boolean) {
+    private fun updateAppSelectionState(app: InstalledApp, isSelected: Boolean) {
         if (isSelected) {
             PreferenceManager.addAutoHideApp(requireContext(), app.packageName)
         } else {
