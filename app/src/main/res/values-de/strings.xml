@@ -15,6 +15,28 @@
     <string name="enable_quick_ball">Quick ball aktivieren</string>
     <string name="settings_label">Einstellungen</string>
 
+    <!-- Setup Card -->
+    <string name="turn_on_quick_ball">Quick Ball aktivieren</string>
+    <string name="accessibility_setup_description">Quick Ball benötigt Zugriff auf die Bedienungshilfen, um die schwebende Schaltfläche anzuzeigen und Navigationsaktionen auszuführen.</string>
+    <string name="open_accessibility_settings">Bedienungshilfen-Einstellungen öffnen</string>
+
+    <!-- Onboarding & Permissions -->
+    <string name="onboarding_title">Lerne Quick Ball kennen</string>
+    <string name="onboarding_subtitle">Eine schwebende Schaltfläche, mit der Sie Einhand-Navigation und Schnellaktionen überall auf Ihrem Bildschirm nutzen können. Es liest niemals Bildschirminhalte und nichts verlässt Ihr Gerät.</string>
+    <string name="onboarding_bullet_1">Startseite, Zurück, Letzte Apps und mehr aus einem von Ihnen gestalteten Fächermenü</string>
+    <string name="onboarding_bullet_2">Wischgesten, Mediensteuerung und Ein-Tipp-Verknüpfungen</string>
+    <string name="onboarding_get_started">Loslegen</string>
+    <string name="onboarding_permissions_title">Berechtigungen</string>
+    <string name="onboarding_permissions_subtitle">Quick Ball benötigt nur diese zwei, um zu funktionieren. Alles andere wird erst angefordert, wenn Sie eine Funktion aktivieren, die es benötigt.</string>
+    <string name="onboarding_accessibility_title">Bedienungshilfen</string>
+    <string name="onboarding_accessibility_description">Treibt die schwebende Schaltfläche an und ermöglicht Quick Ball Navigationsaktionen wie Startseite, Zurück und Letzte Apps. Es liest niemals Bildschirminhalte.</string>
+    <string name="onboarding_system_settings_description">Ermöglicht Quick Ball die Anpassung von Systemeinstellungen wie Bildschirmhelligkeit und Lautstärke direkt aus dem schwebenden Menü.</string>
+    <string name="onboarding_permissions_warning">Quick Ball benötigt Bedienungshilfen- und Systemeinstellungen-Berechtigungen, um ordnungsgemäß zu funktionieren.</string>
+    <string name="onboarding_back">Zurück</string>
+    <string name="onboarding_start_using">Quick Ball verwenden</string>
+    <string name="permission_granted">Gewährt</string>
+    <string name="permission_grant">Gewähren</string>
+
     <!-- Shortcut -->
     <string name="shortcuts_title">Verknüpfungen auswählen</string>
     <string name="shortcut_description">Verknüpfungsbeschreibung.</string>
@@ -69,6 +91,7 @@
     <string name="apps_title">Apps</string>
     <string name="select_shortcut_title">Verknüpfung auswählen</string>
     <string name="select_shortcut_description">Wählen Sie eine Verknüpfung, um die aktuelle zu ersetzen</string>
+    <string name="reorder_shortcut_description">Ziehen Sie eine Verknüpfung, um ihre Position zu ändern</string>
     <string name="menu_icon_description">Menüelement-Symbol</string>
     <string name="drag_handle_description">Zum Neuordnen ziehen</string>
 

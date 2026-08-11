@@ -11,9 +11,31 @@
     <string name="accessibility_service_description">क्विकबॉल फ्लोटिंग बॉल सेवा जो सुविधाओं तक त्वरित पहुंच के लिए आपकी स्क्रीन पर एक फ्लोटिंग बॉल ओवरले प्रदान करती है।</string>
 
     <!-- Home Fragment -->
-    <string name="home_title">क्विक बॉल</string>
-    <string name="enable_quick_ball">क्विक बॉल चालू करें</string>
+    <string name="home_title">Quick ball</string>
+    <string name="enable_quick_ball">Quick ball चालू करें</string>
     <string name="settings_label">सेटिंग्स</string>
+
+    <!-- Setup Card -->
+    <string name="turn_on_quick_ball">Quick Ball चालू करें</string>
+    <string name="accessibility_setup_description">फ्लोटिंग बटन दिखाने और नेविगेशन क्रियाएं करने के लिए Quick Ball को एक्सेसिबिलिटी एक्सेस की आवश्यकता है।</string>
+    <string name="open_accessibility_settings">एक्सेसिबिलिटी सेटिंग्स खोलें</string>
+
+    <!-- Onboarding & Permissions -->
+    <string name="onboarding_title">Meet Quick Ball</string>
+    <string name="onboarding_subtitle">एक फ्लोटिंग बटन जो आपकी स्क्रीन पर कहीं भी एक हाथ से नेविगेशन और त्वरित कार्य प्रदान करता है। यह कभी भी स्क्रीन सामग्री नहीं पढ़ता है, और कुछ भी आपके डिवाइस से बाहर नहीं जाता है।</string>
+    <string name="onboarding_bullet_1">होम, बैक, हाल के ऐप्स और बहुत कुछ आपके द्वारा डिज़ाइन किए गए मेनू से</string>
+    <string name="onboarding_bullet_2">स्वाइप जेस्चर, मीडिया कंट्रोल और एक-टैप शॉर्टकट</string>
+    <string name="onboarding_get_started">शुरू करें</string>
+    <string name="onboarding_permissions_title">अनुमतियाँ</string>
+    <string name="onboarding_permissions_subtitle">Quick Ball को चलाने के लिए बस इन दो अनुमतियों की आवश्यकता है। बाकी सब केवल तब मांगा जाता है जब आप कोई सुविधा चालू करते हैं।</string>
+    <string name="onboarding_accessibility_title">एक्सेसिबिलिटी</string>
+    <string name="onboarding_accessibility_description">फ्लोटिंग बटन को संचालित करता है और Quick Ball को होम, बैक और हाल के ऐप्स जैसी नेविगेशन क्रियाएं करने देता है।</string>
+    <string name="onboarding_system_settings_description">Quick Ball को सीधे फ्लोटिंग मेनू से स्क्रीन ब्राइटनेस और वॉल्यूम जैसी सिस्टम सेटिंग्स को समायोजित करने देता है।</string>
+    <string name="onboarding_permissions_warning">Quick Ball को ठीक से काम करने के लिए एक्सेसिबिलिटी और सिस्टम सेटिंग्स अनुमति की आवश्यकता है।</string>
+    <string name="onboarding_back">पीछे</string>
+    <string name="onboarding_start_using">Quick Ball का उपयोग शुरू करें</string>
+    <string name="permission_granted">अनुमति प्राप्त</string>
+    <string name="permission_grant">अनुमति दें</string>
 
     <!-- Shortcut -->
     <string name="shortcuts_title">शॉर्टकट चुनें</string>
@@ -69,6 +91,7 @@
     <string name="apps_title">ऐप्स</string>
     <string name="select_shortcut_title">शॉर्टकट चुनें</string>
     <string name="select_shortcut_description">वर्तमान को बदलने के लिए एक शॉर्टकट चुनें</string>
+    <string name="reorder_shortcut_description">उसकी स्थिति बदलने के लिए शॉर्टकट को ड्रैग करें</string>
     <string name="menu_icon_description">मेनू आइटम आइकन</string>
     <string name="drag_handle_description">पुनः क्रमित करने के लिए खींचें</string>
 

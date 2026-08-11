@@ -11,7 +11,7 @@ import android.view.WindowManager
 import android.view.WindowMetrics
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
-import io.github.chayanforyou.quickball.domain.PreferenceManager
+import io.github.chayanforyou.quickball.domain.AppPreference
 import io.github.chayanforyou.quickball.domain.models.InstalledApp
 
 /**
@@ -39,7 +39,7 @@ fun Context.getAppIcon(packageName: String): Drawable? {
  */
 fun Context.loadInstalledApps(sortBySelectedFirst: Boolean = false): List<InstalledApp> {
     val installedApps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
-    val autoHideApps = PreferenceManager.getAutoHideApps(this)
+    val autoHideApps = AppPreference.getInstance(this).autoHideApps
 
     val apps = installedApps
         .filter { appInfo ->

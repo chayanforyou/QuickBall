@@ -11,9 +11,31 @@
     <string name="accessibility_service_description">快球浮动球服务，在您的屏幕上提供浮动球覆盖层，以便快速访问功能。</string>
 
     <!-- Home Fragment -->
-    <string name="home_title">快球</string>
-    <string name="enable_quick_ball">开启快球</string>
+    <string name="home_title">Quick ball</string>
+    <string name="enable_quick_ball">开启 Quick ball</string>
     <string name="settings_label">设置</string>
+
+    <!-- Setup Card -->
+    <string name="turn_on_quick_ball">开启 Quick Ball</string>
+    <string name="accessibility_setup_description">Quick Ball 需要无障碍权限才能显示悬浮按钮并执行导航操作。</string>
+    <string name="open_accessibility_settings">打开无障碍设置</string>
+
+    <!-- Onboarding & Permissions -->
+    <string name="onboarding_title">认识 Quick Ball</string>
+    <string name="onboarding_subtitle">一个可在屏幕任意位置实现单手导航和快速操作的悬浮按钮。它绝不会读取屏幕内容，所有数据均保留在您的设备上。</string>
+    <string name="onboarding_bullet_1">主页、返回、最近任务等，全由您自定义的扇形菜单提供</string>
+    <string name="onboarding_bullet_2">滑动手势、媒体控制和一键快捷方式</string>
+    <string name="onboarding_get_started">开始使用</string>
+    <string name="onboarding_permissions_title">权限</string>
+    <string name="onboarding_permissions_subtitle">Quick Ball 仅需这两项权限即可运行。其他权限仅在您开启对应功能时才会请求。</string>
+    <string name="onboarding_accessibility_title">无障碍</string>
+    <string name="onboarding_accessibility_description">驱动悬浮按钮，并允许 Quick Ball 执行主页、返回和最近任务等导航操作。绝不读取屏幕内容。</string>
+    <string name="onboarding_system_settings_description">允许 Quick Ball 直接从悬浮菜单调节屏幕亮度和音量等系统设置。</string>
+    <string name="onboarding_permissions_warning">Quick Ball 需要无障碍权限和修改系统设置权限才能正常工作。</string>
+    <string name="onboarding_back">返回</string>
+    <string name="onboarding_start_using">开始体验 Quick Ball</string>
+    <string name="permission_granted">已授予</string>
+    <string name="permission_grant">授予</string>
 
     <!-- Shortcut -->
     <string name="shortcuts_title">选择快捷方式</string>
@@ -69,6 +91,7 @@
     <string name="apps_title">应用</string>
     <string name="select_shortcut_title">选择快捷方式</string>
     <string name="select_shortcut_description">选择一个快捷方式来替换当前的</string>
+    <string name="reorder_shortcut_description">拖动快捷方式以重新排序其位置</string>
     <string name="menu_icon_description">菜单项图标</string>
     <string name="drag_handle_description">拖动以重新排序</string>
 

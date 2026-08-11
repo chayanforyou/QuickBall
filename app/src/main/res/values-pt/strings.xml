@@ -15,6 +15,28 @@
     <string name="enable_quick_ball">Ativar Quick ball</string>
     <string name="settings_label">Configurações</string>
 
+    <!-- Setup Card -->
+    <string name="turn_on_quick_ball">Ativar Quick Ball</string>
+    <string name="accessibility_setup_description">O Quick Ball precisa de acesso à acessibilidade para exibir o botão flutuante e executar ações de navegação.</string>
+    <string name="open_accessibility_settings">Abrir configurações de acessibilidade</string>
+
+    <!-- Onboarding & Permissions -->
+    <string name="onboarding_title">Conheça o Quick Ball</string>
+    <string name="onboarding_subtitle">Um botão flutuante que coloca a navegação com uma mão e ações rápidas em qualquer lugar da tela. Ele nunca lê o conteúdo da tela e nada sai do seu dispositivo.</string>
+    <string name="onboarding_bullet_1">Início, Voltar, Recentes e muito mais em um menu personalizado por você</string>
+    <string name="onboarding_bullet_2">Gestos de deslizar, controles de mídia e atalhos com um toque</string>
+    <string name="onboarding_get_started">Começar</string>
+    <string name="onboarding_permissions_title">Permissões</string>
+    <string name="onboarding_permissions_subtitle">O Quick Ball precisa apenas dessas duas permissões para funcionar. Qualquer outra é solicitada apenas quando você ativa um recurso que precisa dela.</string>
+    <string name="onboarding_accessibility_title">Acessibilidade</string>
+    <string name="onboarding_accessibility_description">Alimenta o botão flutuante e permite que o Quick Ball execute ações de navegação como Início, Voltar e Recentes. Nunca lê o conteúdo da tela.</string>
+    <string name="onboarding_system_settings_description">Permite que o Quick Ball ajuste configurações do sistema como brilho da tela e volume diretamente do menu flutuante.</string>
+    <string name="onboarding_permissions_warning">O Quick Ball precisa das permissões de Acessibilidade e Configurações do Sistema para funcionar corretamente.</string>
+    <string name="onboarding_back">Voltar</string>
+    <string name="onboarding_start_using">Começar a usar o Quick Ball</string>
+    <string name="permission_granted">Concedido</string>
+    <string name="permission_grant">Conceder</string>
+
     <!-- Shortcut -->
     <string name="shortcuts_title">Selecionar atalhos</string>
     <string name="shortcut_description">Descrição do atalho.</string>
@@ -69,6 +91,7 @@
     <string name="apps_title">Aplicativos</string>
     <string name="select_shortcut_title">Selecionar atalho</string>
     <string name="select_shortcut_description">Escolha um atalho para substituir o atual</string>
+    <string name="reorder_shortcut_description">Arraste um atalho para reordenar sua posição</string>
     <string name="menu_icon_description">Ícone do item de menu</string>
     <string name="drag_handle_description">Arraste para reordenar</string>
 

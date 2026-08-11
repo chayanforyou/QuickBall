@@ -15,6 +15,28 @@
     <string name="enable_quick_ball">Attiva Quick ball</string>
     <string name="settings_label">Impostazioni</string>
 
+    <!-- Setup Card -->
+    <string name="turn_on_quick_ball">Attiva Quick Ball</string>
+    <string name="accessibility_setup_description">Quick Ball richiede l\'accesso all\'accessibilità per mostrare il pulsante fluttuante ed eseguire azioni di navigazione.</string>
+    <string name="open_accessibility_settings">Apri impostazioni di accessibilità</string>
+
+    <!-- Onboarding & Permissions -->
+    <string name="onboarding_title">Scopri Quick Ball</string>
+    <string name="onboarding_subtitle">Un pulsante fluttuante che ti permette di navigare a una mano e accedere ad azioni rapide ovunque sullo schermo. Non legge mai il contenuto dello schermo e nulla lascia il tuo dispositivo.</string>
+    <string name="onboarding_bullet_1">Home, Indietro, App recenti e altro da un menu a ventaglio progettato da te</string>
+    <string name="onboarding_bullet_2">Gesti di scorrimento, controlli multimediali e scorciatoie con un tocco</string>
+    <string name="onboarding_get_started">Inizia</string>
+    <string name="onboarding_permissions_title">Autorizzazioni</string>
+    <string name="onboarding_permissions_subtitle">Quick Ball necessita solo di queste due autorizzazioni per funzionare. Tutte le altre vengono richieste solo quando attivi una funzione che le richiede.</string>
+    <string name="onboarding_accessibility_title">Accessibilità</string>
+    <string name="onboarding_accessibility_description">Gestisce il pulsante fluttuante e consente a Quick Ball di eseguire azioni di navigazione come Home, Indietro e Recenti. Non legge mai il contenuto dello schermo.</string>
+    <string name="onboarding_system_settings_description">Consente a Quick Ball di regolare le impostazioni di sistema come luminosità e volume direttamente dal menu fluttuante.</string>
+    <string name="onboarding_permissions_warning">Quick Ball richiede le autorizzazioni di Accessibilità e Impostazioni di Sistema per funzionare correttamente.</string>
+    <string name="onboarding_back">Indietro</string>
+    <string name="onboarding_start_using">Inizia a usare Quick Ball</string>
+    <string name="permission_granted">Concesso</string>
+    <string name="permission_grant">Concedi</string>
+
     <!-- Shortcut -->
     <string name="shortcuts_title">Seleziona scorciatoie</string>
     <string name="shortcut_description">Descrizione scorciatoia.</string>
@@ -69,6 +91,7 @@
     <string name="apps_title">App</string>
     <string name="select_shortcut_title">Seleziona scorciatoia</string>
     <string name="select_shortcut_description">Scegli una scorciatoia per sostituire quella attuale</string>
+    <string name="reorder_shortcut_description">Trascina una scorciatoia per riordinarne la posizione</string>
     <string name="menu_icon_description">Icona voce di menu</string>
     <string name="drag_handle_description">Trascina per riordinare</string>
 

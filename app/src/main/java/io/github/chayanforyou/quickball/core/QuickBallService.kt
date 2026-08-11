@@ -22,7 +22,7 @@ import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import android.view.animation.PathInterpolator
 import androidx.core.content.getSystemService
-import io.github.chayanforyou.quickball.domain.PreferenceManager
+import io.github.chayanforyou.quickball.domain.AppPreference
 import io.github.chayanforyou.quickball.domain.models.MenuAction
 import io.github.chayanforyou.quickball.domain.handlers.QuickBallActionHandler
 import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItem
@@ -90,15 +90,17 @@ class QuickBallService : AccessibilityService() {
     private val isLandscape: Boolean
         get() = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
+    private val prefs by lazy { AppPreference.getInstance(this) }
+
     private var currentPosition: EdgePosition
         get() = if (isLandscape) landscapePosition else portraitPosition
         set(value) {
             if (isLandscape) {
                 landscapePosition = value
-                PreferenceManager.saveLandscapePosition(this, value.isOnRight, value.yFraction)
+                prefs.saveLandscapePosition(value.isOnRight, value.yFraction)
             } else {
                 portraitPosition = value
-                PreferenceManager.savePortraitPosition(this, value.isOnRight, value.yFraction)
+                prefs.savePortraitPosition(value.isOnRight, value.yFraction)
             }
         }
 
@@ -120,12 +122,13 @@ class QuickBallService : AccessibilityService() {
     private var fabY = 0
 
     // Stash / Auto-Hide State
+    private var isDragging = false
     private var isStashed = false
     private var stashAlpha = 0.4f
     private var isStashing = false
     private var fabAnimator: ValueAnimator? = null
     private val stashHandler = Handler(Looper.getMainLooper())
-    private val stashRunnable = Runnable { stashFab() }
+    private val stashRunnable = Runnable { onInactivityTimeout() }
     private var lastForegroundPackage = ""
 
     // System Services & State
@@ -133,12 +136,12 @@ class QuickBallService : AccessibilityService() {
     private val isLocked get() = keyguard.isKeyguardLocked
 
     // Preference Getters
-    private val floatingBallSize get() = PreferenceManager.getBallSize(this)
-    private val isStickToEdge get() = PreferenceManager.isStickToEdgeEnabled(this)
-    private val isEnabled get() = PreferenceManager.isQuickBallEnabled(this)
-    private val autoHideApps get() = PreferenceManager.getAutoHideApps(this)
-    private val showOnLockScreen get() = PreferenceManager.isShowOnLockScreenEnabled(this)
-    private val hideForLandscape get() = PreferenceManager.isHideOnLandscapeEnabled(this) && isLandscape
+    private val floatingBallSize get() = prefs.ballSize
+    private val isStickToEdge get() = prefs.isStickToEdgeEnabled
+    private val isEnabled get() = prefs.isQuickBallEnabled
+    private val autoHideApps get() = prefs.autoHideApps
+    private val showOnLockScreen get() = prefs.isShowOnLockScreenEnabled
+    private val hideForLandscape get() = prefs.isHideOnLandscapeEnabled && isLandscape
 
     /* -------------------- Lifecycle -------------------- */
 
@@ -174,12 +177,12 @@ class QuickBallService : AccessibilityService() {
 
     private fun initFloatingBall() {
         portraitPosition = EdgePosition(
-            isOnRight = PreferenceManager.getPortraitIsOnRight(this),
-            yFraction = PreferenceManager.getPortraitYFraction(this)
+            isOnRight = prefs.portraitIsOnRight,
+            yFraction = prefs.portraitYFraction
         )
         landscapePosition = EdgePosition(
-            isOnRight = PreferenceManager.getLandscapeIsOnRight(this),
-            yFraction = PreferenceManager.getLandscapeYFraction(this)
+            isOnRight = prefs.landscapeIsOnRight,
+            yFraction = prefs.landscapeYFraction
         )
 
         actionHandler = QuickBallActionHandler(this) {
@@ -309,6 +312,8 @@ class QuickBallService : AccessibilityService() {
 
         var initialWindowX = 0
         var initialWindowY = 0
+        var screenW = 0
+        var screenH = 0
 
         val button = QuickBallFloatingButton(this).apply {
             setExpanded(isExpanded, animate = false)
@@ -317,34 +322,46 @@ class QuickBallService : AccessibilityService() {
                 if (!isStashing) {
                     stopInactivityTimer()
                     fabAnimator?.cancel()
-                    removePill()
                     isStashed = false
-                    alpha = 1.0f
-                    initialWindowX = fabParams?.x ?: 0
-                    initialWindowY = fabParams?.y ?: 0
+                    initialWindowX = fabX
+                    initialWindowY = fabY
+
+                    val (sw, sh) = getScreenSize()
+                    screenW = sw
+                    screenH = sh
                 }
             }
 
+            onTouchCanceledListener = {
+                isDragging = false
+                resetInactivityTimer()
+            }
+
             onDragMoveListener = { dx, dy ->
-                val (screenW, screenH) = getScreenSize()
+                if (!isStashing) {
+                    isDragging = true
+                    stopInactivityTimer()
+                    alpha = 1.0f
 
-                fabX = (initialWindowX + dx).roundToInt().coerceIn(0, screenW - fabSizePx)
-                fabY = (initialWindowY + dy).roundToInt()
-                    .coerceIn(topBoundary, screenH - fabSizePx - bottomBoundary)
+                    fabX = (initialWindowX + dx).roundToInt().coerceIn(0, screenW - fabSizePx)
+                    fabY = (initialWindowY + dy).roundToInt()
+                        .coerceIn(topBoundary, screenH - fabSizePx - bottomBoundary)
 
-                fabParams?.let { p ->
-                    p.x = fabX
-                    p.y = fabY
-                    updateFabViewLayout(this, p)
+                    params.x = fabX
+                    params.y = fabY
+                    updateFabViewLayout(this, params)
                 }
             }
 
             onClickListener = {
+                isDragging = false
+                if (!isStickToEdge) alpha = 1.0f
                 if (!isStashing) expandMenu()
             }
 
             onDragEndListener = {
-                snapToEdge()
+                isDragging = false
+                if (!isStashing) snapToEdge()
             }
         }
 
@@ -672,10 +689,16 @@ class QuickBallService : AccessibilityService() {
     }
 
     private fun getMenuItems(): List<QuickBallMenuItem> {
-        return PreferenceManager.getSelectedMenuItems(this)
+        return prefs.selectedMenuItems
     }
 
     /* -------------------- Timers & Helpers -------------------- */
+
+    private fun onInactivityTimeout() {
+        if (!isDragging && !isExpanded) {
+            stashFab()
+        }
+    }
 
     private fun resetInactivityTimer() {
         stashHandler.removeCallbacks(stashRunnable)

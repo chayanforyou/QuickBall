@@ -146,7 +146,7 @@ class QuickBallPillView @JvmOverloads constructor(
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         if (!isGestureEnabled) {
-            return if (event.action == MotionEvent.ACTION_DOWN) {
+            return if (event.action == MotionEvent.ACTION_UP) {
                 onSingleTapListener?.invoke()
                 true
             } else {

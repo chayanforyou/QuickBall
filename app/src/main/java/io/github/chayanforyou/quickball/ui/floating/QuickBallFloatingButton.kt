@@ -48,6 +48,7 @@ class QuickBallFloatingButton @JvmOverloads constructor(
     var onDragMoveListener: ((dx: Float, dy: Float) -> Unit)? = null
     var onClickListener: (() -> Unit)? = null
     var onDragEndListener: (() -> Unit)? = null
+    var onTouchCanceledListener: (() -> Unit)? = null
 
     // Touch & Drag State
     private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
@@ -115,18 +116,6 @@ class QuickBallFloatingButton @JvmOverloads constructor(
         }
     }
 
-    /*fun updateGestureExclusion() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val rect = Rect(0, 0, width, height)
-            systemGestureExclusionRects = listOf(rect)
-        }
-    }
-
-    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-        super.onLayout(changed, left, top, right, bottom)
-        updateGestureExclusion()
-    }*/
-
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         if (isExpanded) return super.onTouchEvent(event)
@@ -154,12 +143,21 @@ class QuickBallFloatingButton @JvmOverloads constructor(
                 return true
             }
 
-            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                if (!isDragging && event.action == MotionEvent.ACTION_UP) {
+            MotionEvent.ACTION_UP -> {
+                if (isDragging) {
+                    onDragEndListener?.invoke()
+                } else {
                     onClickListener?.invoke()
-                } else if (isDragging) {
+                }
+                isDragging = false
+                return true
+            }
+
+            MotionEvent.ACTION_CANCEL -> {
+                if (isDragging) {
                     onDragEndListener?.invoke()
                 }
+                onTouchCanceledListener?.invoke()
                 isDragging = false
                 return true
             }

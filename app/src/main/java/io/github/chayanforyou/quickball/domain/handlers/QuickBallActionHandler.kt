@@ -68,7 +68,7 @@ class QuickBallActionHandler(
     private fun requestSystemSettingsPermission() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return
 
-        runCatching {
+        try {
             context.startActivity(
                 Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS).apply {
                     data = "package:${context.packageName}".toUri()
@@ -76,7 +76,7 @@ class QuickBallActionHandler(
                 }
             )
             showToast("Allow 'Modify system settings' permission")
-        }.onFailure {
+        } catch (_: Exception) {
             showToast("Could not request system settings permission")
         }
     }

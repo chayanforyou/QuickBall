@@ -14,6 +14,28 @@
     <string name="enable_quick_ball">Turn on Quick ball</string>
     <string name="settings_label">Settings</string>
 
+    <!-- Setup Card -->
+    <string name="turn_on_quick_ball">Turn on Quick Ball</string>
+    <string name="accessibility_setup_description">Quick Ball needs Accessibility access to show the floating button and perform navigation actions.</string>
+    <string name="open_accessibility_settings">Open Accessibility settings</string>
+
+    <!-- Onboarding & Permissions -->
+    <string name="onboarding_title">Meet Quick Ball</string>
+    <string name="onboarding_subtitle">A floating button that puts one-handed navigation and quick actions anywhere on your screen. It never reads screen content, and nothing leaves your device.</string>
+    <string name="onboarding_bullet_1">Home, Back, Recents and more from a fan menu you design</string>
+    <string name="onboarding_bullet_2">Swipe gestures, media controls and one-tap shortcuts</string>
+    <string name="onboarding_get_started">Get started</string>
+    <string name="onboarding_permissions_title">Permissions</string>
+    <string name="onboarding_permissions_subtitle">Quick Ball needs just these two to run. Anything else is asked for only when you turn on a feature that needs it.</string>
+    <string name="onboarding_accessibility_title">Accessibility</string>
+    <string name="onboarding_accessibility_description">Powers the floating button and lets Quick Ball perform navigation actions like Home, Back and Recents. It never reads screen content.</string>
+    <string name="onboarding_system_settings_description">Lets Quick Ball adjust system settings like screen brightness and volume directly from the floating menu.</string>
+    <string name="onboarding_permissions_warning">Quick Ball needs Accessibility and System Settings permissions to work properly.</string>
+    <string name="onboarding_back">Back</string>
+    <string name="onboarding_start_using">Start using Quick Ball</string>
+    <string name="permission_granted">Granted</string>
+    <string name="permission_grant">Grant</string>
+
     <!-- Shortcut -->
     <string name="shortcuts_title">Select shortcuts</string>
     <string name="shortcut_description">Shortcut description.</string>
@@ -68,6 +90,7 @@
     <string name="apps_title">Apps</string>
     <string name="select_shortcut_title">Select Shortcut</string>
     <string name="select_shortcut_description">Choose a shortcut to replace the current one</string>
+    <string name="reorder_shortcut_description">Drag a shortcut to reorder its position</string>
     <string name="menu_icon_description">Menu item icon</string>
     <string name="drag_handle_description">Drag to reorder</string>
 
