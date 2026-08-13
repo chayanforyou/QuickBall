@@ -34,7 +34,7 @@ fun SettingSwitchRow(
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Normal
             )
             if (subtitle != null) {
                 Text(

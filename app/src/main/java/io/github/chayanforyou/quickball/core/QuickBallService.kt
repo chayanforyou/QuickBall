@@ -31,6 +31,7 @@ import io.github.chayanforyou.quickball.ui.floating.QuickBallFloatingMenu
 import io.github.chayanforyou.quickball.ui.floating.QuickBallPillView
 import io.github.chayanforyou.quickball.utils.DensityUtils
 import io.github.chayanforyou.quickball.utils.getScreenSize
+import io.github.chayanforyou.quickball.utils.performHapticFeedback
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -44,7 +45,8 @@ class QuickBallService : AccessibilityService() {
         const val ACTION_DISABLE = "io.github.chayanforyou.quickball.action.DISABLE"
         const val ACTION_STASH = "io.github.chayanforyou.quickball.action.STASH"
         const val ACTION_UNSTASH = "io.github.chayanforyou.quickball.action.UNSTASH"
-        const val ACTION_UPDATE_SIZE = "io.github.chayanforyou.quickball.action.UPDATE_SIZE"
+        const val ACTION_UPDATE_BALL = "io.github.chayanforyou.quickball.action.UPDATE_BALL"
+        const val ACTION_UPDATE_PILL = "io.github.chayanforyou.quickball.action.UPDATE_PILL"
 
         private const val APP_PACKAGE_PREFIX = "io.github.chayanforyou.quickball"
         private val EXCLUDED_APPS = setOf(
@@ -158,7 +160,8 @@ class QuickBallService : AccessibilityService() {
             ACTION_DISABLE -> hideBall()
             ACTION_STASH -> stashFab()
             ACTION_UNSTASH -> unstashFab()
-            ACTION_UPDATE_SIZE -> updateBallSize()
+            ACTION_UPDATE_BALL -> updateBall()
+            ACTION_UPDATE_PILL -> updatePill()
         }
         return START_STICKY
     }
@@ -282,13 +285,48 @@ class QuickBallService : AccessibilityService() {
         removeMenuWindow()
     }
 
-    private fun updateBallSize() {
+    private fun updateBall() {
+        fabView?.setBallColor(prefs.ballColor)
+        fabView?.setBallIconColor(prefs.ballIconColor)
         val newSize = fabSizePx
         fabParams?.let { params ->
             params.width = newSize
             params.height = newSize
         }
         recalculatePositionForNewScreenSize()
+    }
+
+    private fun updatePill() {
+        val pill = pillView ?: return
+        val params = pillParams ?: return
+        val wm = windowManager ?: return
+
+        val pillWidth = DensityUtils.dp2px(prefs.pillTouchWidth)
+        val pillHeight = DensityUtils.dp2px(prefs.pillHeight)
+        val (screenW, _) = getScreenSize()
+
+        params.width = pillWidth
+        params.height = pillHeight
+        params.x = if (isOnRight) screenW - pillWidth else 0
+        params.y = fabY + (fabSizePx - pillHeight) / 2
+
+        pill.setPillColor(prefs.pillColor)
+        pill.setPillThickness(prefs.pillThickness)
+        pill.setPillArcAngle(prefs.pillArcAngle)
+        pill.isGestureEnabled = prefs.isPillGestureEnabled
+
+        try {
+            wm.updateViewLayout(pill, params)
+        } catch (_: Exception) {
+        }
+    }
+
+    private fun executePillAction(actionName: String) {
+        if (!prefs.isPillGestureEnabled) return
+        performHapticFeedback()
+        val action = runCatching { MenuAction.valueOf(actionName) }.getOrNull() ?: return
+        val menuItem = QuickBallMenuItem(action = action)
+        actionHandler?.onMenuAction(menuItem)
     }
 
     /* -------------------- FAB Window & Gestures -------------------- */
@@ -356,7 +394,10 @@ class QuickBallService : AccessibilityService() {
             onClickListener = {
                 isDragging = false
                 if (!isStickToEdge) alpha = 1.0f
-                if (!isStashing) expandMenu()
+                if (!isStashing) {
+                    performHapticFeedback()
+                    expandMenu()
+                }
             }
 
             onDragEndListener = {
@@ -534,37 +575,29 @@ class QuickBallService : AccessibilityService() {
         if (pillView != null) return
         val wm = windowManager ?: return
 
-        val pillWidth = DensityUtils.dp2px(25f)
-        val pillHeight = fabSizePx
+        val pillWidth = DensityUtils.dp2px(prefs.pillTouchWidth)
+        val pillHeight = DensityUtils.dp2px(prefs.pillHeight)
 
         val pill = QuickBallPillView(this).apply {
             onRight = isOnRight
+            isGestureEnabled = prefs.isPillGestureEnabled
             onSingleTapListener = {
+                performHapticFeedback()
                 removePill()
                 val targetX = getEdgeX()
                 unstashFab()
                 expandMenu(targetX)
             }
-            onDoubleTapListener = {
-                performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)
-            }
-            onTripleTapListener = {
-                performGlobalAction(GLOBAL_ACTION_QUICK_SETTINGS)
-            }
-            onLongPressListener = {
-                performGlobalAction(GLOBAL_ACTION_POWER_DIALOG)
-            }
-            onSwipeUpListener = {
-                performGlobalAction(GLOBAL_ACTION_RECENTS)
-            }
-            onSwipeDownListener = {
-                performGlobalAction(GLOBAL_ACTION_NOTIFICATIONS)
-            }
+            onDoubleTapListener = { executePillAction(prefs.pillDoubleTapAction) }
+            onTripleTapListener = { executePillAction(prefs.pillTripleTapAction) }
+            onLongPressListener = { executePillAction(prefs.pillLongPressAction) }
+            onSwipeUpListener = { executePillAction(prefs.pillSwipeUpAction) }
+            onSwipeDownListener = { executePillAction(prefs.pillSwipeDownAction) }
         }
 
         val (screenW, _) = getScreenSize()
         val targetX = if (isOnRight) screenW - pillWidth else 0
-        val targetY = fabY
+        val targetY = fabY + (fabSizePx - pillHeight) / 2
 
         val params = createSystemWindowParams(
             width = pillWidth,
@@ -638,6 +671,7 @@ class QuickBallService : AccessibilityService() {
                 resetInactivityTimer()
             },
             onMenuItemClicked = { menuItem ->
+                performHapticFeedback()
                 actionHandler?.onMenuAction(menuItem)
                 if (menuItem.action !in setOf(
                         MenuAction.VOLUME_UP,

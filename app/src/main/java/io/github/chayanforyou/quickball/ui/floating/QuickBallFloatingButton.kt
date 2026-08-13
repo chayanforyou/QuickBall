@@ -14,6 +14,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.core.graphics.toColorInt
 import io.github.chayanforyou.quickball.R
+import io.github.chayanforyou.quickball.domain.AppPreference
 import io.github.chayanforyou.quickball.utils.DensityUtils
 import kotlin.math.hypot
 
@@ -36,6 +37,7 @@ class QuickBallFloatingButton @JvmOverloads constructor(
         private const val ITEM_BG_COLOR = "#BF2C2C2C"
     }
 
+    private val prefs by lazy { AppPreference.getInstance(context) }
     private val marginPx by lazy { DensityUtils.dp2px(ICON_MARGIN_DP) }
     private val imageView: ImageView
 
@@ -57,26 +59,13 @@ class QuickBallFloatingButton @JvmOverloads constructor(
     private var isDragging = false
 
     init {
-        // Background shape (styled via common constants)
-        val shape = GradientDrawable().apply {
-            this.shape = GradientDrawable.OVAL
-            setColor(ITEM_BG_COLOR.toColorInt())
-        }
-        background = shape
-
-        // Circular click ripple foreground
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            foreground = RippleDrawable(
-                ColorStateList.valueOf(RIPPLE_COLOR.toColorInt()),
-                null,
-                shape
-            )
-        }
+        // Initialize background shape & ripple with saved ball color
+        setBallColor(prefs.ballColor)
 
         // Center menu icon ImageView
         imageView = ImageView(context).apply {
             setImageResource(R.drawable.ic_menu_open)
-            setColorFilter(ITEM_ICON_COLOR.toColorInt())
+            setColorFilter(prefs.ballIconColor)
             layoutParams = LayoutParams(
                 LayoutParams.MATCH_PARENT,
                 LayoutParams.MATCH_PARENT,
@@ -87,6 +76,31 @@ class QuickBallFloatingButton @JvmOverloads constructor(
         }
 
         addView(imageView)
+    }
+
+    /**
+     * Update the background color of the floating ball.
+     */
+    fun setBallColor(color: Int) {
+        val shape = GradientDrawable().apply {
+            this.shape = GradientDrawable.OVAL
+            setColor(color)
+        }
+        background = shape
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            foreground = RippleDrawable(
+                ColorStateList.valueOf(RIPPLE_COLOR.toColorInt()),
+                null,
+                shape
+            )
+        }
+    }
+
+    /**
+     * Update the icon color of the floating ball.
+     */
+    fun setBallIconColor(color: Int) {
+        imageView.setColorFilter(color)
     }
 
     /**

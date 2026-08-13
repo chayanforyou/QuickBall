@@ -1,4 +1,4 @@
-package io.github.chayanforyou.quickball.ui.dialogs
+package io.github.chayanforyou.quickball.ui.screens.home.components
 
 import android.os.Build
 import androidx.compose.foundation.layout.Arrangement

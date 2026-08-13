@@ -19,6 +19,7 @@ import androidx.core.net.toUri
 import io.github.chayanforyou.quickball.domain.models.MenuAction
 import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItem
 import io.github.chayanforyou.quickball.utils.ToastUtil
+import io.github.chayanforyou.quickball.utils.performHapticFeedback
 
 class QuickBallActionHandler(
     private val accessibilityService: AccessibilityService,
@@ -45,7 +46,7 @@ class QuickBallActionHandler(
     }
 
     private inline fun runDelayed(
-        delayMillis: Long = 300L,
+        delayMillis: Long = 200L,
         crossinline action: () -> Unit
     ) {
         handler.postDelayed({
@@ -57,7 +58,10 @@ class QuickBallActionHandler(
         }, delayMillis)
     }
 
-    private fun showToast(message: String) {
+    private fun showToast(message: String, performHaptic: Boolean = false) {
+        if (performHaptic) {
+            runDelayed { context.performHapticFeedback() }
+        }
         ToastUtil.show(accessibilityService, message)
     }
 
@@ -75,7 +79,7 @@ class QuickBallActionHandler(
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 }
             )
-            showToast("Allow 'Modify system settings' permission")
+            showToast("Allow 'Modify system settings' permission", performHaptic = true)
         } catch (_: Exception) {
             showToast("Could not request system settings permission")
         }
@@ -97,8 +101,8 @@ class QuickBallActionHandler(
             MenuAction.MEDIA_PLAY_PAUSE -> mediaPlayPause()
             MenuAction.MEDIA_NEXT -> mediaNext()
             MenuAction.MEDIA_PREVIOUS -> mediaPrevious()
+            MenuAction.VOLUME_BAR -> showVolume()
             MenuAction.VOLUME_PANEL -> openVolumePanel()
-            MenuAction.SHOW_VOLUME -> showVolume()
             MenuAction.TORCH_TOGGLE -> toggleTorch()
             MenuAction.AUTO_ROTATE_TOGGLE -> toggleAutoRotate()
             MenuAction.AIRPLANE_MODE_TOGGLE -> toggleAirplaneMode()
@@ -342,7 +346,7 @@ class QuickBallActionHandler(
                 cameraManager.setTorchMode(cameraId, torchOn)
                 showToast(if (torchOn) "Torch ON" else "Torch OFF")
             } else {
-                showToast("Torch is not supported on this device.")
+                showToast("Torch is not supported on this device.", performHaptic = true)
             }
         } catch (e: Exception) {
             Log.e(TAG, "Torch toggle failed", e)
@@ -386,7 +390,7 @@ class QuickBallActionHandler(
                 })
             }
         } else {
-            showToast("Mobile data toggle not supported on this device")
+            showToast("Mobile data toggle not supported on this device", performHaptic = true)
         }
     }
 
@@ -402,7 +406,7 @@ class QuickBallActionHandler(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             accessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_TAKE_SCREENSHOT)
         } else {
-            showToast("Screenshot is not supported on this device.")
+            showToast("Screenshot is not supported on this device.", performHaptic = true)
         }
     }
 
@@ -417,7 +421,7 @@ class QuickBallActionHandler(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             accessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_LOCK_SCREEN)
         } else {
-            showToast("Lock screen not supported on this device.")
+            showToast("Lock screen not supported on this device.", performHaptic = true)
         }
     }
 

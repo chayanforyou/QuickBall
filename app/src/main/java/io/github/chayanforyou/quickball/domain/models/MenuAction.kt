@@ -21,8 +21,8 @@ enum class MenuAction(
     MEDIA_PLAY_PAUSE(R.drawable.ic_play_pause, R.string.menu_play_pause),
     MEDIA_NEXT(R.drawable.ic_next_track, R.string.menu_next_track),
     MEDIA_PREVIOUS(R.drawable.ic_previous_track, R.string.menu_previous_track),
+    VOLUME_BAR(R.drawable.ic_volume_up, R.string.menu_volume_bar),
     VOLUME_PANEL(R.drawable.ic_volume_panel, R.string.menu_volume_panel),
-    SHOW_VOLUME(R.drawable.ic_volume_up, R.string.menu_show_volume),
 
     // Display
     BRIGHTNESS_UP(R.drawable.ic_brightness_up, R.string.menu_brightness_up),

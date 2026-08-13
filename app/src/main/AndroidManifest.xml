@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.BIND_ACCESSIBILITY_SERVICE"
         tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <!-- Permission for toggle Wi-Fi -->
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />

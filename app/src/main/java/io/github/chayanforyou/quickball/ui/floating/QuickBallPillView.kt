@@ -14,6 +14,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import androidx.core.graphics.toColorInt
+import io.github.chayanforyou.quickball.domain.AppPreference
 import io.github.chayanforyou.quickball.utils.DensityUtils
 import kotlin.math.abs
 import kotlin.math.hypot
@@ -29,16 +30,17 @@ class QuickBallPillView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-    private val strokeWidthPx = DensityUtils.dp2px(3f).toFloat()
+    private val prefs by lazy { AppPreference.getInstance(context) }
+    private val strokeWidthPx get() = DensityUtils.dp2px(prefs.pillThickness).toFloat()
     private val pillEdgePaddingPx = DensityUtils.dp2px(0f).toFloat()
     private val visiblePillWidthPx = DensityUtils.dp2px(10f).toFloat()
-    private val arcIndentAngle = 40f // Indent angle
+    private val arcIndentAngle get() = prefs.pillArcAngle
 
-    // Sweep angle only depends on arcIndentAngle, which never changes, so compute it once.
-    private val sweepAngle = 180f - (2f * arcIndentAngle)
+    // Sweep angle depends on arcIndentAngle
+    private val sweepAngle get() = 180f - (2f * arcIndentAngle)
 
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = "#CC777777".toColorInt()
+        color = prefs.pillColor
         style = Paint.Style.STROKE
         strokeWidth = strokeWidthPx
         strokeCap = Paint.Cap.ROUND
@@ -99,7 +101,24 @@ class QuickBallPillView @JvmOverloads constructor(
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
+        paint.color = prefs.pillColor
+        paint.strokeWidth = strokeWidthPx
         canvas.drawArc(rectF, startAngle, sweepAngle, false, paint)
+    }
+
+    fun setPillColor(color: Int) {
+        paint.color = color
+        postInvalidate()
+    }
+
+    fun setPillThickness(thicknessDp: Float) {
+        updateArcGeometry()
+        postInvalidate()
+    }
+
+    fun setPillArcAngle(angle: Float) {
+        updateArcGeometry()
+        postInvalidate()
     }
 
     private fun updateArcGeometry() {

@@ -1,8 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Quick Ball</string>
-    <string name="made_by">Realizzato con ❤️ da Chayan</string>
-    <string name="version_format">Versione: v%s</string>
     <string name="remove_battery_restriction">Non chiudere la mia app</string>
     <string name="github_repository">Repository GitHub</string>
     <string name="support_me">Se ami il mio lavoro.\nper favore considera di supportarmi</string>
@@ -39,77 +36,39 @@
 
     <!-- Shortcut -->
     <string name="shortcuts_title">Seleziona scorciatoie</string>
-    <string name="shortcut_description">Descrizione scorciatoia.</string>
 
     <!-- Hide Automatically -->
     <string name="hide_automatically_title">Nascondi automaticamente</string>
     <string name="hide_automatically_description">Nascondi Quick ball nelle app selezionate.</string>
+
+    <!-- Advanced Settings -->
+    <string name="advanced_settings_title">Impostazioni avanzate</string>
 
     <!-- Show On Lock Screen -->
     <string name="show_on_lock_screen_title">Mostra sulla schermata di blocco</string>
 
     <!-- Hide On Landscape -->
     <string name="hide_on_landscape_title">Nascondi in orizzontale</string>
-    <string name="hide_on_landscape_description">Nascondi Quick ball quando il dispositivo è in modalità orizzontale</string>
 
     <!-- Stick to Edge -->
     <string name="stick_to_edge_title">Aggancia al bordo dopo inattività</string>
-    <string name="stick_to_edge_description">Sposta automaticamente al bordo dello schermo dopo l\'inattività</string>
 
     <!-- Ball Size -->
     <string name="ball_size_title">Dimensione sfera</string>
-    <string name="ball_size_description">Regola la dimensione della sfera fluttuante</string>
-
-    <!-- Accessibility Permission -->
-    <string name="accessibility_permission_title">Servizio di accessibilità</string>
-    <string name="accessibility_permission_description">Consente a QuickBall di visualizzare l\'overlay fluttuante,\ncontrollare il volume e bloccare il dispositivo</string>
-    <string name="accessibility_permission_status">Stato autorizzazione accessibilità</string>
 
     <!-- System Settings Permission -->
     <string name="system_settings_title">Modifica impostazioni di sistema</string>
-    <string name="system_settings_description">Consente a QuickBall di regolare la luminosità dello schermo</string>
-    <string name="system_settings_permission_status">Stato autorizzazione impostazioni di sistema</string>
-
-    <!-- Device Admin Permission -->
-    <string name="device_admin_title">Amministratore dispositivo</string>
-    <string name="device_admin_description">Richiesto per il blocco schermo su versioni Android precedenti</string>
-    <string name="device_admin_permission_status">Stato autorizzazione amministratore dispositivo</string>
-
-    <!-- Permission Dialog Messages -->
-    <string name="accessibility_dialog_title">Autorizzazione accessibilità richiesta</string>
-    <string name="accessibility_dialog_message">QuickBall richiede un servizio di accessibilità per la sua funzionalità principale, per visualizzare un overlay con sfera fluttuante ed eseguire azioni di sistema come controllo del volume, regolazione della luminosità e blocco dello schermo.\n\nIl servizio di accessibilità è essenziale affinché l\'app funzioni correttamente e fornisca un accesso rapido ai controlli del dispositivo da qualsiasi punto dello schermo.\n\nNon raccoglie né condivide mai alcun dato! È focalizzato sulla privacy e l\'app non invia alcuna richiesta di rete.</string>
-
-    <string name="system_settings_dialog_title">Autorizzazione impostazioni di sistema richiesta</string>
-    <string name="system_settings_dialog_message">QuickBall richiede l\'autorizzazione alle impostazioni di sistema per modificare i livelli di luminosità dello schermo al fine di fornire funzionalità di controllo della luminosità.\n\nQuesta autorizzazione è necessaria affinché i controlli di aumento e diminuzione della luminosità nel menu della sfera fluttuante funzionino correttamente.\n\nNon raccoglie né condivide mai alcun dato! È focalizzato sulla privacy e l\'app non invia alcuna richiesta di rete.</string>
-
-    <string name="dialog_button_quit">Esci</string>
-    <string name="dialog_button_accept">Accetta</string>
 
     <!-- Select Shortcut Fragment -->
     <string name="quick_settings_title">Impostazioni rapide</string>
-    <string name="other_title">Altro</string>
     <string name="apps_title">App</string>
-    <string name="select_shortcut_title">Seleziona scorciatoia</string>
     <string name="select_shortcut_description">Scegli una scorciatoia per sostituire quella attuale</string>
     <string name="reorder_shortcut_description">Trascina una scorciatoia per riordinarne la posizione</string>
-    <string name="menu_icon_description">Icona voce di menu</string>
     <string name="drag_handle_description">Trascina per riordinare</string>
-
-    <!-- Hide Automatically Fragment -->
-    <string name="app_icon">Icona app</string>
-    <string name="select_all">Seleziona tutto</string>
-    <string name="deselect_all">Deseleziona tutto</string>
 
     <!-- Language Settings -->
     <string name="language_title">Lingua</string>
     <string name="language_description">Scegli la lingua dell\'app</string>
-    <string name="language_english">English</string>
-    <string name="language_hindi">हिंदी</string>
-    <string name="language_chinese">中文</string>
-    <string name="language_italian">Italiano</string>
-    <string name="language_portuguese">Português</string>
-    <string name="language_spanish">Español</string>
-    <string name="language_german">Deutsch</string>
     
     <!-- Quick Ball Menu Items -->
     <!-- Navigation -->
@@ -131,8 +90,8 @@
     <string name="menu_play_pause">Riproduci/Pausa</string>
     <string name="menu_next_track">Traccia successiva</string>
     <string name="menu_previous_track">Traccia precedente</string>
+    <string name="menu_volume_bar">Barra del volume</string>
     <string name="menu_volume_panel">Apri pannello volume</string>
-    <string name="menu_show_volume">Mostra volume</string>
     
     <!-- Connectivity -->
     <string name="menu_wifi">Wi-Fi</string>
@@ -147,4 +106,44 @@
     <string name="menu_quick_settings">Centro di controllo</string>
     <string name="menu_power_dialog">Menu di spegnimento</string>
 
+    <!-- Color Picker -->
+    <string name="choose_color">Scegli colore</string>
+    <string name="hex_color_hint">Colore esadecimale (#AARRGGBB)</string>
+    <string name="select">Seleziona</string>
+    <string name="cancel">Annulla</string>
+
+    <!-- Appearance & Customization -->
+    <string name="reset_to_default">Ripristina predefiniti</string>
+    <string name="ball_header_title">Sfera</string>
+    <string name="ball_color_title">Colore sfera</string>
+    <string name="ball_icon_color_title">Colore icona</string>
+    <string name="menu_header_title">Menu</string>
+    <string name="menu_color_title">Colore menu</string>
+    <string name="menu_icon_color_title">Colore icona</string>
+    <string name="menu_size_title">Dimensione menu</string>
+    <string name="pill_header_title">Pillola</string>
+    <string name="pill_color_title">Colore pillola</string>
+    <string name="pill_height_title">Altezza pillola</string>
+    <string name="pill_thickness_title">Spessore pillola</string>
+    <string name="pill_touch_width_title">Larghezza area tattile</string>
+    <string name="pill_arc_angle_title">Angolo arco pillola</string>
+
+    <!-- Gestures -->
+    <string name="gesture_header_title">Gesti</string>
+    <string name="enable_gestures_title">Abilita gesti</string>
+    <string name="enable_gestures_description">L\'abilitazione dei gesti potrebbe ritardare leggermente l\'apertura del menu.</string>
+    <string name="double_tap_title">Doppio tocco</string>
+    <string name="triple_tap_title">Triplo tocco</string>
+    <string name="long_press_title">Pressione prolungata</string>
+    <string name="swipe_up_title">Scorri verso l\'alto</string>
+    <string name="swipe_down_title">Scorri verso il basso</string>
+    <string name="select_gesture_action_title">Seleziona azione</string>
+
+    <!-- Haptics -->
+    <string name="haptics_header_title">Feedback aptico</string>
+    <string name="vibration_feedback_title">Feedback vibrazione</string>
+    <string name="vibration_feedback_description">Vibrazione su tocchi, scorrimenti ed azioni</string>
+    <string name="haptic_light">Leggero</string>
+    <string name="haptic_medium">Medio</string>
+    <string name="haptic_strong">Forte</string>
 </resources>

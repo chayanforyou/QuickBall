@@ -15,6 +15,7 @@ import android.view.animation.OvershootInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.core.graphics.toColorInt
+import io.github.chayanforyou.quickball.domain.AppPreference
 import io.github.chayanforyou.quickball.domain.models.MenuAction
 import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItem
 import io.github.chayanforyou.quickball.utils.DensityUtils
@@ -56,6 +57,7 @@ class QuickBallFloatingMenu(
         private val DECELERATE_INTERPOLATOR = DecelerateInterpolator(1.0f)
     }
 
+    private val prefs by lazy { AppPreference.getInstance(context) }
     private val halfFab = fabSize / 2
     private val isOnRight by lazy {
         val centerX = fabX + halfFab
@@ -63,8 +65,9 @@ class QuickBallFloatingMenu(
         centerX > screenWidth / 2
     }
     private val radiusPx = DensityUtils.dp2px(RADIUS_DP)
-    private val itemHalfSize = DensityUtils.dp2px(ITEM_BUTTON_SIZE_DP) / 2
-    private val buttonSizePx = DensityUtils.dp2px(ITEM_BUTTON_SIZE_DP)
+    private val buttonSizeDp get() = prefs.menuSize
+    private val itemHalfSize get() = DensityUtils.dp2px(buttonSizeDp) / 2
+    private val buttonSizePx get() = DensityUtils.dp2px(buttonSizeDp)
     private val iconSizePx = DensityUtils.dp2px(ICON_SIZE_DP)
 
     private val rippleColorStateList = ColorStateList.valueOf(RIPPLE_COLOR.toColorInt())
@@ -108,7 +111,7 @@ class QuickBallFloatingMenu(
                 // Circle dark background
                 val shape = GradientDrawable().apply {
                     this.shape = GradientDrawable.OVAL
-                    setColor(ITEM_BG_COLOR.toColorInt())
+                    setColor(prefs.menuColor)
                 }
                 background = shape
 
@@ -127,7 +130,7 @@ class QuickBallFloatingMenu(
                         setImageDrawable(context.getAppIcon(item.packageName))
                     } else {
                         setImageResource(item.iconRes)
-                        setColorFilter(ITEM_ICON_COLOR.toColorInt())
+                        setColorFilter(prefs.menuIconColor)
                     }
                 }
                 val iconParams = LayoutParams(iconSizePx, iconSizePx, Gravity.CENTER)

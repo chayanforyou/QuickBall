@@ -2,6 +2,7 @@ package io.github.chayanforyou.quickball.ui.screens.home
 
 import android.content.Context
 import android.content.Intent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +16,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,7 +25,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -50,8 +52,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.chayanforyou.quickball.BuildConfig
 import io.github.chayanforyou.quickball.R
 import io.github.chayanforyou.quickball.core.QuickBallService
-import io.github.chayanforyou.quickball.ui.dialogs.DokiBottomSheet
-import io.github.chayanforyou.quickball.ui.dialogs.LanguageSelectionBottomSheet
+import io.github.chayanforyou.quickball.ui.screens.home.components.DokiBottomSheet
+import io.github.chayanforyou.quickball.ui.screens.home.components.LanguageSelectionBottomSheet
 import io.github.chayanforyou.quickball.ui.screens.home.components.SettingNavigationRow
 import io.github.chayanforyou.quickball.ui.screens.home.components.SettingSwitchRow
 import io.github.chayanforyou.quickball.ui.theme.AppCardDefaults
@@ -64,6 +66,7 @@ import io.github.chayanforyou.quickball.utils.PermissionUtils
 fun HomeScreen(
     onNavigateToShortcuts: () -> Unit,
     onNavigateToAutoHide: () -> Unit,
+    onNavigateToAdvanced: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: QuickBallViewModel = viewModel()
 ) {
@@ -295,33 +298,6 @@ fun HomeScreen(
                         onClick = onNavigateToAutoHide
                     )
 
-                    // Ball Size Slider
-                    Column {
-                        Text(
-                            text = stringResource(R.string.ball_size_title),
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Medium
-                        )
-                        Text(
-                            text = stringResource(R.string.ball_size_description),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Slider(
-                            value = ballSize,
-                            onValueChange = { value ->
-                                viewModel.setBallSize(value)
-                                controlQuickBallService(
-                                    context,
-                                    QuickBallService.ACTION_UPDATE_SIZE
-                                )
-                            },
-                            steps = 19,
-                            valueRange = 40f..60f
-                        )
-                    }
-
                     SettingSwitchRow(
                         title = stringResource(R.string.stick_to_edge_title),
                         checked = stickToEdge,
@@ -348,6 +324,32 @@ fun HomeScreen(
                         onCheckedChange = { checked ->
                             viewModel.setHideOnLandscape(checked)
                         }
+                    )
+                }
+            }
+
+            // Advanced Settings
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = AppCardDefaults.cardColors()
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onNavigateToAdvanced() }
+                        .padding(horizontal = 20.dp, vertical = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.advanced_settings_title),
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
