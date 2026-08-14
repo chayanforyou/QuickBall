@@ -1,8 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">क्विक बॉल</string>
-    <string name="made_by">चयन द्वारा ❤️ के साथ बनाया गया</string>
-    <string name="version_format">संस्करण: v%s</string>
     <string name="remove_battery_restriction">मेरे ऐप को बंद न करें</string>
     <string name="github_repository">गिटहब रिपॉजिटरी</string>
     <string name="support_me">यदि आप मेरे काम से प्यार करते हैं।\nकृपया मेरा समर्थन करने पर विचार करें</string>
@@ -11,82 +8,67 @@
     <string name="accessibility_service_description">क्विकबॉल फ्लोटिंग बॉल सेवा जो सुविधाओं तक त्वरित पहुंच के लिए आपकी स्क्रीन पर एक फ्लोटिंग बॉल ओवरले प्रदान करती है।</string>
 
     <!-- Home Fragment -->
-    <string name="home_title">क्विक बॉल</string>
-    <string name="enable_quick_ball">क्विक बॉल चालू करें</string>
+    <string name="home_title">Quick ball</string>
+    <string name="enable_quick_ball">Quick ball चालू करें</string>
     <string name="settings_label">सेटिंग्स</string>
+
+    <!-- Setup Card -->
+    <string name="turn_on_quick_ball">Quick Ball चालू करें</string>
+    <string name="accessibility_setup_description">फ्लोटिंग बटन दिखाने और नेविगेशन क्रियाएं करने के लिए Quick Ball को एक्सेसिबिलिटी एक्सेस की आवश्यकता है।</string>
+    <string name="open_accessibility_settings">एक्सेसिबिलिटी सेटिंग्स खोलें</string>
+
+    <!-- Onboarding & Permissions -->
+    <string name="onboarding_title">Meet Quick Ball</string>
+    <string name="onboarding_subtitle">एक फ्लोटिंग बटन जो आपकी स्क्रीन पर कहीं भी एक हाथ से नेविगेशन और त्वरित कार्य प्रदान करता है। यह कभी भी स्क्रीन सामग्री नहीं पढ़ता है, और कुछ भी आपके डिवाइस से बाहर नहीं जाता है।</string>
+    <string name="onboarding_bullet_1">होम, बैक, हाल के ऐप्स और बहुत कुछ आपके द्वारा डिज़ाइन किए गए मेनू से</string>
+    <string name="onboarding_bullet_2">स्वाइप जेस्चर, मीडिया कंट्रोल और एक-टैप शॉर्टकट</string>
+    <string name="onboarding_get_started">शुरू करें</string>
+    <string name="onboarding_permissions_title">अनुमतियाँ</string>
+    <string name="onboarding_permissions_subtitle">Quick Ball को चलाने के लिए बस इन दो अनुमतियों की आवश्यकता है। बाकी सब केवल तब मांगा जाता है जब आप कोई सुविधा चालू करते हैं।</string>
+    <string name="onboarding_accessibility_title">एक्सेसिबिलिटी</string>
+    <string name="onboarding_accessibility_description">फ्लोटिंग बटन को संचालित करता है और Quick Ball को होम, बैक और हाल के ऐप्स जैसी नेविगेशन क्रियाएं करने देता है।</string>
+    <string name="onboarding_system_settings_description">Quick Ball को सीधे फ्लोटिंग मेनू से स्क्रीन ब्राइटनेस और वॉल्यूम जैसी सिस्टम सेटिंग्स को समायोजित करने देता है।</string>
+    <string name="onboarding_permissions_warning">Quick Ball को ठीक से काम करने के लिए एक्सेसिबिलिटी और सिस्टम सेटिंग्स अनुमति की आवश्यकता है।</string>
+    <string name="onboarding_back">पीछे</string>
+    <string name="onboarding_start_using">Quick Ball का उपयोग शुरू करें</string>
+    <string name="permission_granted">अनुमति प्राप्त</string>
+    <string name="permission_grant">अनुमति दें</string>
 
     <!-- Shortcut -->
     <string name="shortcuts_title">शॉर्टकट चुनें</string>
-    <string name="shortcut_description">शॉर्टकट विवरण।</string>
 
     <!-- Hide Automatically -->
     <string name="hide_automatically_title">स्वचालित रूप से छुपाएं</string>
     <string name="hide_automatically_description">चयनित ऐप्स में क्विक बॉल छुपाएं।</string>
+
+    <!-- Advanced Settings -->
+    <string name="advanced_settings_title">उन्नत सेटिंग्स</string>
 
     <!-- Show On Lock Screen -->
     <string name="show_on_lock_screen_title">लॉक स्क्रीन पर दिखाएं</string>
 
     <!-- Hide On Landscape -->
     <string name="hide_on_landscape_title">लैंडस्केप में छुपाएं</string>
-    <string name="hide_on_landscape_description">डिवाइस लैंडस्केप मोड में होने पर क्विक बॉल छुपाएं</string>
 
     <!-- Stick to Edge -->
     <string name="stick_to_edge_title">निष्क्रियता के बाद किनारे से चिपकाएं</string>
-    <string name="stick_to_edge_description">निष्क्रियता के बाद स्वचालित रूप से स्क्रीन के किनारे पर जाएं</string>
 
     <!-- Ball Size -->
     <string name="ball_size_title">बॉल का आकार</string>
-    <string name="ball_size_description">फ्लोटिंग बॉल का आकार समायोजित करें</string>
-
-    <!-- Accessibility Permission -->
-    <string name="accessibility_permission_title">पहुंच सेवा</string>
-    <string name="accessibility_permission_description">क्विकबॉल को फ्लोटिंग ओवरले प्रदर्शित करने,\nवॉल्यूम नियंत्रित करने और आपके डिवाइस को लॉक करने की अनुमति देता है</string>
-    <string name="accessibility_permission_status">पहुंच अनुमति स्थिति</string>
 
     <!-- System Settings Permission -->
     <string name="system_settings_title">सिस्टम सेटिंग्स संशोधित करें</string>
-    <string name="system_settings_description">क्विकबॉल को स्क्रीन चमक समायोजित करने की अनुमति देता है</string>
-    <string name="system_settings_permission_status">सिस्टम सेटिंग्स अनुमति स्थिति</string>
-
-    <!-- Device Admin Permission -->
-    <string name="device_admin_title">डिवाइस प्रशासक</string>
-    <string name="device_admin_description">पुराने एंड्रॉइड संस्करणों पर स्क्रीन लॉक के लिए आवश्यक</string>
-    <string name="device_admin_permission_status">डिवाइस प्रशासक अनुमति स्थिति</string>
-
-    <!-- Permission Dialog Messages -->
-    <string name="accessibility_dialog_title">पहुंच अनुमति आवश्यक</string>
-    <string name="accessibility_dialog_message">क्विकबॉल को अपनी मुख्य कार्यक्षमता के लिए एक पहुंच सेवा की आवश्यकता है, फ्लोटिंग बॉल ओवरले प्रदर्शित करने और वॉल्यूम नियंत्रण, चमक समायोजन और स्क्रीन लॉक जैसी सिस्टम क्रियाएं करने के लिए।\n\nपहुंच सेवा ऐप के ठीक से काम करने और आपकी स्क्रीन पर कहीं से भी डिवाइस नियंत्रणों तक त्वरित पहुंच प्रदान करने के लिए आवश्यक है।\n\nयह कभी भी कोई डेटा एकत्र या साझा नहीं करता! यह गोपनीयता पर केंद्रित है और ऐप कोई नेटवर्क अनुरोध नहीं भेजता।</string>
-
-    <string name="system_settings_dialog_title">सिस्टम सेटिंग्स अनुमति आवश्यक</string>
-    <string name="system_settings_dialog_message">क्विकबॉल को चमक नियंत्रण सुविधाएं प्रदान करने के लिए स्क्रीन चमक स्तर को संशोधित करने के लिए सिस्टम सेटिंग्स अनुमति की आवश्यकता है।\n\nफ्लोटिंग बॉल मेनू में चमक बढ़ाने और घटाने के नियंत्रण के ठीक से काम करने के लिए यह अनुमति आवश्यक है।\n\nयह कभी भी कोई डेटा एकत्र या साझा नहीं करता! यह गोपनीयता पर केंद्रित है और ऐप कोई नेटवर्क अनुरोध नहीं भेजता।</string>
-
-    <string name="dialog_button_quit">छोड़ें</string>
-    <string name="dialog_button_accept">स्वीकार करें</string>
 
     <!-- Select Shortcut Fragment -->
     <string name="quick_settings_title">त्वरित सेटिंग्स</string>
-    <string name="other_title">अन्य</string>
     <string name="apps_title">ऐप्स</string>
-    <string name="select_shortcut_title">शॉर्टकट चुनें</string>
     <string name="select_shortcut_description">वर्तमान को बदलने के लिए एक शॉर्टकट चुनें</string>
-    <string name="menu_icon_description">मेनू आइटम आइकन</string>
+    <string name="reorder_shortcut_description">उसकी स्थिति बदलने के लिए शॉर्टकट को ड्रैग करें</string>
     <string name="drag_handle_description">पुनः क्रमित करने के लिए खींचें</string>
-
-    <!-- Hide Automatically Fragment -->
-    <string name="app_icon">ऐप आइकन</string>
-    <string name="select_all">सभी चुनें</string>
-    <string name="deselect_all">सभी अचयनित करें</string>
 
     <!-- Language Settings -->
     <string name="language_title">भाषा</string>
     <string name="language_description">ऐप की भाषा चुनें</string>
-    <string name="language_english">English</string>
-    <string name="language_hindi">हिंदी</string>
-    <string name="language_chinese">中文</string>
-    <string name="language_italian">Italiano</string>
-    <string name="language_portuguese">Português</string>
-    <string name="language_spanish">Español</string>
-    <string name="language_german">Deutsch</string>
     
     <!-- Quick Ball Menu Items -->
     <!-- Navigation -->
@@ -100,11 +82,16 @@
     <string name="menu_torch">टॉर्च</string>
     <string name="menu_auto_rotate">ऑटो रोटेट</string>
     
-    <!-- Volume & Sound -->
+    <!-- Media & Sound -->
     <string name="menu_volume_up">आवाज़ बढ़ाएं</string>
     <string name="menu_volume_down">आवाज़ घटाएं</string>
     <string name="menu_silent">मौन</string>
     <string name="menu_vibration">कंपन</string>
+    <string name="menu_play_pause">प्ले/पॉज़</string>
+    <string name="menu_next_track">अगला ट्रैक</string>
+    <string name="menu_previous_track">पिछला ट्रैक</string>
+    <string name="menu_volume_bar">वॉल्यूम बार</string>
+    <string name="menu_volume_panel">वॉल्यूम पैनल खोलें</string>
     
     <!-- Connectivity -->
     <string name="menu_wifi">वाई-फाई</string>
@@ -115,5 +102,48 @@
     <!-- Utilities -->
     <string name="menu_screenshot">स्क्रीनशॉट</string>
     <string name="menu_lock_screen">स्क्रीन लॉक करें</string>
+    <string name="menu_notification">सूचनाएं</string>
+    <string name="menu_quick_settings">कंट्रोल सेंटर</string>
+    <string name="menu_power_dialog">पावर मेनू</string>
 
+    <!-- Color Picker -->
+    <string name="choose_color">रंग चुनें</string>
+    <string name="hex_color_hint">हेक्स रंग (#AARRGGBB)</string>
+    <string name="select">चुनें</string>
+    <string name="cancel">रद्द करें</string>
+
+    <!-- Appearance & Customization -->
+    <string name="reset_to_default">डिफ़ॉल्ट पर रीसेट करें</string>
+    <string name="ball_header_title">बॉल</string>
+    <string name="ball_color_title">बॉल का रंग</string>
+    <string name="ball_icon_color_title">आइकॉन का रंग</string>
+    <string name="menu_header_title">मेनू</string>
+    <string name="menu_color_title">मेनू का रंग</string>
+    <string name="menu_icon_color_title">आइकॉन का रंग</string>
+    <string name="menu_size_title">मेनू का आकार</string>
+    <string name="pill_header_title">पिल</string>
+    <string name="pill_color_title">पिल का रंग</string>
+    <string name="pill_height_title">पिल की ऊंचाई</string>
+    <string name="pill_thickness_title">पिल की मोटाई</string>
+    <string name="pill_touch_width_title">स्पर्श क्षेत्र की चौड़ाई</string>
+    <string name="pill_arc_angle_title">पिल आर्क कोण</string>
+
+    <!-- Gestures -->
+    <string name="gesture_header_title">जेस्चर</string>
+    <string name="enable_gestures_title">जेस्चर सक्षम करें</string>
+    <string name="enable_gestures_description">जेस्चर सक्षम करने से मेनू खुलने में थोड़ी देरी हो सकती है।</string>
+    <string name="double_tap_title">डबल टैप</string>
+    <string name="triple_tap_title">ट्रिपल टैप</string>
+    <string name="long_press_title">देर तक दबाएं</string>
+    <string name="swipe_up_title">ऊपर स्वाइप करें</string>
+    <string name="swipe_down_title">नीचे स्वाइप करें</string>
+    <string name="select_gesture_action_title">कार्रवाई चुनें</string>
+
+    <!-- Haptics -->
+    <string name="haptics_header_title">हैप्टिक्स</string>
+    <string name="vibration_feedback_title">वाइब्रेशन फीडबैक</string>
+    <string name="vibration_feedback_description">टैप, स्वाइप और कार्रवाइयों पर वाइब्रेशन</string>
+    <string name="haptic_light">हल्का</string>
+    <string name="haptic_medium">मध्यम</string>
+    <string name="haptic_strong">तेज़</string>
 </resources>

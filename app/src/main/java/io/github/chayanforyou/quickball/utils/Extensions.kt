@@ -11,8 +11,8 @@ import android.view.WindowManager
 import android.view.WindowMetrics
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
-import io.github.chayanforyou.quickball.domain.PreferenceManager
-import io.github.chayanforyou.quickball.domain.models.InstalledAppModel
+import io.github.chayanforyou.quickball.domain.AppPreference
+import io.github.chayanforyou.quickball.domain.models.InstalledApp
 
 /**
  * Get the application icon for a given package name.
@@ -37,9 +37,9 @@ fun Context.getAppIcon(packageName: String): Drawable? {
  *                            then sorted alphabetically. If false, all apps sorted alphabetically.
  * @return List of installed apps with their name, package, icon, and selection state
  */
-fun Context.loadInstalledApps(sortBySelectedFirst: Boolean = false): List<InstalledAppModel> {
+fun Context.loadInstalledApps(sortBySelectedFirst: Boolean = false): List<InstalledApp> {
     val installedApps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
-    val autoHideApps = PreferenceManager.getAutoHideApps(this)
+    val autoHideApps = AppPreference.getInstance(this).autoHideApps
 
     val apps = installedApps
         .filter { appInfo ->
@@ -54,7 +54,7 @@ fun Context.loadInstalledApps(sortBySelectedFirst: Boolean = false): List<Instal
                 )
             ) return@mapNotNull null
             val icon = packageManager.getApplicationIcon(appInfo)
-            InstalledAppModel(
+            InstalledApp(
                 appName = appName,
                 packageName = appInfo.packageName,
                 icon = icon,
@@ -63,7 +63,7 @@ fun Context.loadInstalledApps(sortBySelectedFirst: Boolean = false): List<Instal
         }
 
     return if (sortBySelectedFirst) {
-        apps.sortedWith(compareByDescending<InstalledAppModel> { it.isSelected }
+        apps.sortedWith(compareByDescending<InstalledApp> { it.isSelected }
             .thenBy { it.appName.lowercase() })
     } else {
         apps.sortedBy { it.appName.lowercase() }

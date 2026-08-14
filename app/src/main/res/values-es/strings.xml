@@ -1,8 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Quick Ball</string>
-    <string name="made_by">Hecho con ❤️ por Chayan</string>
-    <string name="version_format">Versión: v%s</string>
     <string name="remove_battery_restriction">No cierres mi aplicación</string>
     <string name="github_repository">Repositorio de GitHub</string>
     <string name="support_me">Si te gusta mi trabajo.\npor favor considera apoyarme</string>
@@ -13,80 +10,65 @@
     <!-- Home Fragment -->
     <string name="home_title">Quick ball</string>
     <string name="enable_quick_ball">Activar Quick ball</string>
-    <string name="settings_label">Configuración</string>
+    <string name="settings_label">Ajustes</string>
+
+    <!-- Setup Card -->
+    <string name="turn_on_quick_ball">Activar Quick Ball</string>
+    <string name="accessibility_setup_description">Quick Ball necesita acceso de accesibilidad para mostrar el botón flotante y realizar acciones de navegación.</string>
+    <string name="open_accessibility_settings">Abrir ajustes de accesibilidad</string>
+
+    <!-- Onboarding & Permissions -->
+    <string name="onboarding_title">Conoce Quick Ball</string>
+    <string name="onboarding_subtitle">Un botón flotante que pone navegación con una sola mano y acciones rápidas en cualquier lugar de tu pantalla. Nunca lee el contenido de la pantalla y nada sale de tu dispositivo.</string>
+    <string name="onboarding_bullet_1">Inicio, Atrás, Recientes y más desde un menú en abanico diseñado por ti</string>
+    <string name="onboarding_bullet_2">Gestos de deslizamiento, controles de medios y atajos con un toque</string>
+    <string name="onboarding_get_started">Empezar</string>
+    <string name="onboarding_permissions_title">Permisos</string>
+    <string name="onboarding_permissions_subtitle">Quick Ball solo necesita estos dos para funcionar. Todo lo demás se solicita solo cuando activas una función que lo requiere.</string>
+    <string name="onboarding_accessibility_title">Accesibilidad</string>
+    <string name="onboarding_accessibility_description">Impulsa el botón flotante y permite a Quick Ball realizar acciones de navegación como Inicio, Atrás y Recientes. Nunca lee el contenido de la pantalla.</string>
+    <string name="onboarding_system_settings_description">Permite a Quick Ball ajustar la configuración del sistema como el brillo de la pantalla y el volumen directamente desde el menú flotante.</string>
+    <string name="onboarding_permissions_warning">Quick Ball necesita permisos de Accesibilidad y Configuración del Sistema para funcionar correctamente.</string>
+    <string name="onboarding_back">Atrás</string>
+    <string name="onboarding_start_using">Empezar a usar Quick Ball</string>
+    <string name="permission_granted">Concedido</string>
+    <string name="permission_grant">Conceder</string>
 
     <!-- Shortcut -->
     <string name="shortcuts_title">Seleccionar atajos</string>
-    <string name="shortcut_description">Descripción del atajo.</string>
 
     <!-- Hide Automatically -->
     <string name="hide_automatically_title">Ocultar automáticamente</string>
     <string name="hide_automatically_description">Ocultar Quick ball en las aplicaciones seleccionadas.</string>
+
+    <!-- Advanced Settings -->
+    <string name="advanced_settings_title">Ajustes avanzados</string>
 
     <!-- Show On Lock Screen -->
     <string name="show_on_lock_screen_title">Mostrar en pantalla de bloqueo</string>
 
     <!-- Hide On Landscape -->
     <string name="hide_on_landscape_title">Ocultar en horizontal</string>
-    <string name="hide_on_landscape_description">Ocultar Quick ball cuando el dispositivo esté en modo horizontal</string>
 
     <!-- Stick to Edge -->
     <string name="stick_to_edge_title">Fijar al borde tras inactividad</string>
-    <string name="stick_to_edge_description">Mover automáticamente al borde de la pantalla tras inactividad</string>
 
     <!-- Ball Size -->
     <string name="ball_size_title">Tamaño de la bola</string>
-    <string name="ball_size_description">Ajustar el tamaño de la bola flotante</string>
-
-    <!-- Accessibility Permission -->
-    <string name="accessibility_permission_title">Servicio de accesibilidad</string>
-    <string name="accessibility_permission_description">Permite a QuickBall mostrar superposición flotante,\ncontrolar el volumen y bloquear tu dispositivo</string>
-    <string name="accessibility_permission_status">Estado del permiso de accesibilidad</string>
 
     <!-- System Settings Permission -->
     <string name="system_settings_title">Modificar configuración del sistema</string>
-    <string name="system_settings_description">Permite a QuickBall ajustar el brillo de la pantalla</string>
-    <string name="system_settings_permission_status">Estado del permiso de configuración del sistema</string>
-
-    <!-- Device Admin Permission -->
-    <string name="device_admin_title">Administrador del dispositivo</string>
-    <string name="device_admin_description">Requerido para bloqueo de pantalla en versiones antiguas de Android</string>
-    <string name="device_admin_permission_status">Estado del permiso de administrador del dispositivo</string>
-
-    <!-- Permission Dialog Messages -->
-    <string name="accessibility_dialog_title">Permiso de accesibilidad requerido</string>
-    <string name="accessibility_dialog_message">QuickBall requiere un servicio de accesibilidad para su funcionalidad principal, para mostrar una superposición de bola flotante y realizar acciones del sistema como control de volumen, ajuste de brillo y bloqueo de pantalla.\n\nEl servicio de accesibilidad es esencial para que la aplicación funcione correctamente y proporcione acceso rápido a los controles del dispositivo desde cualquier lugar de tu pantalla.\n\n¡Nunca recopila ni comparte ningún dato! Está enfocado en la privacidad y la aplicación no envía ninguna solicitud de red.</string>
-
-    <string name="system_settings_dialog_title">Permiso de configuración del sistema requerido</string>
-    <string name="system_settings_dialog_message">QuickBall requiere permiso de configuración del sistema para modificar los niveles de brillo de la pantalla con el fin de proporcionar funciones de control de brillo.\n\nEste permiso es necesario para que los controles de aumento y disminución de brillo en el menú de la bola flotante funcionen correctamente.\n\n¡Nunca recopila ni comparte ningún dato! Está enfocado en la privacidad y la aplicación no envía ninguna solicitud de red.</string>
-
-    <string name="dialog_button_quit">Salir</string>
-    <string name="dialog_button_accept">Aceptar</string>
 
     <!-- Select Shortcut Fragment -->
     <string name="quick_settings_title">Configuración rápida</string>
-    <string name="other_title">Otro</string>
     <string name="apps_title">Aplicaciones</string>
-    <string name="select_shortcut_title">Seleccionar atajo</string>
     <string name="select_shortcut_description">Elige un atajo para reemplazar el actual</string>
-    <string name="menu_icon_description">Icono del elemento de menú</string>
+    <string name="reorder_shortcut_description">Arrastra un acceso directo para reordenar su posición</string>
     <string name="drag_handle_description">Arrastra para reordenar</string>
-
-    <!-- Hide Automatically Fragment -->
-    <string name="app_icon">Icono de aplicación</string>
-    <string name="select_all">Seleccionar todo</string>
-    <string name="deselect_all">Deseleccionar todo</string>
 
     <!-- Language Settings -->
     <string name="language_title">Idioma</string>
     <string name="language_description">Elegir idioma de la aplicación</string>
-    <string name="language_english">English</string>
-    <string name="language_hindi">हिंदी</string>
-    <string name="language_chinese">中文</string>
-    <string name="language_italian">Italiano</string>
-    <string name="language_portuguese">Português</string>
-    <string name="language_spanish">Español</string>
-    <string name="language_german">Deutsch</string>
     
     <!-- Quick Ball Menu Items -->
     <!-- Navigation -->
@@ -100,11 +82,16 @@
     <string name="menu_torch">Linterna</string>
     <string name="menu_auto_rotate">Rotación automática</string>
     
-    <!-- Volume & Sound -->
+    <!-- Media & Sound -->
     <string name="menu_volume_up">Subir volumen</string>
     <string name="menu_volume_down">Bajar volumen</string>
     <string name="menu_silent">Silencio</string>
     <string name="menu_vibration">Vibración</string>
+    <string name="menu_play_pause">Reproducir/Pausar</string>
+    <string name="menu_next_track">Pista siguiente</string>
+    <string name="menu_previous_track">Pista anterior</string>
+    <string name="menu_volume_bar">Barra de volumen</string>
+    <string name="menu_volume_panel">Abrir panel de volumen</string>
     
     <!-- Connectivity -->
     <string name="menu_wifi">Wi-Fi</string>
@@ -115,5 +102,48 @@
     <!-- Utilities -->
     <string name="menu_screenshot">Captura de pantalla</string>
     <string name="menu_lock_screen">Bloquear pantalla</string>
+    <string name="menu_notification">Notificación</string>
+    <string name="menu_quick_settings">Centro de control</string>
+    <string name="menu_power_dialog">Menú de apagado</string>
 
+    <!-- Color Picker -->
+    <string name="choose_color">Elegir color</string>
+    <string name="hex_color_hint">Color Hex (#AARRGGBB)</string>
+    <string name="select">Seleccionar</string>
+    <string name="cancel">Cancelar</string>
+
+    <!-- Appearance & Customization -->
+    <string name="reset_to_default">Restablecer por defecto</string>
+    <string name="ball_header_title">Bola</string>
+    <string name="ball_color_title">Color de la bola</string>
+    <string name="ball_icon_color_title">Color del icono</string>
+    <string name="menu_header_title">Menú</string>
+    <string name="menu_color_title">Color del menú</string>
+    <string name="menu_icon_color_title">Color del icono</string>
+    <string name="menu_size_title">Tamaño del menú</string>
+    <string name="pill_header_title">Píldora</string>
+    <string name="pill_color_title">Color de la píldora</string>
+    <string name="pill_height_title">Altura de la píldora</string>
+    <string name="pill_thickness_title">Grosor de la píldora</string>
+    <string name="pill_touch_width_title">Ancho del área táctil</string>
+    <string name="pill_arc_angle_title">Ángulo del arco de la píldora</string>
+
+    <!-- Gestures -->
+    <string name="gesture_header_title">Gestos</string>
+    <string name="enable_gestures_title">Activar gestos</string>
+    <string name="enable_gestures_description">Activar los gestos puede retrasar ligeramente la apertura del menú.</string>
+    <string name="double_tap_title">Doble toque</string>
+    <string name="triple_tap_title">Triple toque</string>
+    <string name="long_press_title">Pulsación larga</string>
+    <string name="swipe_up_title">Deslizar hacia arriba</string>
+    <string name="swipe_down_title">Deslizar hacia abajo</string>
+    <string name="select_gesture_action_title">Seleccionar acción</string>
+
+    <!-- Haptics -->
+    <string name="haptics_header_title">Respuesta háptica</string>
+    <string name="vibration_feedback_title">Vibración táctil</string>
+    <string name="vibration_feedback_description">Respuesta háptica en toques, deslizamientos y acciones</string>
+    <string name="haptic_light">Suave</string>
+    <string name="haptic_medium">Media</string>
+    <string name="haptic_strong">Fuerte</string>
 </resources>

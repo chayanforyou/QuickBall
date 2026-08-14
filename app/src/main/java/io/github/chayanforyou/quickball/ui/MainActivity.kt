@@ -1,108 +1,138 @@
 package io.github.chayanforyou.quickball.ui
 
-import android.content.Intent
+import android.content.Context
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.net.toUri
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.updatePadding
-import androidx.fragment.app.FragmentContainerView
-import androidx.navigation.findNavController
-import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
-import io.github.chayanforyou.quickball.R
-import io.github.chayanforyou.quickball.databinding.ActivityMainBinding
-import io.github.chayanforyou.quickball.ui.fragments.LanguageSelectionSheet
-import io.github.chayanforyou.quickball.doki.DokiContentView
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import io.github.chayanforyou.quickball.ui.navigation.Screen
+import io.github.chayanforyou.quickball.ui.screens.settings.AdvancedSettingsScreen
+import io.github.chayanforyou.quickball.ui.screens.autohide.AutoHideSettingsScreen
+import io.github.chayanforyou.quickball.ui.screens.home.HomeScreen
+import io.github.chayanforyou.quickball.ui.screens.onboarding.OnboardingScreen
+import io.github.chayanforyou.quickball.ui.screens.shortcut.SelectAppsScreen
+import io.github.chayanforyou.quickball.ui.screens.shortcut.SelectShortcutScreen
+import io.github.chayanforyou.quickball.ui.screens.shortcut.ShortcutMenuScreen
+import io.github.chayanforyou.quickball.ui.theme.AppTheme
+import io.github.chayanforyou.quickball.ui.viewmodels.QuickBallViewModel
+import io.github.chayanforyou.quickball.utils.LanguageUtils
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : ComponentActivity() {
 
-    private lateinit var binding: ActivityMainBinding
-    private lateinit var appBarConfiguration: AppBarConfiguration
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(LanguageUtils.getLocalizedContext(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
-        setSupportActionBar(binding.toolbar)
+        setContent {
+            AppTheme {
+                val navController = rememberNavController()
+                val viewModel: QuickBallViewModel = viewModel()
+                val isOnboardingCompleted by viewModel.isOnboardingCompleted.collectAsState()
+                val targetIndex by viewModel.targetIndex.collectAsState()
 
-        // Push toolbar below status bar
-        ViewCompat.setOnApplyWindowInsetsListener(binding.appBarLayout) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.updatePadding(top = systemBars.top)
-            insets
-        }
-
-        // Push content up when keyboard opens, handle nav bar bottom
-        val navHost = findViewById<FragmentContainerView>(R.id.nav_host_fragment)
-        ViewCompat.setOnApplyWindowInsetsListener(navHost) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
-            v.updatePadding(
-                left = systemBars.left,
-                right = systemBars.right,
-                bottom = maxOf(systemBars.bottom, ime.bottom)
-            )
-            insets
-        }
-
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        val navController = navHostFragment.navController
-        appBarConfiguration = AppBarConfiguration(navController.graph)
-        setupActionBarWithNavController(navController, appBarConfiguration)
-
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            when (destination.id) {
-                R.id.QuickBallHomeFragment -> {
-                    binding.toolbar.inflateMenu(R.menu.toolbar)
+                val startDestination = remember {
+                    if (isOnboardingCompleted) Screen.Home.name else Screen.Onboarding.name
                 }
 
-                else -> {
-                    binding.toolbar.menu.clear()
+                NavHost(
+                    navController = navController,
+                    startDestination = startDestination,
+                    modifier = Modifier.fillMaxSize(),
+                    enterTransition = { EnterTransition.None },
+                    exitTransition = { ExitTransition.None },
+                    popEnterTransition = { EnterTransition.None },
+                    popExitTransition = { ExitTransition.None }
+                ) {
+                    composable(Screen.Onboarding.name) {
+                        OnboardingScreen(
+                            onOnboardingComplete = {
+                                viewModel.setOnboardingCompleted(true)
+                                navController.navigate(Screen.Home.name) {
+                                    popUpTo(Screen.Onboarding.name) { inclusive = true }
+                                }
+                            },
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+
+                    composable(Screen.Home.name) {
+                        HomeScreen(
+                            onNavigateToShortcuts = { navController.navigate(Screen.ShortcutMenu.name) },
+                            onNavigateToAutoHide = { navController.navigate(Screen.AutoHideSettings.name) },
+                            onNavigateToAdvanced = { navController.navigate(Screen.AdvancedSettings.name) },
+                            modifier = Modifier.fillMaxSize(),
+                            viewModel = viewModel
+                        )
+                    }
+
+                    composable(Screen.ShortcutMenu.name) {
+                        ShortcutMenuScreen(
+                            onNavigateToSelection = { index ->
+                                viewModel.setTargetIndex(index)
+                                navController.navigate(Screen.SelectShortcut.name)
+                            },
+                            onNavigateBack = { navController.navigateUp() },
+                            modifier = Modifier.fillMaxSize(),
+                            viewModel = viewModel
+                        )
+                    }
+
+                    composable(Screen.SelectShortcut.name) {
+                        SelectShortcutScreen(
+                            targetIndex = targetIndex,
+                            onNavigateToApps = {
+                                navController.navigate(Screen.SelectApps.name)
+                            },
+                            onNavigateBack = { navController.navigateUp() },
+                            modifier = Modifier.fillMaxSize(),
+                            viewModel = viewModel
+                        )
+                    }
+
+                    composable(Screen.SelectApps.name) {
+                        SelectAppsScreen(
+                            targetIndex = targetIndex,
+                            onNavigateBack = { navController.navigateUp() },
+                            onAppSelected = {
+                                navController.popBackStack(Screen.ShortcutMenu.name, inclusive = false)
+                            },
+                            modifier = Modifier.fillMaxSize(),
+                            viewModel = viewModel
+                        )
+                    }
+
+                    composable(Screen.AutoHideSettings.name) {
+                        AutoHideSettingsScreen(
+                            onNavigateBack = { navController.navigateUp() },
+                            modifier = Modifier.fillMaxSize(),
+                            viewModel = viewModel
+                        )
+                    }
+
+                    composable(Screen.AdvancedSettings.name) {
+                        AdvancedSettingsScreen(
+                            onNavigateBack = { navController.navigateUp() },
+                            modifier = Modifier.fillMaxSize(),
+                            viewModel = viewModel
+                        )
+                    }
                 }
             }
         }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.toolbar, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.language_settings -> {
-                LanguageSelectionSheet.show(supportFragmentManager)
-                true
-            }
-
-            R.id.remove_battery_restriction -> {
-                DokiContentView.show(supportFragmentManager)
-                true
-            }
-
-            R.id.github_repository -> {
-                val url = "https://github.com/chayanforyou/QuickBall"
-                val intent = Intent(Intent.ACTION_VIEW, url.toUri())
-                startActivity(intent)
-                true
-            }
-
-            else -> super.onOptionsItemSelected(item)
-        }
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        val navController = findNavController(R.id.nav_host_fragment)
-        return navController.navigateUp(appBarConfiguration)
-                || super.onSupportNavigateUp()
     }
 }

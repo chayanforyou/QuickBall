@@ -1,0 +1,4 @@
+- Rewritten with Jetpack Compose for a smoother, modern experience
+- Smoother floating menu animations
+- Added new shortcuts for quicker access
+- Advanced customization settings for more control

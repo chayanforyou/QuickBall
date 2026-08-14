@@ -14,14 +14,17 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
+import android.view.KeyEvent
 import androidx.core.net.toUri
-import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItemModel
+import io.github.chayanforyou.quickball.domain.models.MenuAction
+import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItem
 import io.github.chayanforyou.quickball.utils.ToastUtil
+import io.github.chayanforyou.quickball.utils.performHapticFeedback
 
 class QuickBallActionHandler(
     private val accessibilityService: AccessibilityService,
     private val performStash: (() -> Unit)? = null
-) : QuickBallMenuActionHandler {
+) {
 
     companion object {
         private const val TAG = "QuickBallActionHandler"
@@ -43,7 +46,7 @@ class QuickBallActionHandler(
     }
 
     private inline fun runDelayed(
-        delayMillis: Long = 300L,
+        delayMillis: Long = 200L,
         crossinline action: () -> Unit
     ) {
         handler.postDelayed({
@@ -55,7 +58,10 @@ class QuickBallActionHandler(
         }, delayMillis)
     }
 
-    private fun showToast(message: String) {
+    private fun showToast(message: String, performHaptic: Boolean = false) {
+        if (performHaptic) {
+            runDelayed { context.performHapticFeedback() }
+        }
         ToastUtil.show(accessibilityService, message)
     }
 
@@ -66,20 +72,20 @@ class QuickBallActionHandler(
     private fun requestSystemSettingsPermission() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return
 
-        runCatching {
+        try {
             context.startActivity(
                 Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS).apply {
                     data = "package:${context.packageName}".toUri()
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 }
             )
-            showToast("Allow 'Modify system settings' permission")
-        }.onFailure {
+            showToast("Allow 'Modify system settings' permission", performHaptic = true)
+        } catch (_: Exception) {
             showToast("Could not request system settings permission")
         }
     }
 
-    override fun onMenuAction(menuItem: QuickBallMenuItemModel) {
+    fun onMenuAction(menuItem: QuickBallMenuItem) {
         when (menuItem.action) {
             MenuAction.VOLUME_UP -> performVolumeUpAction()
             MenuAction.VOLUME_DOWN -> performVolumeDownAction()
@@ -92,12 +98,20 @@ class QuickBallActionHandler(
             MenuAction.MOBILE_DATA_TOGGLE -> toggleMobileData()
             MenuAction.SILENT_TOGGLE -> toggleSilentMode()
             MenuAction.VIBRATE_TOGGLE -> toggleVibrateMode()
+            MenuAction.MEDIA_PLAY_PAUSE -> mediaPlayPause()
+            MenuAction.MEDIA_NEXT -> mediaNext()
+            MenuAction.MEDIA_PREVIOUS -> mediaPrevious()
+            MenuAction.VOLUME_BAR -> showVolume()
+            MenuAction.VOLUME_PANEL -> openVolumePanel()
             MenuAction.TORCH_TOGGLE -> toggleTorch()
             MenuAction.AUTO_ROTATE_TOGGLE -> toggleAutoRotate()
             MenuAction.AIRPLANE_MODE_TOGGLE -> toggleAirplaneMode()
             MenuAction.HOME -> performHomeAction()
             MenuAction.BACK -> performBackAction()
             MenuAction.RECENT -> performMenuAction()
+            MenuAction.NOTIFICATION -> performNotificationAction()
+            MenuAction.QUICK_SETTINGS -> performQuickSettingsAction()
+            MenuAction.POWER_DIALOG -> performPowerDialogAction()
             MenuAction.LAUNCH_APP -> launchApp(menuItem.packageName)
         }
     }
@@ -113,6 +127,18 @@ class QuickBallActionHandler(
 
     private fun performMenuAction() {
         accessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_RECENTS)
+    }
+
+    private fun performNotificationAction() {
+        accessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_NOTIFICATIONS)
+    }
+
+    private fun performQuickSettingsAction() {
+        accessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_QUICK_SETTINGS)
+    }
+
+    private fun performPowerDialogAction() {
+        accessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_POWER_DIALOG)
     }
 
     // -------------------- Volume Actions --------------------
@@ -146,6 +172,49 @@ class QuickBallActionHandler(
         val currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
         val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
         return (currentVolume * 100) / maxVolume
+    }
+
+    // -------------------- Media Controls --------------------
+    private fun sendMediaKeyEvent(keyCode: Int) {
+        val downEvent = KeyEvent(KeyEvent.ACTION_DOWN, keyCode)
+        val upEvent = KeyEvent(KeyEvent.ACTION_UP, keyCode)
+        audioManager.dispatchMediaKeyEvent(downEvent)
+        audioManager.dispatchMediaKeyEvent(upEvent)
+    }
+
+    private fun mediaPlayPause() {
+        sendMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)
+    }
+
+    private fun mediaNext() {
+        sendMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_NEXT)
+    }
+
+    private fun mediaPrevious() {
+        sendMediaKeyEvent(KeyEvent.KEYCODE_MEDIA_PREVIOUS)
+    }
+
+    private fun openVolumePanel() {
+        runDelayed {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                context.startActivity(Intent(Settings.Panel.ACTION_VOLUME).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                })
+            } else {
+                context.startActivity(Intent(Settings.ACTION_SOUND_SETTINGS).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                })
+            }
+        }
+    }
+
+    private fun showVolume() {
+        performStash?.invoke()
+        audioManager.adjustStreamVolume(
+            AudioManager.STREAM_MUSIC,
+            AudioManager.ADJUST_SAME,
+            AudioManager.FLAG_SHOW_UI
+        )
     }
 
     // -------------------- Brightness --------------------
@@ -277,7 +346,7 @@ class QuickBallActionHandler(
                 cameraManager.setTorchMode(cameraId, torchOn)
                 showToast(if (torchOn) "Torch ON" else "Torch OFF")
             } else {
-                showToast("Torch is not supported on this device.")
+                showToast("Torch is not supported on this device.", performHaptic = true)
             }
         } catch (e: Exception) {
             Log.e(TAG, "Torch toggle failed", e)
@@ -321,7 +390,7 @@ class QuickBallActionHandler(
                 })
             }
         } else {
-            showToast("Mobile data toggle not supported on this device")
+            showToast("Mobile data toggle not supported on this device", performHaptic = true)
         }
     }
 
@@ -337,7 +406,7 @@ class QuickBallActionHandler(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             accessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_TAKE_SCREENSHOT)
         } else {
-            showToast("Screenshot is not supported on this device.")
+            showToast("Screenshot is not supported on this device.", performHaptic = true)
         }
     }
 
@@ -352,7 +421,7 @@ class QuickBallActionHandler(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             accessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_LOCK_SCREEN)
         } else {
-            showToast("Lock screen not supported on this device.")
+            showToast("Lock screen not supported on this device.", performHaptic = true)
         }
     }
 
