@@ -2,12 +2,19 @@ package io.github.chayanforyou.quickball.domain.models
 
 import android.content.Context
 import androidx.annotation.DrawableRes
+import androidx.annotation.Keep
 import androidx.annotation.StringRes
+import com.google.gson.annotations.SerializedName
 
+@Keep
 data class QuickBallMenuItem(
-    val action: MenuAction,
+    @SerializedName("action")
+    val action: MenuAction = MenuAction.LAUNCH_APP,
+    @SerializedName("isSelected")
     val isSelected: Boolean = false,
+    @SerializedName("packageName")
     val packageName: String? = null,
+    @SerializedName("appTitle")
     val appTitle: String? = null
 ) {
     val iconRes: Int
@@ -50,3 +57,4 @@ data class QuickBallMenuItem(
         } else ""
     }
 }
+

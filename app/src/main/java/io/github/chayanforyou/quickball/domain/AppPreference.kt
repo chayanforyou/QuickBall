@@ -166,19 +166,22 @@ class AppPreference private constructor(context: Context) {
     var selectedMenuItems: List<QuickBallMenuItem>
         get() {
             val json = prefs.getString(KEY_SELECTED_MENU_ITEMS, null)
-            val defaultItems = getDefaultSelectedItems()
-
-            if (json.isNullOrEmpty()) return defaultItems
+            if (json.isNullOrEmpty()) return getDefaultSelectedItems()
 
             return try {
                 val items: List<QuickBallMenuItem>? = gson.fromJson(json, menuItemListType)
-                items?.mapNotNull { item ->
-                    item.packageName?.let { item }
-                        ?: QuickBallMenuItem.getMenuItemByAction(item.action)
-                } ?: defaultItems
+                val validItems = items?.mapNotNull { item ->
+                    if (item.packageName != null) {
+                        item.copy(action = MenuAction.LAUNCH_APP)
+                    } else {
+                        val action = item.action ?: return@mapNotNull null
+                        QuickBallMenuItem.getMenuItemByAction(action)
+                    }
+                }
+                if (validItems != null && validItems.size >= 2) validItems else getDefaultSelectedItems()
             } catch (_: Exception) {
                 prefs.edit { remove(KEY_SELECTED_MENU_ITEMS) }
-                defaultItems
+                getDefaultSelectedItems()
             }
         }
         set(value) {

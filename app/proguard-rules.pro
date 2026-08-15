@@ -18,3 +18,9 @@
 -keep class ru.noties.markwon.** { *; }
 -keep class ru.noties.markwon.image.** { *; }
 
+# Gson & Domain Models
+-keep class com.google.gson.** { *; }
+-keep class io.github.chayanforyou.quickball.domain.models.** { *; }
+-keepclassmembers class io.github.chayanforyou.quickball.domain.models.** { *; }
+-keepclassmembers enum io.github.chayanforyou.quickball.domain.models.** { *; }
+

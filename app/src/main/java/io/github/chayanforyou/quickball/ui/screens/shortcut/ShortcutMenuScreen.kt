@@ -120,7 +120,7 @@ fun ShortcutMenuScreen(
                 ) {
                     itemsIndexed(
                         items = itemsList,
-                        key = { index, item -> "${item.action.name}_${item.packageName ?: ""}_$index" }
+                        key = { index, item -> item.packageName ?: item.action?.name ?: index }
                     ) { index, item ->
                         DraggableItem(
                             dragDropState = dragDropState,
