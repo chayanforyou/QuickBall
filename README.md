@@ -88,20 +88,13 @@ We welcome contributions from the community! Whether you're fixing a bug, adding
 
 ## Star History
 
-<picture>
-  <source
-    srcset="https://api.star-history.com/svg?repos=chayanforyou/QuickBall&type=Date&theme=dark"
-    media="(prefers-color-scheme: dark)"
-  />
-  <source
-    srcset="https://api.star-history.com/svg?repos=chayanforyou/QuickBall&type=Date"
-    media="(prefers-color-scheme: light)"
-  />
-  <img
-    src="https://api.star-history.com/svg?repos=chayanforyou/QuickBall&type=Date"
-    alt="Star History Chart"
-  />
-</picture>
+<a href="https://www.star-history.com/?repos=chayanforyou%2FQuickBall&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=chayanforyou/QuickBall&type=date&theme=dark&legend=top-left&sealed_token=EPLQBdsr4mRcqLLKaSfQDqAbEKR1PFfPL1_daGAYjXFFQKVwNcIVxE7wr0pm6bDm32kwTt3OExpsh5S0CmdqNplt0GUPb97sWdrG5xAi7tSQGi9dwaglQ5Oe5gbSXE5-Va8X2h6V2HjdLQ7U7EXzMyLyDSccW7GEjQYwdcOc8RE-B5btSK_D9dozNuLs" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=chayanforyou/QuickBall&type=date&legend=top-left&sealed_token=EPLQBdsr4mRcqLLKaSfQDqAbEKR1PFfPL1_daGAYjXFFQKVwNcIVxE7wr0pm6bDm32kwTt3OExpsh5S0CmdqNplt0GUPb97sWdrG5xAi7tSQGi9dwaglQ5Oe5gbSXE5-Va8X2h6V2HjdLQ7U7EXzMyLyDSccW7GEjQYwdcOc8RE-B5btSK_D9dozNuLs" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=chayanforyou/QuickBall&type=date&legend=top-left&sealed_token=EPLQBdsr4mRcqLLKaSfQDqAbEKR1PFfPL1_daGAYjXFFQKVwNcIVxE7wr0pm6bDm32kwTt3OExpsh5S0CmdqNplt0GUPb97sWdrG5xAi7tSQGi9dwaglQ5Oe5gbSXE5-Va8X2h6V2HjdLQ7U7EXzMyLyDSccW7GEjQYwdcOc8RE-B5btSK_D9dozNuLs" />
+ </picture>
+</a>
 
 ## License
 
