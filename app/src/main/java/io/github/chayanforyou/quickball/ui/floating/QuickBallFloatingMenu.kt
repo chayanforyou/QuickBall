@@ -44,33 +44,28 @@ class QuickBallFloatingMenu(
 ) : FrameLayout(context) {
 
     companion object {
-        const val ITEM_BUTTON_SIZE_DP = 53f
         const val SWEEP_ANGLE_DEG = 160f
-        const val RADIUS_DP = 96f
-        const val ICON_SIZE_DP = 22f
-
-        private const val RIPPLE_COLOR = "#40FFFFFF"
-        private const val ITEM_ICON_COLOR = "#FFFFFFFF"
-        private const val ITEM_BG_COLOR = "#BF2C2C2C"
-
+        private val RIPPLE_COLOR = ColorStateList.valueOf("#40FFFFFF".toColorInt())
         private val OVERSHOOT_INTERPOLATOR = OvershootInterpolator(0.9f)
         private val DECELERATE_INTERPOLATOR = DecelerateInterpolator(1.0f)
     }
 
     private val prefs by lazy { AppPreference.getInstance(context) }
+    private val buttonSizeDp get() = prefs.menuSize
+    private val iconSizeDp get() = prefs.menuIconSize
+    private val radiusDp get() = prefs.menuRadius
+
     private val halfFab = fabSize / 2
     private val isOnRight by lazy {
         val centerX = fabX + halfFab
         val screenWidth = context.getScreenSize().first
         centerX > screenWidth / 2
     }
-    private val radiusPx = DensityUtils.dp2px(RADIUS_DP)
-    private val buttonSizeDp get() = prefs.menuSize
+
+    private val radiusPx get() = DensityUtils.dp2px(radiusDp)
     private val itemHalfSize get() = DensityUtils.dp2px(buttonSizeDp) / 2
     private val buttonSizePx get() = DensityUtils.dp2px(buttonSizeDp)
-    private val iconSizePx = DensityUtils.dp2px(ICON_SIZE_DP)
-
-    private val rippleColorStateList = ColorStateList.valueOf(RIPPLE_COLOR.toColorInt())
+    private val iconSizePx get() = DensityUtils.dp2px(iconSizeDp)
 
     private val itemViews = ArrayList<FrameLayout>(items.size)
     private var isCollapsing = false
@@ -118,7 +113,7 @@ class QuickBallFloatingMenu(
                 // Circle ripple foreground
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     foreground = RippleDrawable(
-                        rippleColorStateList,
+                        RIPPLE_COLOR,
                         null,
                         shape
                     )

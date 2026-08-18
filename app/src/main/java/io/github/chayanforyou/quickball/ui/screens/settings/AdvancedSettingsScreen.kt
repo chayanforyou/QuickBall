@@ -2,27 +2,17 @@ package io.github.chayanforyou.quickball.ui.screens.settings
 
 import android.content.Context
 import android.content.Intent
-import androidx.annotation.StringRes
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.rounded.RotateLeft
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -30,7 +20,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -41,8 +30,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -54,9 +41,11 @@ import io.github.chayanforyou.quickball.core.QuickBallService
 import io.github.chayanforyou.quickball.domain.models.MenuAction
 import io.github.chayanforyou.quickball.domain.models.PillGesture
 import io.github.chayanforyou.quickball.ui.screens.settings.components.ColorPickerDialog
+import io.github.chayanforyou.quickball.ui.screens.settings.components.ColorSettingRow
 import io.github.chayanforyou.quickball.ui.screens.settings.components.GestureActionBottomSheet
 import io.github.chayanforyou.quickball.ui.screens.settings.components.GestureSettingRow
 import io.github.chayanforyou.quickball.ui.screens.settings.components.HapticIntensitySelector
+import io.github.chayanforyou.quickball.ui.screens.settings.components.SliderSettingItem
 import io.github.chayanforyou.quickball.ui.theme.AppCardDefaults
 import io.github.chayanforyou.quickball.ui.viewmodels.QuickBallViewModel
 import io.github.chayanforyou.quickball.utils.performHapticFeedback
@@ -75,13 +64,16 @@ fun AdvancedSettingsScreen(
     val ballColor = uiState.ballColor
     val ballIconColor = uiState.ballIconColor
     val menuSize = uiState.menuSize
+    val menuIconSize = uiState.menuIconSize
+    val menuRadius = uiState.menuRadius
     val menuColor = uiState.menuColor
     val menuIconColor = uiState.menuIconColor
+    val toastBgColor = uiState.toastBgColor
+    val toastFgColor = uiState.toastFgColor
     val pillColor = uiState.pillColor
     val pillHeight = uiState.pillHeight
     val pillThickness = uiState.pillThickness
     val pillTouchWidth = uiState.pillTouchWidth
-    val pillArcAngle = uiState.pillArcAngle
     val isPillGestureEnabled = uiState.isPillGestureEnabled
     val pillDoubleTapAction = uiState.pillDoubleTapAction
     val pillTripleTapAction = uiState.pillTripleTapAction
@@ -96,6 +88,8 @@ fun AdvancedSettingsScreen(
     var showMenuColorDialog by remember { mutableStateOf(false) }
     var showMenuIconColorDialog by remember { mutableStateOf(false) }
     var showPillColorDialog by remember { mutableStateOf(false) }
+    var showToastBgColorDialog by remember { mutableStateOf(false) }
+    var showToastFgColorDialog by remember { mutableStateOf(false) }
     var activeGestureBottomSheet by remember { mutableStateOf<PillGesture?>(null) }
 
     Scaffold(
@@ -128,6 +122,7 @@ fun AdvancedSettingsScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            // Ball Settings Header & Card
             Text(
                 text = stringResource(R.string.ball_header_title),
                 style = MaterialTheme.typography.bodyMedium,
@@ -145,137 +140,42 @@ fun AdvancedSettingsScreen(
                     verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
                     // Ball Color Setting Option
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(R.string.ball_color_title),
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier
-                                .weight(1f)
-                                .clickable { showColorDialog = true }
-                        )
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            IconButton(
-                                onClick = {
-                                    viewModel.resetBallColor()
-                                    context.controlQuickBallService(QuickBallService.ACTION_UPDATE_BALL)
-                                },
-                                modifier = Modifier.size(28.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Rounded.RotateLeft,
-                                    contentDescription = stringResource(R.string.reset_to_default),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .clip(CircleShape)
-                                    .background(Color(ballColor))
-                                    .border(1.5.dp, MaterialTheme.colorScheme.outline, CircleShape)
-                                    .clickable { showColorDialog = true }
-                            )
-                        }
-                    }
+                    ColorSettingRow(
+                        title = stringResource(R.string.ball_color_title),
+                        color = ballColor,
+                        onReset = {
+                            viewModel.resetBallColor()
+                            context.controlQuickBallService(QuickBallService.ACTION_UPDATE_BALL)
+                        },
+                        onClick = { showColorDialog = true }
+                    )
 
                     // Ball Icon Color Setting Option
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(R.string.ball_icon_color_title),
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier
-                                .weight(1f)
-                                .clickable { showIconColorDialog = true }
-                        )
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            IconButton(
-                                onClick = {
-                                    viewModel.resetBallIconColor()
-                                    context.controlQuickBallService(QuickBallService.ACTION_UPDATE_BALL)
-                                },
-                                modifier = Modifier.size(28.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Rounded.RotateLeft,
-                                    contentDescription = stringResource(R.string.reset_to_default),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .clip(CircleShape)
-                                    .background(Color(ballIconColor))
-                                    .border(1.5.dp, MaterialTheme.colorScheme.outline, CircleShape)
-                                    .clickable { showIconColorDialog = true }
-                            )
-                        }
-                    }
+                    ColorSettingRow(
+                        title = stringResource(R.string.ball_icon_color_title),
+                        color = ballIconColor,
+                        onReset = {
+                            viewModel.resetBallIconColor()
+                            context.controlQuickBallService(QuickBallService.ACTION_UPDATE_BALL)
+                        },
+                        onClick = { showIconColorDialog = true }
+                    )
 
                     // Ball Size Setting Option
-                    Column {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = stringResource(R.string.ball_size_title),
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                IconButton(
-                                    onClick = {
-                                        viewModel.resetBallSize()
-                                        context.controlQuickBallService(QuickBallService.ACTION_UPDATE_BALL)
-                                    },
-                                    modifier = Modifier.size(28.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Rounded.RotateLeft,
-                                        contentDescription = stringResource(R.string.reset_to_default),
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                }
-                                Text(
-                                    text = "${ballSize.toInt()} dp",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontWeight = FontWeight.Medium,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            }
+                    SliderSettingItem(
+                        title = stringResource(R.string.ball_size_title),
+                        value = ballSize,
+                        valueRange = 40f..60f,
+                        steps = 19,
+                        onValueChange = { value ->
+                            viewModel.setBallSize(value)
+                            context.controlQuickBallService(QuickBallService.ACTION_UPDATE_BALL)
+                        },
+                        onReset = {
+                            viewModel.resetBallSize()
+                            context.controlQuickBallService(QuickBallService.ACTION_UPDATE_BALL)
                         }
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Slider(
-                            value = ballSize,
-                            onValueChange = { value ->
-                                viewModel.setBallSize(value)
-                                context.controlQuickBallService(QuickBallService.ACTION_UPDATE_BALL)
-                            },
-                            steps = 19,
-                            valueRange = 40f..60f
-                        )
-                    }
+                    )
                 }
             }
 
@@ -297,133 +197,50 @@ fun AdvancedSettingsScreen(
                     verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
                     // Menu Color Setting Option
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(R.string.menu_color_title),
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier
-                                .weight(1f)
-                                .clickable { showMenuColorDialog = true }
-                        )
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            IconButton(
-                                onClick = {
-                                    viewModel.resetMenuColor()
-                                },
-                                modifier = Modifier.size(28.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Rounded.RotateLeft,
-                                    contentDescription = stringResource(R.string.reset_to_default),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .clip(CircleShape)
-                                    .background(Color(menuColor))
-                                    .border(1.5.dp, MaterialTheme.colorScheme.outline, CircleShape)
-                                    .clickable { showMenuColorDialog = true }
-                            )
-                        }
-                    }
+                    ColorSettingRow(
+                        title = stringResource(R.string.menu_color_title),
+                        color = menuColor,
+                        onReset = { viewModel.resetMenuColor() },
+                        onClick = { showMenuColorDialog = true }
+                    )
 
                     // Menu Icon Color Setting Option
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(R.string.menu_icon_color_title),
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier
-                                .weight(1f)
-                                .clickable { showMenuIconColorDialog = true }
-                        )
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            IconButton(
-                                onClick = {
-                                    viewModel.resetMenuIconColor()
-                                },
-                                modifier = Modifier.size(28.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Rounded.RotateLeft,
-                                    contentDescription = stringResource(R.string.reset_to_default),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .clip(CircleShape)
-                                    .background(Color(menuIconColor))
-                                    .border(1.5.dp, MaterialTheme.colorScheme.outline, CircleShape)
-                                    .clickable { showMenuIconColorDialog = true }
-                            )
-                        }
-                    }
+                    ColorSettingRow(
+                        title = stringResource(R.string.menu_icon_color_title),
+                        color = menuIconColor,
+                        onReset = { viewModel.resetMenuIconColor() },
+                        onClick = { showMenuIconColorDialog = true }
+                    )
 
                     // Menu Size Setting Option
-                    Column {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = stringResource(R.string.menu_size_title),
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                IconButton(
-                                    onClick = {
-                                        viewModel.resetMenuSize()
-                                    },
-                                    modifier = Modifier.size(28.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Rounded.RotateLeft,
-                                        contentDescription = stringResource(R.string.reset_to_default),
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                }
-                                Text(
-                                    text = "${menuSize.toInt()} dp",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontWeight = FontWeight.Medium,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Slider(
-                            value = menuSize,
-                            onValueChange = { value ->
-                                viewModel.setMenuSize(value)
-                            },
-                            steps = 19,
-                            valueRange = 40f..60f
-                        )
-                    }
+                    SliderSettingItem(
+                        title = stringResource(R.string.menu_size_title),
+                        value = menuSize,
+                        valueRange = 40f..60f,
+                        steps = 19,
+                        onValueChange = { viewModel.setMenuSize(it) },
+                        onReset = { viewModel.resetMenuSize() }
+                    )
+
+                    // Menu Icon Size Setting Option
+                    SliderSettingItem(
+                        title = stringResource(R.string.menu_icon_size_title),
+                        value = menuIconSize,
+                        valueRange = 15f..35f,
+                        steps = 19,
+                        onValueChange = { viewModel.setMenuIconSize(it) },
+                        onReset = { viewModel.resetMenuIconSize() }
+                    )
+
+                    // Menu Radius Setting Option
+                    SliderSettingItem(
+                        title = stringResource(R.string.menu_radius_title),
+                        value = menuRadius,
+                        valueRange = 60f..100f,
+                        steps = 39,
+                        onValueChange = { viewModel.setMenuRadius(it) },
+                        onReset = { viewModel.resetMenuRadius() }
+                    )
                 }
             }
 
@@ -445,250 +262,98 @@ fun AdvancedSettingsScreen(
                     verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
                     // Pill Color Setting Option
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(R.string.pill_color_title),
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier
-                                .weight(1f)
-                                .clickable { showPillColorDialog = true }
-                        )
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            IconButton(
-                                onClick = {
-                                    viewModel.resetPillColor()
-                                    context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
-                                },
-                                modifier = Modifier.size(28.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Rounded.RotateLeft,
-                                    contentDescription = stringResource(R.string.reset_to_default),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .clip(CircleShape)
-                                    .background(Color(pillColor))
-                                    .border(1.5.dp, MaterialTheme.colorScheme.outline, CircleShape)
-                                    .clickable { showPillColorDialog = true }
-                            )
-                        }
-                    }
+                    ColorSettingRow(
+                        title = stringResource(R.string.pill_color_title),
+                        color = pillColor,
+                        onReset = {
+                            viewModel.resetPillColor()
+                            context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
+                        },
+                        onClick = { showPillColorDialog = true }
+                    )
 
                     // Pill Height Setting Option
-                    Column {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = stringResource(R.string.pill_height_title),
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                IconButton(
-                                    onClick = {
-                                        viewModel.resetPillHeight()
-                                        context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
-                                    },
-                                    modifier = Modifier.size(28.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Rounded.RotateLeft,
-                                        contentDescription = stringResource(R.string.reset_to_default),
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                }
-                                Text(
-                                    text = "${pillHeight.toInt()} dp",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontWeight = FontWeight.Medium,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            }
+                    SliderSettingItem(
+                        title = stringResource(R.string.pill_height_title),
+                        value = pillHeight,
+                        valueRange = 30f..80f,
+                        steps = 49,
+                        onValueChange = { value ->
+                            viewModel.setPillHeight(value)
+                            context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
+                        },
+                        onReset = {
+                            viewModel.resetPillHeight()
+                            context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
                         }
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Slider(
-                            value = pillHeight,
-                            onValueChange = { value ->
-                                viewModel.setPillHeight(value)
-                                context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
-                            },
-                            steps = 49,
-                            valueRange = 30f..80f
-                        )
-                    }
+                    )
 
                     // Pill Thickness Setting Option
-                    Column {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = stringResource(R.string.pill_thickness_title),
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                IconButton(
-                                    onClick = {
-                                        viewModel.resetPillThickness()
-                                        context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
-                                    },
-                                    modifier = Modifier.size(28.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Rounded.RotateLeft,
-                                        contentDescription = stringResource(R.string.reset_to_default),
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                }
-                                Text(
-                                    text = "${pillThickness.toInt()} dp",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontWeight = FontWeight.Medium,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            }
+                    SliderSettingItem(
+                        title = stringResource(R.string.pill_thickness_title),
+                        value = pillThickness,
+                        valueRange = 1f..10f,
+                        steps = 8,
+                        onValueChange = { value ->
+                            viewModel.setPillThickness(value)
+                            context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
+                        },
+                        onReset = {
+                            viewModel.resetPillThickness()
+                            context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
                         }
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Slider(
-                            value = pillThickness,
-                            onValueChange = { value ->
-                                viewModel.setPillThickness(value)
-                                context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
-                            },
-                            steps = 8,
-                            valueRange = 1f..10f
-                        )
-                    }
+                    )
 
                     // Touch Area Width Setting Option
-                    Column {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = stringResource(R.string.pill_touch_width_title),
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                IconButton(
-                                    onClick = {
-                                        viewModel.resetPillTouchWidth()
-                                        context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
-                                    },
-                                    modifier = Modifier.size(28.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Rounded.RotateLeft,
-                                        contentDescription = stringResource(R.string.reset_to_default),
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                }
-                                Text(
-                                    text = "${pillTouchWidth.toInt()} dp",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontWeight = FontWeight.Medium,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            }
+                    SliderSettingItem(
+                        title = stringResource(R.string.pill_touch_width_title),
+                        value = pillTouchWidth,
+                        valueRange = 15f..50f,
+                        steps = 34,
+                        onValueChange = { value ->
+                            viewModel.setPillTouchWidth(value)
+                            context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
+                        },
+                        onReset = {
+                            viewModel.resetPillTouchWidth()
+                            context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
                         }
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Slider(
-                            value = pillTouchWidth,
-                            onValueChange = { value ->
-                                viewModel.setPillTouchWidth(value)
-                                context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
-                            },
-                            steps = 34,
-                            valueRange = 15f..50f
-                        )
-                    }
+                    )
+                }
+            }
 
-                    /*
-                    // Pill Arc Angle Setting Option
-                    Column {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = stringResource(R.string.pill_arc_angle_title),
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                IconButton(
-                                    onClick = {
-                                        viewModel.resetPillArcAngle()
-                                        controlQuickBallService(
-                                            context,
-                                            QuickBallService.ACTION_UPDATE_PILL
-                                        )
-                                    },
-                                    modifier = Modifier.size(28.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Rounded.RotateLeft,
-                                        contentDescription = stringResource(R.string.reset_to_default),
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                }
-                                Text(
-                                    text = "${pillArcAngle.toInt()}°",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    fontWeight = FontWeight.Medium,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Slider(
-                            value = pillArcAngle,
-                            onValueChange = { value ->
-                                viewModel.setPillArcAngle(value)
-                                controlQuickBallService(
-                                    context,
-                                    QuickBallService.ACTION_UPDATE_PILL
-                                )
-                            },
-                            steps = 69,
-                            valueRange = 0f..70f
-                        )
-                    }
-                    */
+            // Toast Settings Header & Card
+            Text(
+                text = stringResource(R.string.toast_header_title),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 4.dp, top = 12.dp)
+            )
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = AppCardDefaults.cardColors()
+            ) {
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    // Toast Background Color Setting Option
+                    ColorSettingRow(
+                        title = stringResource(R.string.toast_bg_color_title),
+                        color = toastBgColor,
+                        onReset = { viewModel.resetToastBgColor() },
+                        onClick = { showToastBgColorDialog = true }
+                    )
+
+                    // Toast Foreground Color Setting Option
+                    ColorSettingRow(
+                        title = stringResource(R.string.toast_fg_color_title),
+                        color = toastFgColor,
+                        onReset = { viewModel.resetToastFgColor() },
+                        onClick = { showToastFgColorDialog = true }
+                    )
                 }
             }
 
@@ -894,48 +559,69 @@ fun AdvancedSettingsScreen(
         )
     }
 
+    if (showToastBgColorDialog) {
+        ColorPickerDialog(
+            initialColor = toastBgColor,
+            onDismissRequest = { showToastBgColorDialog = false },
+            onColorSelected = { selectedColorInt ->
+                viewModel.setToastBgColor(selectedColorInt)
+                showToastBgColorDialog = false
+            }
+        )
+    }
+
+    if (showToastFgColorDialog) {
+        ColorPickerDialog(
+            initialColor = toastFgColor,
+            onDismissRequest = { showToastFgColorDialog = false },
+            onColorSelected = { selectedColorInt ->
+                viewModel.setToastFgColor(selectedColorInt)
+                showToastFgColorDialog = false
+            }
+        )
+    }
+
     activeGestureBottomSheet?.let { gesture ->
         val (title, currentAction, onSelect) = when (gesture) {
             PillGesture.DOUBLE_TAP -> Triple(
                 stringResource(gesture.titleRes),
-                pillDoubleTapAction,
-                { action: MenuAction ->
-                    viewModel.setPillDoubleTapAction(action.name)
-                    context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
-                }
-            )
+                pillDoubleTapAction
+            ) { action: MenuAction ->
+                viewModel.setPillDoubleTapAction(action.name)
+                context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
+            }
+
             PillGesture.TRIPLE_TAP -> Triple(
                 stringResource(gesture.titleRes),
-                pillTripleTapAction,
-                { action: MenuAction ->
-                    viewModel.setPillTripleTapAction(action.name)
-                    context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
-                }
-            )
+                pillTripleTapAction
+            ) { action: MenuAction ->
+                viewModel.setPillTripleTapAction(action.name)
+                context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
+            }
+
             PillGesture.LONG_PRESS -> Triple(
                 stringResource(gesture.titleRes),
-                pillLongPressAction,
-                { action: MenuAction ->
-                    viewModel.setPillLongPressAction(action.name)
-                    context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
-                }
-            )
+                pillLongPressAction
+            ) { action: MenuAction ->
+                viewModel.setPillLongPressAction(action.name)
+                context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
+            }
+
             PillGesture.SWIPE_UP -> Triple(
                 stringResource(gesture.titleRes),
-                pillSwipeUpAction,
-                { action: MenuAction ->
-                    viewModel.setPillSwipeUpAction(action.name)
-                    context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
-                }
-            )
+                pillSwipeUpAction
+            ) { action: MenuAction ->
+                viewModel.setPillSwipeUpAction(action.name)
+                context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
+            }
+
             PillGesture.SWIPE_DOWN -> Triple(
                 stringResource(gesture.titleRes),
-                pillSwipeDownAction,
-                { action: MenuAction ->
-                    viewModel.setPillSwipeDownAction(action.name)
-                    context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
-                }
-            )
+                pillSwipeDownAction
+            ) { action: MenuAction ->
+                viewModel.setPillSwipeDownAction(action.name)
+                context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
+            }
         }
 
         GestureActionBottomSheet(
@@ -954,4 +640,3 @@ private fun Context.controlQuickBallService(action: String) {
         }
     )
 }
-

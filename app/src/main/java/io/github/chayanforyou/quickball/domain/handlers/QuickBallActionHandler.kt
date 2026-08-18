@@ -149,7 +149,7 @@ class QuickBallActionHandler(
                 AudioManager.ADJUST_RAISE,
                 AudioManager.FLAG_PLAY_SOUND
             )
-            showToast("Volume: ${getVolumePercentage()}%")
+            showVolumeToast()
         } catch (e: Exception) {
             Log.e(TAG, "Failed to perform volume up action", e)
         }
@@ -162,16 +162,28 @@ class QuickBallActionHandler(
                 AudioManager.ADJUST_LOWER,
                 AudioManager.FLAG_PLAY_SOUND
             )
-            showToast("Volume: ${getVolumePercentage()}%")
+            showVolumeToast()
         } catch (e: Exception) {
             Log.e(TAG, "Failed to perform volume down action", e)
         }
     }
 
-    private fun getVolumePercentage(): Int {
+    private fun showVolumeToast() {
         val currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
         val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-        return (currentVolume * 100) / maxVolume
+
+        ToastUtil.showVolumeToast(
+            context = accessibilityService,
+            currentVolume = currentVolume,
+            maxVolume = maxVolume,
+            onVolumeChanged = { newVol ->
+                try {
+                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVol, 0)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Failed to set volume via slider", e)
+                }
+            }
+        )
     }
 
     // -------------------- Media Controls --------------------
@@ -253,14 +265,36 @@ class QuickBallActionHandler(
                 Settings.System.SCREEN_BRIGHTNESS,
                 clampedBrightness
             )
-            showToast("Brightness: ${toPercentage(clampedBrightness)}%")
+            showBrightnessToast()
         } catch (e: Exception) {
             Log.e(TAG, "Failed to set brightness", e)
         }
     }
 
-    private fun toPercentage(brightness: Int): Int {
-        return ((brightness - MIN_BRIGHTNESS) * 100) / (MAX_BRIGHTNESS - MIN_BRIGHTNESS)
+    private fun showBrightnessToast() {
+        val current = getCurrentBrightness()
+        ToastUtil.showBrightnessToast(
+            context = accessibilityService,
+            currentBrightness = current,
+            maxBrightness = MAX_BRIGHTNESS,
+            minBrightness = MIN_BRIGHTNESS,
+            onBrightnessChanged = { newBrightness ->
+                if (canWriteSettings()) {
+                    try {
+                        val clamped = newBrightness.coerceIn(MIN_BRIGHTNESS, MAX_BRIGHTNESS)
+                        Settings.System.putInt(
+                            accessibilityService.contentResolver,
+                            Settings.System.SCREEN_BRIGHTNESS,
+                            clamped
+                        )
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Failed to set brightness via slider", e)
+                    }
+                } else {
+                    requestSystemSettingsPermission()
+                }
+            }
+        )
     }
 
     // -------------------- Silent Mode --------------------

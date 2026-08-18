@@ -121,12 +121,19 @@
     <string name="menu_color_title">मेनू का रंग</string>
     <string name="menu_icon_color_title">आइकॉन का रंग</string>
     <string name="menu_size_title">मेनू का आकार</string>
+    <string name="menu_icon_size_title">आइकॉन का आकार</string>
+    <string name="menu_radius_title">मेनू की त्रिज्या</string>
     <string name="pill_header_title">पिल</string>
     <string name="pill_color_title">पिल का रंग</string>
     <string name="pill_height_title">पिल की ऊंचाई</string>
     <string name="pill_thickness_title">पिल की मोटाई</string>
     <string name="pill_touch_width_title">स्पर्श क्षेत्र की चौड़ाई</string>
-    <string name="pill_arc_angle_title">पिल आर्क कोण</string>
+    <string name="pill_arc_angle_title">पिल चाप कोण</string>
+
+    <!-- Toast -->
+    <string name="toast_header_title">टोस्ट</string>
+    <string name="toast_bg_color_title">बैकग्राउंड का रंग</string>
+    <string name="toast_fg_color_title">फॉरग्राउंड का रंग</string>
 
     <!-- Gestures -->
     <string name="gesture_header_title">जेस्चर</string>

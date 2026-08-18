@@ -121,12 +121,19 @@
     <string name="menu_color_title">菜单颜色</string>
     <string name="menu_icon_color_title">图标颜色</string>
     <string name="menu_size_title">菜单大小</string>
+    <string name="menu_icon_size_title">图标大小</string>
+    <string name="menu_radius_title">菜单半径</string>
     <string name="pill_header_title">胶囊条</string>
     <string name="pill_color_title">胶囊条颜色</string>
     <string name="pill_height_title">胶囊条高度</string>
     <string name="pill_thickness_title">胶囊条厚度</string>
     <string name="pill_touch_width_title">触摸区域宽度</string>
-    <string name="pill_arc_angle_title">胶囊条弧度</string>
+    <string name="pill_arc_angle_title">胶囊条弧度角</string>
+
+    <!-- Toast -->
+    <string name="toast_header_title">Toast 提示</string>
+    <string name="toast_bg_color_title">背景颜色</string>
+    <string name="toast_fg_color_title">前景颜色</string>
 
     <!-- Gestures -->
     <string name="gesture_header_title">手势</string>
