@@ -121,12 +121,19 @@
     <string name="menu_color_title">Cor do menu</string>
     <string name="menu_icon_color_title">Cor do ícone</string>
     <string name="menu_size_title">Tamanho do menu</string>
+    <string name="menu_icon_size_title">Tamanho do ícone</string>
+    <string name="menu_radius_title">Raio do menu</string>
     <string name="pill_header_title">Pílula</string>
     <string name="pill_color_title">Cor da pílula</string>
     <string name="pill_height_title">Altura da pílula</string>
     <string name="pill_thickness_title">Espessura da pílula</string>
     <string name="pill_touch_width_title">Largura da área de toque</string>
     <string name="pill_arc_angle_title">Ângulo do arco da pílula</string>
+
+    <!-- Toast -->
+    <string name="toast_header_title">Toast</string>
+    <string name="toast_bg_color_title">Cor de fundo</string>
+    <string name="toast_fg_color_title">Cor do primeiro plano</string>
 
     <!-- Gestures -->
     <string name="gesture_header_title">Gestos</string>

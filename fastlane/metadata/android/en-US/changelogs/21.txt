@@ -1,0 +1,6 @@
+- Interactive volume and brightness sliders in toasts
+- Customizable menu radius
+- Customizable toast color
+
+Bug Fixes
+- Fixed an issue where shortcuts could not be changed in the F-Droid version

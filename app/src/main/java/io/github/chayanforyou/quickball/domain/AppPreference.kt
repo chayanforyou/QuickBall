@@ -21,6 +21,10 @@ class AppPreference private constructor(context: Context) {
         private const val KEY_MENU_COLOR = "menu_color"
         private const val KEY_MENU_ICON_COLOR = "menu_icon_color"
         private const val KEY_MENU_SIZE = "menu_size"
+        private const val KEY_MENU_ICON_SIZE = "menu_icon_size"
+        private const val KEY_MENU_RADIUS = "menu_radius"
+        private const val KEY_TOAST_BG_COLOR = "toast_bg_color"
+        private const val KEY_TOAST_FG_COLOR = "toast_fg_color"
         private const val KEY_PILL_COLOR = "pill_color"
         private const val KEY_PILL_HEIGHT = "pill_height"
         private const val KEY_PILL_THICKNESS = "pill_thickness"
@@ -87,9 +91,25 @@ class AppPreference private constructor(context: Context) {
         get() = prefs.getInt(KEY_MENU_ICON_COLOR, AppDefaults.MENU_ICON_COLOR)
         set(value) = prefs.edit { putInt(KEY_MENU_ICON_COLOR, value) }
 
+    var menuIconSize: Float
+        get() = prefs.getFloat(KEY_MENU_ICON_SIZE, AppDefaults.MENU_ICON_SIZE)
+        set(value) = prefs.edit { putFloat(KEY_MENU_ICON_SIZE, value) }
+
     var menuSize: Float
         get() = prefs.getFloat(KEY_MENU_SIZE, AppDefaults.MENU_SIZE)
         set(value) = prefs.edit { putFloat(KEY_MENU_SIZE, value) }
+
+    var menuRadius: Float
+        get() = prefs.getFloat(KEY_MENU_RADIUS, AppDefaults.MENU_RADIUS)
+        set(value) = prefs.edit { putFloat(KEY_MENU_RADIUS, value) }
+
+    var toastBgColor: Int
+        get() = prefs.getInt(KEY_TOAST_BG_COLOR, AppDefaults.TOAST_BG_COLOR)
+        set(value) = prefs.edit { putInt(KEY_TOAST_BG_COLOR, value) }
+
+    var toastFgColor: Int
+        get() = prefs.getInt(KEY_TOAST_FG_COLOR, AppDefaults.TOAST_FG_COLOR)
+        set(value) = prefs.edit { putInt(KEY_TOAST_FG_COLOR, value) }
 
     var pillColor: Int
         get() = prefs.getInt(KEY_PILL_COLOR, AppDefaults.PILL_COLOR)

@@ -10,6 +10,10 @@ object AppDefaults {
     const val MENU_COLOR = 0xBF2C2C2C.toInt()
     const val MENU_ICON_COLOR = 0xFFFFFFFF.toInt()
     const val MENU_SIZE = 53f
+    const val MENU_ICON_SIZE = 22f
+    const val MENU_RADIUS = 96f
+    const val TOAST_BG_COLOR = 0xBF2C2C2C.toInt()
+    const val TOAST_FG_COLOR = 0xFFFFFFFF.toInt()
     const val PILL_COLOR = 0xCC777777.toInt()
     const val PILL_HEIGHT = 48f
     const val PILL_THICKNESS = 3f

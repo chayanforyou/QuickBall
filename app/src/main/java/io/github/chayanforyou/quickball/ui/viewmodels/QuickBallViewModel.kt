@@ -23,6 +23,10 @@ data class QuickBallUiState(
     val menuColor: Int = AppDefaults.MENU_COLOR,
     val menuIconColor: Int = AppDefaults.MENU_ICON_COLOR,
     val menuSize: Float = AppDefaults.MENU_SIZE,
+    val menuIconSize: Float = AppDefaults.MENU_ICON_SIZE,
+    val menuRadius: Float = AppDefaults.MENU_RADIUS,
+    val toastBgColor: Int = AppDefaults.TOAST_BG_COLOR,
+    val toastFgColor: Int = AppDefaults.TOAST_FG_COLOR,
     val pillColor: Int = AppDefaults.PILL_COLOR,
     val pillHeight: Float = AppDefaults.PILL_HEIGHT,
     val pillThickness: Float = AppDefaults.PILL_THICKNESS,
@@ -57,6 +61,10 @@ class QuickBallViewModel(application: Application) : AndroidViewModel(applicatio
             menuColor = prefs.menuColor,
             menuIconColor = prefs.menuIconColor,
             menuSize = prefs.menuSize,
+            menuIconSize = prefs.menuIconSize,
+            menuRadius = prefs.menuRadius,
+            toastBgColor = prefs.toastBgColor,
+            toastFgColor = prefs.toastFgColor,
             pillColor = prefs.pillColor,
             pillHeight = prefs.pillHeight,
             pillThickness = prefs.pillThickness,
@@ -150,6 +158,26 @@ class QuickBallViewModel(application: Application) : AndroidViewModel(applicatio
         _uiState.update { it.copy(menuSize = size) }
     }
 
+    fun setMenuIconSize(size: Float) {
+        prefs.menuIconSize = size
+        _uiState.update { it.copy(menuIconSize = size) }
+    }
+
+    fun setMenuRadius(radius: Float) {
+        prefs.menuRadius = radius
+        _uiState.update { it.copy(menuRadius = radius) }
+    }
+
+    fun setToastBgColor(color: Int) {
+        prefs.toastBgColor = color
+        _uiState.update { it.copy(toastBgColor = color) }
+    }
+
+    fun setToastFgColor(color: Int) {
+        prefs.toastFgColor = color
+        _uiState.update { it.copy(toastFgColor = color) }
+    }
+
     fun setPillColor(color: Int) {
         prefs.pillColor = color
         _uiState.update { it.copy(pillColor = color) }
@@ -237,6 +265,22 @@ class QuickBallViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun resetMenuSize() {
         setMenuSize(AppDefaults.MENU_SIZE)
+    }
+
+    fun resetMenuIconSize() {
+        setMenuIconSize(AppDefaults.MENU_ICON_SIZE)
+    }
+
+    fun resetMenuRadius() {
+        setMenuRadius(AppDefaults.MENU_RADIUS)
+    }
+
+    fun resetToastBgColor() {
+        setToastBgColor(AppDefaults.TOAST_BG_COLOR)
+    }
+
+    fun resetToastFgColor() {
+        setToastFgColor(AppDefaults.TOAST_FG_COLOR)
     }
 
     fun resetPillColor() {
