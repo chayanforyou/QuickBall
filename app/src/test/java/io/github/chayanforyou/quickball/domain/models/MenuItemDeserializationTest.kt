@@ -89,4 +89,22 @@ class MenuItemDeserializationTest {
         // Accessing iconRes should return valid resource ID
         assertNotNull(menuItem.iconRes)
     }
+
+    @Test
+    fun testLegacySilentToggleDeserializesToDndToggle() {
+        val legacyJson = """
+            [
+                {
+                    "action": "SILENT_TOGGLE"
+                }
+            ]
+        """.trimIndent()
+
+        val items: List<QuickBallMenuItem>? = gson.fromJson(legacyJson, menuItemListType)
+        assertNotNull(items)
+        assertEquals(1, items!!.size)
+        assertEquals(MenuAction.DND_TOGGLE, items[0].action)
+        assertEquals(MenuAction.DND_TOGGLE, MenuAction.fromName("SILENT_TOGGLE"))
+    }
 }
+

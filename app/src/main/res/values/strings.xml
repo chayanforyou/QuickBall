@@ -79,25 +79,25 @@
     <!-- Display -->
     <string name="menu_brightness_up">Brightness Up</string>
     <string name="menu_brightness_down">Brightness Down</string>
-    <string name="menu_torch">Torch</string>
+    <string name="menu_flashlight">Flashlight</string>
     <string name="menu_auto_rotate">Auto Rotate</string>
     
     <!-- Media & Sound -->
     <string name="menu_volume_up">Volume Up</string>
     <string name="menu_volume_down">Volume Down</string>
-    <string name="menu_silent">Silent</string>
-    <string name="menu_vibration">Vibration</string>
+    <string name="menu_dnd">Do Not Disturb</string>
+    <string name="menu_vibration">Toggle Sound / Vibration</string>
     <string name="menu_play_pause">Play/Pause</string>
     <string name="menu_next_track">Next Track</string>
     <string name="menu_previous_track">Previous Track</string>
-    <string name="menu_volume_bar">Volume Bar</string>
-    <string name="menu_volume_panel">Open Volume Panel</string>
+    <string name="menu_sys_volume_bar">System Volume Bar</string>
+    <string name="menu_sys_volume_panel">Open Volume Panel</string>
     
     <!-- Connectivity -->
-    <string name="menu_wifi">Wi-Fi</string>
-    <string name="menu_bluetooth">Bluetooth</string>
-    <string name="menu_mobile_data">Mobile Data</string>
-    <string name="menu_airplane_mode">Airplane Mode</string>
+    <string name="menu_wifi">Toggle Wi-Fi</string>
+    <string name="menu_bluetooth">Toggle Bluetooth</string>
+    <string name="menu_mobile_data">Toggle Mobile Data</string>
+    <string name="menu_airplane_mode">Toggle Airplane Mode</string>
     
     <!-- Utilities -->
     <string name="menu_screenshot">Screenshot</string>

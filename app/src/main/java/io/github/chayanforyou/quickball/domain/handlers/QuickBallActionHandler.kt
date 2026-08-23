@@ -18,6 +18,7 @@ import android.view.KeyEvent
 import androidx.core.net.toUri
 import io.github.chayanforyou.quickball.domain.models.MenuAction
 import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItem
+import io.github.chayanforyou.quickball.utils.BrightnessUtils
 import io.github.chayanforyou.quickball.utils.ToastUtil
 import io.github.chayanforyou.quickball.utils.performHapticFeedback
 
@@ -30,12 +31,52 @@ class QuickBallActionHandler(
         private const val TAG = "QuickBallActionHandler"
         private const val MAX_BRIGHTNESS = 255
         private const val MIN_BRIGHTNESS = 1
-        private const val BRIGHTNESS_STEP = 15
+        private const val BRIGHTNESS_STEP_PERCENT = 10
     }
 
     private val context: Context = accessibilityService.applicationContext
     private val handler = Handler(Looper.getMainLooper())
-    private var torchOn = false
+    private var isTorchOn = false
+
+    private val cameraManager: CameraManager by lazy {
+        context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+    }
+
+    private val torchCallback = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        object : CameraManager.TorchCallback() {
+            override fun onTorchModeChanged(cameraId: String, enabled: Boolean) {
+                isTorchOn = enabled
+            }
+
+            override fun onTorchModeUnavailable(cameraId: String) {
+                isTorchOn = false
+            }
+        }
+    } else null
+
+    init {
+        initTorch()
+    }
+
+    private fun initTorch() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && torchCallback != null) {
+            try {
+                cameraManager.registerTorchCallback(torchCallback, null)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to register torch callback", e)
+            }
+        }
+    }
+
+    fun cleanup() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && torchCallback != null) {
+            try {
+                cameraManager.unregisterTorchCallback(torchCallback)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to unregister torch callback", e)
+            }
+        }
+    }
 
     private val audioManager: AudioManager by lazy {
         context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -96,7 +137,7 @@ class QuickBallActionHandler(
             MenuAction.WIFI_TOGGLE -> toggleWifi()
             MenuAction.BLUETOOTH_TOGGLE -> toggleBluetooth()
             MenuAction.MOBILE_DATA_TOGGLE -> toggleMobileData()
-            MenuAction.SILENT_TOGGLE -> toggleSilentMode()
+            MenuAction.DND_TOGGLE -> toggleDndMode()
             MenuAction.VIBRATE_TOGGLE -> toggleVibrateMode()
             MenuAction.MEDIA_PLAY_PAUSE -> mediaPlayPause()
             MenuAction.MEDIA_NEXT -> mediaNext()
@@ -237,12 +278,15 @@ class QuickBallActionHandler(
         }
 
         val current = getCurrentBrightness()
-        val newBrightness = if (increase) {
-            (current + BRIGHTNESS_STEP).coerceAtMost(MAX_BRIGHTNESS)
+        val currentPercent = BrightnessUtils.linearToPercent(current, MIN_BRIGHTNESS, MAX_BRIGHTNESS)
+
+        val newPercent = if (increase) {
+            (currentPercent + BRIGHTNESS_STEP_PERCENT).coerceAtMost(100)
         } else {
-            if (current <= BRIGHTNESS_STEP) MIN_BRIGHTNESS else current - BRIGHTNESS_STEP
+            (currentPercent - BRIGHTNESS_STEP_PERCENT).coerceAtLeast(0)
         }
 
+        val newBrightness = BrightnessUtils.percentToLinear(newPercent, MIN_BRIGHTNESS, MAX_BRIGHTNESS)
         setBrightness(newBrightness)
     }
 
@@ -297,9 +341,8 @@ class QuickBallActionHandler(
         )
     }
 
-    // -------------------- Silent Mode --------------------
-    private fun toggleSilentMode() {
-        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    // -------------------- Do Not Disturb (DND) Mode --------------------
+    private fun toggleDndMode() {
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -310,7 +353,7 @@ class QuickBallActionHandler(
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             runDelayed { context.startActivity(intent) }
-            showToast("Grant Do Not Disturb access for Silent mode")
+            showToast("Grant Do Not Disturb access")
             return
         }
 
@@ -323,25 +366,23 @@ class QuickBallActionHandler(
         runDelayed {
             try {
                 audioManager.ringerMode = newMode
-                showToast(getSilentModeText(newMode))
+                showToast(getDndModeText(newMode))
             } catch (e: SecurityException) {
-                Log.e(TAG, "Failed to toggle silent mode", e)
+                Log.e(TAG, "Failed to toggle DND mode", e)
             }
         }
     }
 
-    private fun getSilentModeText(mode: Int): String {
+    private fun getDndModeText(mode: Int): String {
         return when (mode) {
-            AudioManager.RINGER_MODE_SILENT -> "Silent mode ON"
-            AudioManager.RINGER_MODE_NORMAL -> "Silent mode OFF"
-            else -> "Silent mode OFF"
+            AudioManager.RINGER_MODE_SILENT -> "Do Not Disturb ON"
+            AudioManager.RINGER_MODE_NORMAL -> "Do Not Disturb OFF"
+            else -> "Do Not Disturb OFF"
         }
     }
 
     // -------------------- Vibration Mode --------------------
     private fun toggleVibrateMode() {
-        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-
         val newMode = when (audioManager.ringerMode) {
             AudioManager.RINGER_MODE_NORMAL -> AudioManager.RINGER_MODE_VIBRATE
             AudioManager.RINGER_MODE_VIBRATE -> AudioManager.RINGER_MODE_NORMAL
@@ -368,20 +409,20 @@ class QuickBallActionHandler(
 
     // -------------------- Torch --------------------
     private fun toggleTorch() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            showToast("Torch is not supported on this device.", performHaptic = true)
+            return
+        }
+
         try {
-            val cameraManager =
-                accessibilityService.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-            val cameraId = cameraManager.cameraIdList.firstOrNull {
-                cameraManager.getCameraCharacteristics(it)
+            val cameraId = cameraManager.cameraIdList.firstOrNull { id ->
+                cameraManager.getCameraCharacteristics(id)
                     .get(CameraCharacteristics.FLASH_INFO_AVAILABLE) == true
             } ?: return
-            torchOn = !torchOn
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                cameraManager.setTorchMode(cameraId, torchOn)
-                showToast(if (torchOn) "Torch ON" else "Torch OFF")
-            } else {
-                showToast("Torch is not supported on this device.", performHaptic = true)
-            }
+
+            val newState = !isTorchOn
+            cameraManager.setTorchMode(cameraId, newState)
+            showToast(if (newState) "Torch ON" else "Torch OFF")
         } catch (e: Exception) {
             Log.e(TAG, "Torch toggle failed", e)
         }

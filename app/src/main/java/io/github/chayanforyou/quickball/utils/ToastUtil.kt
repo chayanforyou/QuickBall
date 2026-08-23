@@ -16,6 +16,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
+import androidx.annotation.DrawableRes
 import androidx.core.content.getSystemService
 import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.drawable.toDrawable
@@ -26,10 +27,25 @@ import java.lang.ref.WeakReference
 
 object ToastUtil {
 
-    enum class ToastType(val iconRes: Int?) {
-        TEXT(null),
-        VOLUME(R.drawable.ic_volume_up),
-        BRIGHTNESS(R.drawable.ic_brightness_up);
+    enum class ToastType {
+        TEXT,
+        VOLUME,
+        BRIGHTNESS;
+
+        @DrawableRes
+        fun getIcon(progress: Int, max: Int): Int? = when (this) {
+            TEXT -> null
+            VOLUME -> when {
+                progress == 0 -> R.drawable.ic_volume_off
+                max > 0 && progress <= max / 2 -> R.drawable.ic_volume_down
+                else -> R.drawable.ic_volume_up
+            }
+            BRIGHTNESS -> when {
+                progress == 0 -> R.drawable.ic_brightness_off
+                max > 0 && progress <= max / 2 -> R.drawable.ic_brightness_down
+                else -> R.drawable.ic_brightness_up
+            }
+        }
     }
 
     private class ToastViewHolder(context: Context) {
@@ -218,19 +234,18 @@ object ToastUtil {
         minBrightness: Int = 1,
         onBrightnessChanged: ((Int) -> Unit)?
     ) {
-        val range = (maxBrightness - minBrightness).coerceAtLeast(1)
-        val progress = currentBrightness - minBrightness
-        val percentage = calculatePercentage(progress, range)
+        val percent = BrightnessUtils.linearToPercent(currentBrightness, minBrightness, maxBrightness)
 
         showToastInternal(
             context = context,
             type = ToastType.BRIGHTNESS,
-            text = "Brightness: $percentage%",
-            progress = progress,
-            maxProgress = range,
+            text = "Brightness: $percent%",
+            progress = percent,
+            maxProgress = 100,
             onValueAdjusted = { progressVal ->
-                onBrightnessChanged?.invoke(minBrightness + progressVal)
-                "Brightness: ${calculatePercentage(progressVal, range)}%"
+                val brightness = BrightnessUtils.percentToLinear(progressVal, minBrightness, maxBrightness)
+                onBrightnessChanged?.invoke(brightness)
+                "Brightness: $progressVal%"
             }
         )
     }
@@ -254,7 +269,7 @@ object ToastUtil {
             holder.seekBar.isVisible = false
             holder.seekBar.setOnSeekBarChangeListener(null)
         } else {
-            val iconRes = type.iconRes
+            val iconRes = type.getIcon(progress, maxProgress)
             if (iconRes != null) {
                 holder.iconView.setImageResource(iconRes)
                 holder.iconView.isVisible = true
@@ -272,6 +287,10 @@ object ToastUtil {
                         val newText = onValueAdjusted?.invoke(progressVal)
                         if (newText != null) {
                             holder.textView.text = newText
+                        }
+                        val newIcon = type.getIcon(progressVal, holder.seekBar.max)
+                        if (newIcon != null) {
+                            holder.iconView.setImageResource(newIcon)
                         }
                         scheduleDismiss(holder.rootLayout, 1500L)
                     }

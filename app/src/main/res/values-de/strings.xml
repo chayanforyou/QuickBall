@@ -79,25 +79,25 @@
     <!-- Display -->
     <string name="menu_brightness_up">Helligkeit erhöhen</string>
     <string name="menu_brightness_down">Helligkeit verringern</string>
-    <string name="menu_torch">Taschenlampe</string>
+    <string name="menu_flashlight">Taschenlampe</string>
     <string name="menu_auto_rotate">Automatisch drehen</string>
     
     <!-- Media & Sound -->
     <string name="menu_volume_up">Lautstärke erhöhen</string>
     <string name="menu_volume_down">Lautstärke verringern</string>
-    <string name="menu_silent">Stumm</string>
-    <string name="menu_vibration">Vibration</string>
+    <string name="menu_dnd">Bitte nicht stören</string>
+    <string name="menu_vibration">Ton / Vibration umschalten</string>
     <string name="menu_play_pause">Wiedergabe/Pause</string>
     <string name="menu_next_track">Nächster Titel</string>
     <string name="menu_previous_track">Vorheriger Titel</string>
-    <string name="menu_volume_bar">Lautstärkeleiste</string>
-    <string name="menu_volume_panel">Lautstärkepanel öffnen</string>
+    <string name="menu_sys_volume_bar">System-Lautstärkeleiste</string>
+    <string name="menu_sys_volume_panel">Lautstärkepanel öffnen</string>
     
     <!-- Connectivity -->
-    <string name="menu_wifi">WLAN</string>
-    <string name="menu_bluetooth">Bluetooth</string>
-    <string name="menu_mobile_data">Mobile Daten</string>
-    <string name="menu_airplane_mode">Flugmodus</string>
+    <string name="menu_wifi">WLAN umschalten</string>
+    <string name="menu_bluetooth">Bluetooth umschalten</string>
+    <string name="menu_mobile_data">Mobile Daten umschalten</string>
+    <string name="menu_airplane_mode">Flugmodus umschalten</string>
     
     <!-- Utilities -->
     <string name="menu_screenshot">Screenshot</string>

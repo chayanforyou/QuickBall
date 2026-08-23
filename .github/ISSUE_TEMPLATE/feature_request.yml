@@ -1,0 +1,55 @@
+name: 💡 Feature Request
+description: Suggest an idea or feature enhancement for QuickBall
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for suggesting an idea to make QuickBall better! Please check [existing issues and feature requests](https://github.com/chayanforyou/QuickBall/issues) to see if your idea has already been proposed.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Is your feature request related to a problem?
+      description: A clear and concise description of what the problem or limitation is.
+      placeholder: I'm always frustrated when...
+    validations:
+      required: false
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution / Feature Description
+      description: Describe the feature you would like to see added or changed.
+      placeholder: Tell us what you would like to happen and how it should work...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: A clear and concise description of any alternative solutions or features you've considered.
+      placeholder: Describe any alternative approaches or workarounds...
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context / Mockups / Screenshots
+      description: Add any other context, sketches, mockups, or examples about the feature request here.
+      placeholder: Attach any mockups, reference apps, or additional context...
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have searched existing issues and feature requests to make sure this is not a duplicate.
+          required: true
+        - label: I believe this feature would be useful to a wide range of QuickBall users.
+          required: false

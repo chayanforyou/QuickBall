@@ -173,6 +173,7 @@ class QuickBallService : AccessibilityService() {
         removeMenuWindow()
         unregisterReceiverSafe(screenReceiver)
         stashHandler.removeCallbacksAndMessages(null)
+        actionHandler?.cleanup()
         super.onDestroy()
     }
 
@@ -324,7 +325,7 @@ class QuickBallService : AccessibilityService() {
     private fun executePillAction(actionName: String) {
         if (!prefs.isPillGestureEnabled) return
         performHapticFeedback()
-        val action = runCatching { MenuAction.valueOf(actionName) }.getOrNull() ?: return
+        val action = MenuAction.fromName(actionName) ?: return
         val menuItem = QuickBallMenuItem(action = action)
         actionHandler?.onMenuAction(menuItem)
     }

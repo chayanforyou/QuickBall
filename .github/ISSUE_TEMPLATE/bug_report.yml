@@ -1,0 +1,104 @@
+name: 🐛 Bug Report
+description: Report a bug or unexpected behavior in QuickBall
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to report an issue! Please ensure you have searched [existing issues](https://github.com/chayanforyou/QuickBall/issues) before submitting a new one.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: Describe the problem in detail...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce the issue?
+      placeholder: |
+        1. Open QuickBall
+        2. Tap on '...'
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+      placeholder: What should happen instead...
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened?
+      placeholder: What happened when the bug occurred...
+    validations:
+      required: true
+
+  - type: input
+    id: app-version
+    attributes:
+      label: QuickBall Version / Source
+      description: Which version of QuickBall are you running and where was it downloaded from?
+      placeholder: e.g., v1.0.0 (Google Play / F-Droid / GitHub Releases)
+    validations:
+      required: true
+
+  - type: input
+    id: device-model
+    attributes:
+      label: Device Model
+      description: What device are you using?
+      placeholder: e.g., Google Pixel 7, Samsung Galaxy S23, Xiaomi 13
+    validations:
+      required: true
+
+  - type: input
+    id: android-version
+    attributes:
+      label: Android / OS Version
+      description: Which Android version or custom ROM is installed?
+      placeholder: e.g., Android 14 / One UI 6.0 / MIUI 14 / LineageOS 21
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Logcat / Crash Logs (if available)
+      description: Please paste any relevant log output or stack traces.
+      render: shell
+      placeholder: Paste crash log / logcat output here...
+    validations:
+      required: false
+
+  - type: textarea
+    id: media
+    attributes:
+      label: Screenshots or Screen Recordings
+      description: Drag and drop screenshots or screen recordings to help explain the problem.
+      placeholder: Attach screenshots or screen recordings here...
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have searched existing issues and confirmed this is not a duplicate.
+          required: true
+        - label: I have tested with the latest available version of QuickBall.
+          required: false

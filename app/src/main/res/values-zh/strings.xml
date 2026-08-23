@@ -79,25 +79,25 @@
     <!-- Display -->
     <string name="menu_brightness_up">增加亮度</string>
     <string name="menu_brightness_down">降低亮度</string>
-    <string name="menu_torch">手电筒</string>
+    <string name="menu_flashlight">手电筒</string>
     <string name="menu_auto_rotate">自动旋转</string>
     
     <!-- Media & Sound -->
     <string name="menu_volume_up">增加音量</string>
     <string name="menu_volume_down">降低音量</string>
-    <string name="menu_silent">静音</string>
-    <string name="menu_vibration">振动</string>
+    <string name="menu_dnd">勿扰</string>
+    <string name="menu_vibration">切换声音/振动</string>
     <string name="menu_play_pause">播放/暂停</string>
     <string name="menu_next_track">下一首</string>
     <string name="menu_previous_track">上一首</string>
-    <string name="menu_volume_bar">音量条</string>
-    <string name="menu_volume_panel">打开音量面板</string>
+    <string name="menu_sys_volume_bar">系统音量条</string>
+    <string name="menu_sys_volume_panel">打开音量面板</string>
     
     <!-- Connectivity -->
-    <string name="menu_wifi">Wi-Fi</string>
-    <string name="menu_bluetooth">蓝牙</string>
-    <string name="menu_mobile_data">移动数据</string>
-    <string name="menu_airplane_mode">飞行模式</string>
+    <string name="menu_wifi">切换 Wi-Fi</string>
+    <string name="menu_bluetooth">切换蓝牙</string>
+    <string name="menu_mobile_data">切换移动数据</string>
+    <string name="menu_airplane_mode">切换飞行模式</string>
     
     <!-- Utilities -->
     <string name="menu_screenshot">截屏</string>
