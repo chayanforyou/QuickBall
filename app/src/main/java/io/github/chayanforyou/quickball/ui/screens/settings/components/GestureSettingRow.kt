@@ -27,7 +27,7 @@ fun GestureSettingRow(
     onClick: () -> Unit
 ) {
     val menuAction = remember(actionName) {
-        runCatching { MenuAction.valueOf(actionName) }.getOrNull()
+        MenuAction.fromName(actionName)
     }
     val actionTitle = menuAction?.titleRes?.let { if (it != 0) stringResource(it) else null } ?: actionName
 

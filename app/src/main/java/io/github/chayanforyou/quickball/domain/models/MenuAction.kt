@@ -24,8 +24,8 @@ enum class MenuAction(
     VOLUME_UP(R.drawable.ic_volume_up, R.string.menu_volume_up),
     @SerializedName("VOLUME_DOWN")
     VOLUME_DOWN(R.drawable.ic_volume_down, R.string.menu_volume_down),
-    @SerializedName("SILENT_TOGGLE")
-    SILENT_TOGGLE(R.drawable.ic_silent, R.string.menu_silent),
+    @SerializedName(value = "DND_TOGGLE", alternate = ["SILENT_TOGGLE"])
+    DND_TOGGLE(R.drawable.ic_dnd, R.string.menu_dnd),
     @SerializedName("VIBRATE_TOGGLE")
     VIBRATE_TOGGLE(R.drawable.ic_vibrate, R.string.menu_vibration),
     @SerializedName("MEDIA_PLAY_PAUSE")
@@ -35,9 +35,9 @@ enum class MenuAction(
     @SerializedName("MEDIA_PREVIOUS")
     MEDIA_PREVIOUS(R.drawable.ic_previous_track, R.string.menu_previous_track),
     @SerializedName("VOLUME_BAR")
-    VOLUME_BAR(R.drawable.ic_volume_up, R.string.menu_volume_bar),
+    VOLUME_BAR(R.drawable.ic_volume_up, R.string.menu_sys_volume_bar),
     @SerializedName("VOLUME_PANEL")
-    VOLUME_PANEL(R.drawable.ic_volume_panel, R.string.menu_volume_panel),
+    VOLUME_PANEL(R.drawable.ic_volume_panel, R.string.menu_sys_volume_panel),
 
     // Display
     @SerializedName("BRIGHTNESS_UP")
@@ -45,7 +45,7 @@ enum class MenuAction(
     @SerializedName("BRIGHTNESS_DOWN")
     BRIGHTNESS_DOWN(R.drawable.ic_brightness_down, R.string.menu_brightness_down),
     @SerializedName("TORCH_TOGGLE")
-    TORCH_TOGGLE(R.drawable.ic_torch, R.string.menu_torch),
+    TORCH_TOGGLE(R.drawable.ic_torch, R.string.menu_flashlight),
     @SerializedName("AUTO_ROTATE_TOGGLE")
     AUTO_ROTATE_TOGGLE(R.drawable.ic_screen_rotation, R.string.menu_auto_rotate),
 
@@ -73,5 +73,13 @@ enum class MenuAction(
 
     // Apps
     @SerializedName("LAUNCH_APP")
-    LAUNCH_APP(0, 0)
+    LAUNCH_APP(0, 0);
+
+    companion object {
+        fun fromName(name: String?): MenuAction? {
+            if (name == null) return null
+            if (name == "SILENT_TOGGLE") return DND_TOGGLE
+            return runCatching { valueOf(name) }.getOrNull()
+        }
+    }
 }

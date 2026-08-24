@@ -79,25 +79,25 @@
     <!-- Display -->
     <string name="menu_brightness_up">Aumenta luminosità</string>
     <string name="menu_brightness_down">Diminuisci luminosità</string>
-    <string name="menu_torch">Torcia</string>
+    <string name="menu_flashlight">Torcia</string>
     <string name="menu_auto_rotate">Rotazione automatica</string>
     
     <!-- Media & Sound -->
     <string name="menu_volume_up">Aumenta volume</string>
     <string name="menu_volume_down">Diminuisci volume</string>
-    <string name="menu_silent">Silenzioso</string>
-    <string name="menu_vibration">Vibrazione</string>
+    <string name="menu_dnd">Non disturbare</string>
+    <string name="menu_vibration">Alterna suono / vibrazione</string>
     <string name="menu_play_pause">Riproduci/Pausa</string>
     <string name="menu_next_track">Traccia successiva</string>
     <string name="menu_previous_track">Traccia precedente</string>
-    <string name="menu_volume_bar">Barra del volume</string>
-    <string name="menu_volume_panel">Apri pannello volume</string>
+    <string name="menu_sys_volume_bar">Barra del volume di sistema</string>
+    <string name="menu_sys_volume_panel">Apri pannello volume</string>
     
     <!-- Connectivity -->
-    <string name="menu_wifi">Wi-Fi</string>
-    <string name="menu_bluetooth">Bluetooth</string>
-    <string name="menu_mobile_data">Dati mobili</string>
-    <string name="menu_airplane_mode">Modalità aereo</string>
+    <string name="menu_wifi">Alterna Wi-Fi</string>
+    <string name="menu_bluetooth">Alterna Bluetooth</string>
+    <string name="menu_mobile_data">Alterna dati mobili</string>
+    <string name="menu_airplane_mode">Alterna modalità aereo</string>
     
     <!-- Utilities -->
     <string name="menu_screenshot">Screenshot</string>
