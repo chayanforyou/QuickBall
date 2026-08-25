@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -31,6 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,6 +54,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.chayanforyou.quickball.BuildConfig
 import io.github.chayanforyou.quickball.R
 import io.github.chayanforyou.quickball.core.QuickBallService
+import io.github.chayanforyou.quickball.ui.screens.home.components.AppRatingDialog
 import io.github.chayanforyou.quickball.ui.screens.home.components.DokiBottomSheet
 import io.github.chayanforyou.quickball.ui.screens.home.components.LanguageSelectionBottomSheet
 import io.github.chayanforyou.quickball.ui.screens.home.components.SettingNavigationRow
@@ -59,6 +62,7 @@ import io.github.chayanforyou.quickball.ui.screens.home.components.SettingSwitch
 import io.github.chayanforyou.quickball.ui.theme.AppCardDefaults
 import io.github.chayanforyou.quickball.ui.theme.CookieFontFamily
 import io.github.chayanforyou.quickball.ui.viewmodels.QuickBallViewModel
+import io.github.chayanforyou.quickball.utils.AppRater
 import io.github.chayanforyou.quickball.utils.PermissionUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -77,6 +81,13 @@ fun HomeScreen(
 
     var showLanguageSheet by remember { mutableStateOf(false) }
     var showDokiSheet by remember { mutableStateOf(false) }
+    var showRateDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        AppRater.initAppRater(context) {
+            showRateDialog = true
+        }
+    }
 
     if (showLanguageSheet) {
         LanguageSelectionBottomSheet(onDismissRequest = {
@@ -90,12 +101,28 @@ fun HomeScreen(
         })
     }
 
+    if (showRateDialog) {
+        AppRatingDialog(
+            onDismissRequest = {
+                showRateDialog = false
+                AppRater.remindLater(context)
+            },
+            onRate = {
+                showRateDialog = false
+                AppRater.openPlayStore(context)
+            },
+            onEmail = {
+                showRateDialog = false
+                AppRater.openEmail(context)
+            }
+        )
+    }
+
     val isAccessibilityGranted = uiState.isAccessibilityGranted
     val isQuickBallEnabled = uiState.isQuickBallEnabled
     val showOnLockScreen = uiState.showOnLockScreen
     val hideOnLandscape = uiState.hideOnLandscape
     val stickToEdge = uiState.stickToEdge
-    val ballSize = uiState.ballSize
 
     fun refreshPermissionsState() {
         val hasAccessibility = PermissionUtils.isAccessibilityServiceEnabled(context)
@@ -164,7 +191,8 @@ fun HomeScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .navigationBarsPadding()
+                    .padding(horizontal = 16.dp)
             ) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -227,6 +255,7 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp)
+                .padding(bottom = 16.dp)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {

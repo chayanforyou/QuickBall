@@ -153,4 +153,15 @@
     <string name="haptic_light">Leggero</string>
     <string name="haptic_medium">Medio</string>
     <string name="haptic_strong">Forte</string>
+
+    <!-- App Rating Dialog -->
+    <string name="rate_dialog_title">Un messaggio dallo sviluppatore ❤️</string>
+    <string name="rate_dialog_p1">Ciao, sono lo sviluppatore di %1$s.</string>
+    <string name="rate_dialog_p2">Sviluppo questa app da solo: le funzioni, i miglioramenti e le correzioni dei bug, tutto nel mio tempo libero. Il tuo supporto è davvero ciò che mi motiva a continuare a migliorare %1$s.</string>
+    <string name="rate_dialog_p3">Se qualcosa non funziona o c\'è una funzione che vorresti vedere, inviami un\'email. Leggo ogni messaggio e farò sempre del mio meglio per aiutarti e risolvere rapidamente ogni problema.</string>
+    <string name="rate_dialog_p4">E se ti piace %1$s, una recensione a 5★ significherebbe molto per me. Ci vuole solo un minuto, ma aiuta più persone a scoprire l\'app e, onestamente, mi rende davvero la giornata migliore.</string>
+    <string name="rate_dialog_thank_you">Grazie per aver scelto %1$s e per supportare il mio lavoro.</string>
+    <string name="rate_dialog_signature">Chayan</string>
+    <string name="rate_dialog_leave_review">Lascia una recensione 5★</string>
+    <string name="rate_dialog_email_me">Inviami un\'email</string>
 </resources>

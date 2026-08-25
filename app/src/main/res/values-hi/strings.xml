@@ -153,4 +153,15 @@
     <string name="haptic_light">हल्का</string>
     <string name="haptic_medium">मध्यम</string>
     <string name="haptic_strong">तेज़</string>
+
+    <!-- App Rating Dialog -->
+    <string name="rate_dialog_title">डेवलपर का संदेश ❤️</string>
+    <string name="rate_dialog_p1">नमस्ते, मैं %1$s का डेवलपर हूँ।</string>
+    <string name="rate_dialog_p2">मैं इस ऐप को अकेले बनाता हूँ—फीचर्स, सुधार और बग फिक्स, सब अपने खाली समय में। आपका समर्थन ही मुझे %1$s को और बेहतर बनाने के लिए प्रेरित करता है।</string>
+    <string name="rate_dialog_p3">यदि कुछ काम नहीं कर रहा है या आप कोई नया फीचर चाहते हैं, तो मुझे ईमेल करें। मैं हर संदेश पढ़ता हूँ और हमेशा मदद करने और समस्याओं को जल्दी हल करने की पूरी कोशिश करूँगा।</string>
+    <string name="rate_dialog_p4">और अगर आपको %1$s पसंद आ रहा है, तो 5★ रिव्यू मेरे लिए बहुत मायने रखेगा। इसमें सिर्फ एक मिनट लगता है, लेकिन इससे और लोगों को ऐप खोजने में मदद मिलती है—और सच कहूँ तो, यह मेरा दिन बना देता है।</string>
+    <string name="rate_dialog_thank_you">%1$s का उपयोग करने और मेरे काम का समर्थन करने के लिए धन्यवाद।</string>
+    <string name="rate_dialog_signature">Chayan</string>
+    <string name="rate_dialog_leave_review">5★ रिव्यू दें</string>
+    <string name="rate_dialog_email_me">मुझे ईमेल करें</string>
 </resources>

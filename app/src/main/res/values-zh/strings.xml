@@ -153,4 +153,15 @@
     <string name="haptic_light">轻微</string>
     <string name="haptic_medium">中等</string>
     <string name="haptic_strong">强烈</string>
+
+    <!-- App Rating Dialog -->
+    <string name="rate_dialog_title">开发者的一封信 ❤️</string>
+    <string name="rate_dialog_p1">嗨，我是 %1$s 的开发者。</string>
+    <string name="rate_dialog_p2">我独自开发这款应用——功能、改进和问题修复，全在业余时间完成。您的支持是我不断让 %1$s 变得更好的真正动力。</string>
+    <string name="rate_dialog_p3">如果遇到问题或有任何想要的功能，请随时给我发邮件。我会阅读每一封邮件，并尽力快速协助解决。</string>
+    <string name="rate_dialog_p4">如果您喜欢 %1$s，留下一个 5★ 好评对我来说意义重大。只需一分钟，就能帮助更多人发现这款应用——而且说实话，这真能让我开心一整天。</string>
+    <string name="rate_dialog_thank_you">感谢您使用 %1$s 并支持我的工作。</string>
+    <string name="rate_dialog_signature">Chayan</string>
+    <string name="rate_dialog_leave_review">留下 5★ 好评</string>
+    <string name="rate_dialog_email_me">发送邮件</string>
 </resources>

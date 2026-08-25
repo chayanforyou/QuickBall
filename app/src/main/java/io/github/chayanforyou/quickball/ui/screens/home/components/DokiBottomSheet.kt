@@ -152,13 +152,13 @@ fun DokiBottomSheet(
                             onClick = { AutoStartPermissionHelper.getAutoStartPermission(context) },
                             shape = RoundedCornerShape(20.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                                contentColor = MaterialTheme.colorScheme.onSurface
+                            ),
                         ) {
                             Text(
                                 text = "Enable Now",
-                                fontWeight = FontWeight.Medium,
+                                style = MaterialTheme.typography.bodyMedium,
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                             )
                         }
@@ -185,13 +185,13 @@ fun DokiBottomSheet(
                         onClick = { BatteryPermissionHelper.getPermission(context) },
                         shape = RoundedCornerShape(20.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                            contentColor = MaterialTheme.colorScheme.onSurface
+                        ),
                     ) {
                         Text(
                             text = "Adjust Settings",
-                            fontWeight = FontWeight.Medium,
+                            style = MaterialTheme.typography.bodyMedium,
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
                         )
                     }
