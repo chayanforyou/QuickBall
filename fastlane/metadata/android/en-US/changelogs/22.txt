@@ -1,0 +1,4 @@
+- Lock Ball Position
+- Floating Ball Gesture
+- Sync Flashlight State & Brightness with System
+- Add Dynamic Toast Icons for Brightness and Sound

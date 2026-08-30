@@ -44,6 +44,9 @@
     <!-- Advanced Settings -->
     <string name="advanced_settings_title">Erweiterte Einstellungen</string>
 
+    <!-- Lock Ball Position -->
+    <string name="lock_ball_position_title">Ballposition sperren</string>
+
     <!-- Show On Lock Screen -->
     <string name="show_on_lock_screen_title">Auf Sperrbildschirm anzeigen</string>
 
@@ -137,6 +140,7 @@
 
     <!-- Gestures -->
     <string name="gesture_header_title">Geste</string>
+    <string name="gesture_requirement_notice">Gesten funktionieren auf der Pill am Rand, wenn \"Am Rand anheften\" aktiviert ist, oder auf dem schwebenden Ball, wenn \"Ballposition sperren\" aktiviert ist.</string>
     <string name="enable_gestures_title">Gesten aktivieren</string>
     <string name="enable_gestures_description">Das Aktivieren von Gesten kann das Öffnen des Menüs leicht verzögern.</string>
     <string name="double_tap_title">Doppeltippen</string>

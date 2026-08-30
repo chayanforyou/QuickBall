@@ -44,6 +44,9 @@
     <!-- Advanced Settings -->
     <string name="advanced_settings_title">उन्नत सेटिंग्स</string>
 
+    <!-- Lock Ball Position -->
+    <string name="lock_ball_position_title">बॉल की स्थिति लॉक करें</string>
+
     <!-- Show On Lock Screen -->
     <string name="show_on_lock_screen_title">लॉक स्क्रीन पर दिखाएं</string>
 
@@ -137,6 +140,7 @@
 
     <!-- Gestures -->
     <string name="gesture_header_title">जेस्चर</string>
+    <string name="gesture_requirement_notice">जेस्चर किनारे की पिल पर काम करेंगे जब \"किनारे से चिपकाएं\" सक्षम हो, या फ्लोटिंग बॉल पर जब \"बॉल की स्थिति लॉक करें\" सक्षम हो।</string>
     <string name="enable_gestures_title">जेस्चर सक्षम करें</string>
     <string name="enable_gestures_description">जेस्चर सक्षम करने से मेनू खुलने में थोड़ी देरी हो सकती है।</string>
     <string name="double_tap_title">डबल टैप</string>

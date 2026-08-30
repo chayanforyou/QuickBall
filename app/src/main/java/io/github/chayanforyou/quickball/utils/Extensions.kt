@@ -97,7 +97,7 @@ fun Context.getScreenSize(): Pair<Int, Int> {
  */
 fun WindowManager.getScreenSize(): Pair<Int, Int> {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        val bounds = currentWindowMetrics.bounds
+        val bounds = maximumWindowMetrics.bounds
         bounds.width() to bounds.height()
     } else {
         @Suppress("DEPRECATION")

@@ -44,6 +44,9 @@
     <!-- Advanced Settings -->
     <string name="advanced_settings_title">Configurações avançadas</string>
 
+    <!-- Lock Ball Position -->
+    <string name="lock_ball_position_title">Bloquear posição da bola</string>
+
     <!-- Show On Lock Screen -->
     <string name="show_on_lock_screen_title">Mostrar na tela de bloqueio</string>
 
@@ -137,6 +140,7 @@
 
     <!-- Gestures -->
     <string name="gesture_header_title">Gestos</string>
+    <string name="gesture_requirement_notice">Os gestos funcionam na pílula de borda quando \"Fixar na borda\" está ativado, ou na bola flutuante quando \"Bloquear posição da bola\" está ativado.</string>
     <string name="enable_gestures_title">Ativar gestos</string>
     <string name="enable_gestures_description">Ativar gestos pode atrasar ligeiramente a abertura do menu.</string>
     <string name="double_tap_title">Toque duplo</string>

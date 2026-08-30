@@ -29,8 +29,6 @@ class QuickBallActionHandler(
 
     companion object {
         private const val TAG = "QuickBallActionHandler"
-        private const val MAX_BRIGHTNESS = 255
-        private const val MIN_BRIGHTNESS = 1
         private const val BRIGHTNESS_STEP_PERCENT = 10
     }
 
@@ -278,16 +276,12 @@ class QuickBallActionHandler(
         }
 
         val current = getCurrentBrightness()
-        val currentPercent = BrightnessUtils.linearToPercent(current, MIN_BRIGHTNESS, MAX_BRIGHTNESS)
+        val currentPercent = (BrightnessUtils.linearToPercent(current) + 5) / 10 * 10
+        val delta = if (increase) BRIGHTNESS_STEP_PERCENT else -BRIGHTNESS_STEP_PERCENT
+        val newPercent = (currentPercent + delta).coerceIn(0, 100)
 
-        val newPercent = if (increase) {
-            (currentPercent + BRIGHTNESS_STEP_PERCENT).coerceAtMost(100)
-        } else {
-            (currentPercent - BRIGHTNESS_STEP_PERCENT).coerceAtLeast(0)
-        }
-
-        val newBrightness = BrightnessUtils.percentToLinear(newPercent, MIN_BRIGHTNESS, MAX_BRIGHTNESS)
-        setBrightness(newBrightness)
+        val newBrightness = BrightnessUtils.percentToLinear(newPercent)
+        setBrightness(newBrightness, newPercent)
     }
 
     private fun getCurrentBrightness(): Int {
@@ -297,39 +291,34 @@ class QuickBallActionHandler(
                 Settings.System.SCREEN_BRIGHTNESS
             )
         } catch (_: Settings.SettingNotFoundException) {
-            MAX_BRIGHTNESS / 2 // Default to middle brightness
+            BrightnessUtils.MAX_BRIGHTNESS / 2 // Default to middle brightness
         }
     }
 
-    private fun setBrightness(brightness: Int) {
+    private fun setBrightness(brightness: Int, percent: Int) {
         try {
-            val clampedBrightness = brightness.coerceIn(MIN_BRIGHTNESS, MAX_BRIGHTNESS)
             Settings.System.putInt(
                 accessibilityService.contentResolver,
                 Settings.System.SCREEN_BRIGHTNESS,
-                clampedBrightness
+                brightness
             )
-            showBrightnessToast()
+            showBrightnessToast(percent)
         } catch (e: Exception) {
             Log.e(TAG, "Failed to set brightness", e)
         }
     }
 
-    private fun showBrightnessToast() {
-        val current = getCurrentBrightness()
+    private fun showBrightnessToast(percent: Int) {
         ToastUtil.showBrightnessToast(
             context = accessibilityService,
-            currentBrightness = current,
-            maxBrightness = MAX_BRIGHTNESS,
-            minBrightness = MIN_BRIGHTNESS,
-            onBrightnessChanged = { newBrightness ->
+            percent = percent,
+            onBrightnessChanged = { brightness ->
                 if (canWriteSettings()) {
                     try {
-                        val clamped = newBrightness.coerceIn(MIN_BRIGHTNESS, MAX_BRIGHTNESS)
                         Settings.System.putInt(
                             accessibilityService.contentResolver,
                             Settings.System.SCREEN_BRIGHTNESS,
-                            clamped
+                            brightness
                         )
                     } catch (e: Exception) {
                         Log.e(TAG, "Failed to set brightness via slider", e)

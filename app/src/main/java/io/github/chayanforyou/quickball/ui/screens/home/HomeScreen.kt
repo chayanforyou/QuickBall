@@ -120,6 +120,7 @@ fun HomeScreen(
 
     val isAccessibilityGranted = uiState.isAccessibilityGranted
     val isQuickBallEnabled = uiState.isQuickBallEnabled
+    val lockBallPosition = uiState.lockBallPosition
     val showOnLockScreen = uiState.showOnLockScreen
     val hideOnLandscape = uiState.hideOnLandscape
     val stickToEdge = uiState.stickToEdge
@@ -325,6 +326,14 @@ fun HomeScreen(
                         title = stringResource(R.string.hide_automatically_title),
                         subtitle = stringResource(R.string.hide_automatically_description),
                         onClick = onNavigateToAutoHide
+                    )
+
+                    SettingSwitchRow(
+                        title = stringResource(R.string.lock_ball_position_title),
+                        checked = lockBallPosition,
+                        onCheckedChange = { checked ->
+                            viewModel.setLockBallPosition(checked)
+                        }
                     )
 
                     SettingSwitchRow(

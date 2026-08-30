@@ -44,6 +44,9 @@
     <!-- Advanced Settings -->
     <string name="advanced_settings_title">Impostazioni avanzate</string>
 
+    <!-- Lock Ball Position -->
+    <string name="lock_ball_position_title">Blocca posizione della sfera</string>
+
     <!-- Show On Lock Screen -->
     <string name="show_on_lock_screen_title">Mostra sulla schermata di blocco</string>
 
@@ -137,6 +140,7 @@
 
     <!-- Gestures -->
     <string name="gesture_header_title">Gesti</string>
+    <string name="gesture_requirement_notice">I gesti funzionano sulla pillola laterale quando \"Aggancia al bordo\" è abilitato, o sulla sfera fluttuante quando \"Blocca posizione della sfera\" è abilitato.</string>
     <string name="enable_gestures_title">Abilita gesti</string>
     <string name="enable_gestures_description">L\'abilitazione dei gesti potrebbe ritardare leggermente l\'apertura del menu.</string>
     <string name="double_tap_title">Doppio tocco</string>

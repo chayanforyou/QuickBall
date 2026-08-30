@@ -44,6 +44,9 @@
     <!-- Advanced Settings -->
     <string name="advanced_settings_title">高级设置</string>
 
+    <!-- Lock Ball Position -->
+    <string name="lock_ball_position_title">锁定悬浮球位置</string>
+
     <!-- Show On Lock Screen -->
     <string name="show_on_lock_screen_title">在锁屏上显示</string>
 
@@ -137,6 +140,7 @@
 
     <!-- Gestures -->
     <string name="gesture_header_title">手势</string>
+    <string name="gesture_requirement_notice">当启用“吸附边缘”时手势在边缘药丸条上生效，或当启用“锁定悬浮球位置”时在悬浮球上生效。</string>
     <string name="enable_gestures_title">启用手势</string>
     <string name="enable_gestures_description">启用手势可能会稍微延迟菜单的打开。</string>
     <string name="double_tap_title">双击</string>

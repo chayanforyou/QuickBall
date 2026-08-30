@@ -30,13 +30,14 @@ class AppPreference private constructor(context: Context) {
         private const val KEY_PILL_THICKNESS = "pill_thickness"
         private const val KEY_PILL_TOUCH_WIDTH = "pill_touch_width"
         private const val KEY_PILL_ARC_ANGLE = "pill_arc_angle"
-        private const val KEY_PILL_GESTURE_ENABLED = "pill_gesture_enabled"
-        private const val KEY_PILL_DOUBLE_TAP = "pill_double_tap"
-        private const val KEY_PILL_TRIPLE_TAP = "pill_triple_tap"
-        private const val KEY_PILL_LONG_PRESS = "pill_long_press"
-        private const val KEY_PILL_SWIPE_UP = "pill_swipe_up"
-        private const val KEY_PILL_SWIPE_DOWN = "pill_swipe_down"
+        private const val KEY_GESTURE_ENABLED = "pill_gesture_enabled"
+        private const val KEY_DOUBLE_TAP = "pill_double_tap"
+        private const val KEY_TRIPLE_TAP = "pill_triple_tap"
+        private const val KEY_LONG_PRESS = "pill_long_press"
+        private const val KEY_SWIPE_UP = "pill_swipe_up"
+        private const val KEY_SWIPE_DOWN = "pill_swipe_down"
         private const val KEY_STICK_TO_EDGE = "stick_to_edge"
+        private const val KEY_LOCK_BALL_POSITION = "lock_ball_position"
         private const val KEY_SHOW_ON_LOCK_SCREEN = "show_on_lock_screen"
         private const val KEY_HIDE_ON_LANDSCAPE = "hide_on_landscape"
         private const val KEY_SELECTED_MENU_ITEMS = "selected_menu_items"
@@ -131,29 +132,29 @@ class AppPreference private constructor(context: Context) {
         get() = prefs.getFloat(KEY_PILL_ARC_ANGLE, AppDefaults.PILL_ARC_ANGLE)
         set(value) = prefs.edit { putFloat(KEY_PILL_ARC_ANGLE, value) }
 
-    var isPillGestureEnabled: Boolean
-        get() = prefs.getBoolean(KEY_PILL_GESTURE_ENABLED, AppDefaults.PILL_GESTURE_ENABLED)
-        set(value) = prefs.edit { putBoolean(KEY_PILL_GESTURE_ENABLED, value) }
+    var isGestureEnabled: Boolean
+        get() = prefs.getBoolean(KEY_GESTURE_ENABLED, AppDefaults.GESTURE_ENABLED)
+        set(value) = prefs.edit { putBoolean(KEY_GESTURE_ENABLED, value) }
 
-    var pillDoubleTapAction: String
-        get() = prefs.getString(KEY_PILL_DOUBLE_TAP, AppDefaults.PILL_DOUBLE_TAP_ACTION) ?: AppDefaults.PILL_DOUBLE_TAP_ACTION
-        set(value) = prefs.edit { putString(KEY_PILL_DOUBLE_TAP, value) }
+    var doubleTapAction: String
+        get() = prefs.getString(KEY_DOUBLE_TAP, AppDefaults.DOUBLE_TAP_ACTION) ?: AppDefaults.DOUBLE_TAP_ACTION
+        set(value) = prefs.edit { putString(KEY_DOUBLE_TAP, value) }
 
-    var pillTripleTapAction: String
-        get() = prefs.getString(KEY_PILL_TRIPLE_TAP, AppDefaults.PILL_TRIPLE_TAP_ACTION) ?: AppDefaults.PILL_TRIPLE_TAP_ACTION
-        set(value) = prefs.edit { putString(KEY_PILL_TRIPLE_TAP, value) }
+    var tripleTapAction: String
+        get() = prefs.getString(KEY_TRIPLE_TAP, AppDefaults.TRIPLE_TAP_ACTION) ?: AppDefaults.TRIPLE_TAP_ACTION
+        set(value) = prefs.edit { putString(KEY_TRIPLE_TAP, value) }
 
-    var pillLongPressAction: String
-        get() = prefs.getString(KEY_PILL_LONG_PRESS, AppDefaults.PILL_LONG_PRESS_ACTION) ?: AppDefaults.PILL_LONG_PRESS_ACTION
-        set(value) = prefs.edit { putString(KEY_PILL_LONG_PRESS, value) }
+    var longPressAction: String
+        get() = prefs.getString(KEY_LONG_PRESS, AppDefaults.LONG_PRESS_ACTION) ?: AppDefaults.LONG_PRESS_ACTION
+        set(value) = prefs.edit { putString(KEY_LONG_PRESS, value) }
 
-    var pillSwipeUpAction: String
-        get() = prefs.getString(KEY_PILL_SWIPE_UP, AppDefaults.PILL_SWIPE_UP_ACTION) ?: AppDefaults.PILL_SWIPE_UP_ACTION
-        set(value) = prefs.edit { putString(KEY_PILL_SWIPE_UP, value) }
+    var swipeUpAction: String
+        get() = prefs.getString(KEY_SWIPE_UP, AppDefaults.SWIPE_UP_ACTION) ?: AppDefaults.SWIPE_UP_ACTION
+        set(value) = prefs.edit { putString(KEY_SWIPE_UP, value) }
 
-    var pillSwipeDownAction: String
-        get() = prefs.getString(KEY_PILL_SWIPE_DOWN, AppDefaults.PILL_SWIPE_DOWN_ACTION) ?: AppDefaults.PILL_SWIPE_DOWN_ACTION
-        set(value) = prefs.edit { putString(KEY_PILL_SWIPE_DOWN, value) }
+    var swipeDownAction: String
+        get() = prefs.getString(KEY_SWIPE_DOWN, AppDefaults.SWIPE_DOWN_ACTION) ?: AppDefaults.SWIPE_DOWN_ACTION
+        set(value) = prefs.edit { putString(KEY_SWIPE_DOWN, value) }
 
     var isHapticFeedbackEnabled: Boolean
         get() = prefs.getBoolean(KEY_HAPTIC_FEEDBACK_ENABLED, AppDefaults.HAPTIC_FEEDBACK_ENABLED)
@@ -166,6 +167,10 @@ class AppPreference private constructor(context: Context) {
     var isStickToEdgeEnabled: Boolean
         get() = prefs.getBoolean(KEY_STICK_TO_EDGE, true)
         set(value) = prefs.edit { putBoolean(KEY_STICK_TO_EDGE, value) }
+
+    var isLockBallPositionEnabled: Boolean
+        get() = prefs.getBoolean(KEY_LOCK_BALL_POSITION, false)
+        set(value) = prefs.edit { putBoolean(KEY_LOCK_BALL_POSITION, value) }
 
     var isShowOnLockScreenEnabled: Boolean
         get() = prefs.getBoolean(KEY_SHOW_ON_LOCK_SCREEN, false)
@@ -194,8 +199,7 @@ class AppPreference private constructor(context: Context) {
                     if (item.packageName != null) {
                         item.copy(action = MenuAction.LAUNCH_APP)
                     } else {
-                        val action = item.action ?: return@mapNotNull null
-                        QuickBallMenuItem.getMenuItemByAction(action)
+                        QuickBallMenuItem.getMenuItemByAction(item.action)
                     }
                 }
                 if (validItems != null && validItems.size >= 2) validItems else getDefaultSelectedItems()

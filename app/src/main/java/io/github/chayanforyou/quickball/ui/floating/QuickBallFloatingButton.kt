@@ -33,30 +33,36 @@ class QuickBallFloatingButton @JvmOverloads constructor(
     companion object {
         const val ICON_MARGIN_DP = 9f
         private const val RIPPLE_COLOR = "#40FFFFFF"
-        private const val ITEM_ICON_COLOR = "#FFFFFFFF"
-        private const val ITEM_BG_COLOR = "#BF2C2C2C"
     }
 
     private val prefs by lazy { AppPreference.getInstance(context) }
     private val marginPx by lazy { DensityUtils.dp2px(ICON_MARGIN_DP) }
     private val imageView: ImageView
 
-    // Expansion State
+    // Whether the radial menu is currently expanded
     var isExpanded: Boolean = false
         private set
 
-    // Exposed Callback Listeners
-    var onTouchDownListener: (() -> Unit)? = null
-    var onDragMoveListener: ((dx: Float, dy: Float) -> Unit)? = null
-    var onClickListener: (() -> Unit)? = null
-    var onDragEndListener: (() -> Unit)? = null
-    var onTouchCanceledListener: (() -> Unit)? = null
+    // Listener for touch, drag, and gesture events
+    var listener: GestureListener?
+        get() = gestureDetector.listener
+        set(value) {
+            gestureDetector.listener = value
+        }
 
     // Touch & Drag State
-    private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
-    private var initialTouchX = 0f
-    private var initialTouchY = 0f
+    private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop.toFloat()
+    private var startX = 0f
+    private var startY = 0f
     private var isDragging = false
+
+    // Gesture Detector (used when position is locked and stick to edge is disabled)
+    private val gestureDetector by lazy {
+        GestureDetector(
+            context = context,
+            isGestureEnabled = { prefs.isGestureEnabled && !prefs.isStickToEdgeEnabled }
+        )
+    }
 
     init {
         // Initialize background shape & ripple with saved ball color
@@ -134,34 +140,42 @@ class QuickBallFloatingButton @JvmOverloads constructor(
     override fun onTouchEvent(event: MotionEvent): Boolean {
         if (isExpanded) return super.onTouchEvent(event)
 
+        return if (prefs.isLockBallPositionEnabled) {
+            gestureDetector.onTouchEvent(event) || super.onTouchEvent(event)
+        } else {
+            handleDragTouchEvent(event)
+        }
+    }
+
+    private fun handleDragTouchEvent(event: MotionEvent): Boolean {
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
-                onTouchDownListener?.invoke()
-                initialTouchX = event.rawX
-                initialTouchY = event.rawY
+                listener?.onTouchDown()
+                startX = event.rawX
+                startY = event.rawY
                 isDragging = false
                 return true
             }
 
             MotionEvent.ACTION_MOVE -> {
-                val dx = event.rawX - initialTouchX
-                val dy = event.rawY - initialTouchY
+                val dx = event.rawX - startX
+                val dy = event.rawY - startY
 
                 if (!isDragging && hypot(dx, dy) > touchSlop) {
                     isDragging = true
                 }
 
                 if (isDragging) {
-                    onDragMoveListener?.invoke(dx, dy)
+                    listener?.onDragMove(dx, dy)
                 }
                 return true
             }
 
             MotionEvent.ACTION_UP -> {
                 if (isDragging) {
-                    onDragEndListener?.invoke()
+                    listener?.onDragEnd()
                 } else {
-                    onClickListener?.invoke()
+                    listener?.onSingleTap()
                 }
                 isDragging = false
                 return true
@@ -169,14 +183,19 @@ class QuickBallFloatingButton @JvmOverloads constructor(
 
             MotionEvent.ACTION_CANCEL -> {
                 if (isDragging) {
-                    onDragEndListener?.invoke()
+                    listener?.onDragEnd()
                 }
-                onTouchCanceledListener?.invoke()
+                listener?.onTouchCancel()
                 isDragging = false
                 return true
             }
 
             else -> return super.onTouchEvent(event)
         }
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        gestureDetector.cleanup()
     }
 }

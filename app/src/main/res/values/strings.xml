@@ -44,6 +44,9 @@
     <!-- Advanced Settings -->
     <string name="advanced_settings_title">Advanced settings</string>
 
+    <!-- Lock Ball Position -->
+    <string name="lock_ball_position_title">Lock ball position</string>
+
     <!-- Show On Lock Screen -->
     <string name="show_on_lock_screen_title">Show on Lock screen</string>
 
@@ -137,6 +140,7 @@
 
     <!-- Gestures -->
     <string name="gesture_header_title">Gesture</string>
+    <string name="gesture_requirement_notice">Gestures work on the edge pill when \"Stick to edge\" is enabled, or on the floating ball when \"Lock ball position\" is enabled.</string>
     <string name="enable_gestures_title">Enable gestures</string>
     <string name="enable_gestures_description">Enabling gestures may slightly delay opening the menu.</string>
     <string name="double_tap_title">Double tap</string>

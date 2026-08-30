@@ -40,6 +40,7 @@ object ToastUtil {
                 max > 0 && progress <= max / 2 -> R.drawable.ic_volume_down
                 else -> R.drawable.ic_volume_up
             }
+
             BRIGHTNESS -> when {
                 progress == 0 -> R.drawable.ic_brightness_off
                 max > 0 && progress <= max / 2 -> R.drawable.ic_brightness_down
@@ -213,39 +214,36 @@ object ToastUtil {
         maxVolume: Int,
         onVolumeChanged: ((Int) -> Unit)?
     ) {
-        val percentage = calculatePercentage(currentVolume, maxVolume)
+        fun volumeText(vol: Int) = "Volume: ${calculatePercentage(vol, maxVolume)}%"
         showToastInternal(
             context = context,
             type = ToastType.VOLUME,
-            text = "Volume: $percentage%",
+            text = volumeText(currentVolume),
             progress = currentVolume,
             maxProgress = maxVolume,
-            onValueAdjusted = { valIndex ->
-                onVolumeChanged?.invoke(valIndex)
-                "Volume: ${calculatePercentage(valIndex, maxVolume)}%"
+            onValueAdjusted = { progressVal ->
+                onVolumeChanged?.invoke(progressVal)
+                volumeText(progressVal)
             }
         )
     }
 
     fun showBrightnessToast(
         context: Context,
-        currentBrightness: Int,
-        maxBrightness: Int,
-        minBrightness: Int = 1,
+        percent: Int,
         onBrightnessChanged: ((Int) -> Unit)?
     ) {
-        val percent = BrightnessUtils.linearToPercent(currentBrightness, minBrightness, maxBrightness)
-
+        fun brightnessText(p: Int) = "Brightness: $p%"
         showToastInternal(
             context = context,
             type = ToastType.BRIGHTNESS,
-            text = "Brightness: $percent%",
+            text = brightnessText(percent),
             progress = percent,
             maxProgress = 100,
             onValueAdjusted = { progressVal ->
-                val brightness = BrightnessUtils.percentToLinear(progressVal, minBrightness, maxBrightness)
+                val brightness = BrightnessUtils.percentToLinear(progressVal)
                 onBrightnessChanged?.invoke(brightness)
-                "Brightness: $progressVal%"
+                brightnessText(progressVal)
             }
         )
     }
