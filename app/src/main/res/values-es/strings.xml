@@ -44,6 +44,9 @@
     <!-- Advanced Settings -->
     <string name="advanced_settings_title">Ajustes avanzados</string>
 
+    <!-- Lock Ball Position -->
+    <string name="lock_ball_position_title">Bloquear posición de la bola</string>
+
     <!-- Show On Lock Screen -->
     <string name="show_on_lock_screen_title">Mostrar en pantalla de bloqueo</string>
 
@@ -137,6 +140,7 @@
 
     <!-- Gestures -->
     <string name="gesture_header_title">Gestos</string>
+    <string name="gesture_requirement_notice">Los gestos funcionan en la pastilla del borde cuando \"Fijar al borde\" está activado, o en la bola flotante cuando \"Bloquear posición de la bola\" está activado.</string>
     <string name="enable_gestures_title">Activar gestos</string>
     <string name="enable_gestures_description">Activar los gestos puede retrasar ligeramente la apertura del menú.</string>
     <string name="double_tap_title">Doble toque</string>
@@ -150,7 +154,18 @@
     <string name="haptics_header_title">Respuesta háptica</string>
     <string name="vibration_feedback_title">Vibración táctil</string>
     <string name="vibration_feedback_description">Respuesta háptica en toques, deslizamientos y acciones</string>
-    <string name="haptic_light">Suave</string>
-    <string name="haptic_medium">Media</string>
+    <string name="haptic_light">Ligero</string>
+    <string name="haptic_medium">Medio</string>
     <string name="haptic_strong">Fuerte</string>
+
+    <!-- App Rating Dialog -->
+    <string name="rate_dialog_title">Un mensaje del desarrollador ❤️</string>
+    <string name="rate_dialog_p1">Hola, soy yo, la persona que desarrolla %1$s.</string>
+    <string name="rate_dialog_p2">Construyo esta aplicación por mi cuenta: las funciones, las mejoras y las correcciones de errores, todo en mi tiempo libre. Tu apoyo es genuinamente lo que me mantiene motivado para seguir mejorando %1$s.</string>
+    <string name="rate_dialog_p3">Si algo no funciona o hay una función que te gustaría ver, sólo envíame un correo electrónico. Leo cada mensaje y siempre haré todo lo posible para ayudar y solucionar las cosas rápidamente.</string>
+    <string name="rate_dialog_p4">Y si estás disfrutando de %1$s, una reseña de 5★ significaría mucho para mí. Solo toma un minuto, pero ayuda a más personas a descubrir la aplicación y, sinceramente, realmente me alegra el día.</string>
+    <string name="rate_dialog_thank_you">Gracias por usar %1$s y apoyar mi trabajo.</string>
+    <string name="rate_dialog_signature">Chayan</string>
+    <string name="rate_dialog_leave_review">Dejar una reseña de 5★</string>
+    <string name="rate_dialog_email_me">Enviarme un correo</string>
 </resources>

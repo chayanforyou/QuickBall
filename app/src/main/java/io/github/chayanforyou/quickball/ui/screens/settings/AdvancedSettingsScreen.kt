@@ -8,11 +8,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -34,6 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.chayanforyou.quickball.R
@@ -74,12 +77,12 @@ fun AdvancedSettingsScreen(
     val pillHeight = uiState.pillHeight
     val pillThickness = uiState.pillThickness
     val pillTouchWidth = uiState.pillTouchWidth
-    val isPillGestureEnabled = uiState.isPillGestureEnabled
-    val pillDoubleTapAction = uiState.pillDoubleTapAction
-    val pillTripleTapAction = uiState.pillTripleTapAction
-    val pillLongPressAction = uiState.pillLongPressAction
-    val pillSwipeUpAction = uiState.pillSwipeUpAction
-    val pillSwipeDownAction = uiState.pillSwipeDownAction
+    val isGestureEnabled = uiState.isGestureEnabled
+    val doubleTapAction = uiState.doubleTapAction
+    val tripleTapAction = uiState.tripleTapAction
+    val longPressAction = uiState.longPressAction
+    val swipeUpAction = uiState.swipeUpAction
+    val swipeDownAction = uiState.swipeDownAction
     val isHapticFeedbackEnabled = uiState.isHapticFeedbackEnabled
     val hapticIntensity = uiState.hapticIntensity
 
@@ -357,13 +360,41 @@ fun AdvancedSettingsScreen(
                 }
             }
 
-            // Gesture Settings Header & Card
+            // Gesture Settings Header
             Text(
                 text = stringResource(R.string.gesture_header_title),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(start = 4.dp, top = 12.dp)
             )
+
+            // Gesture Requirement Notice Card
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = AppCardDefaults.cardColors()
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Info,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.gesture_requirement_notice),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        lineHeight = 18.sp
+                    )
+                }
+            }
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -393,10 +424,9 @@ fun AdvancedSettingsScreen(
                             )
                         }
                         Switch(
-                            checked = isPillGestureEnabled,
+                            checked = isGestureEnabled,
                             onCheckedChange = { enabled ->
-                                viewModel.setPillGestureEnabled(enabled)
-                                context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
+                                viewModel.setGestureEnabled(enabled)
                             }
                         )
                     }
@@ -406,40 +436,40 @@ fun AdvancedSettingsScreen(
                     // Double tap
                     GestureSettingRow(
                         title = stringResource(R.string.double_tap_title),
-                        actionName = pillDoubleTapAction,
-                        enabled = isPillGestureEnabled,
+                        actionName = doubleTapAction,
+                        enabled = isGestureEnabled,
                         onClick = { activeGestureBottomSheet = PillGesture.DOUBLE_TAP }
                     )
 
                     // Triple tap
                     GestureSettingRow(
                         title = stringResource(R.string.triple_tap_title),
-                        actionName = pillTripleTapAction,
-                        enabled = isPillGestureEnabled,
+                        actionName = tripleTapAction,
+                        enabled = isGestureEnabled,
                         onClick = { activeGestureBottomSheet = PillGesture.TRIPLE_TAP }
                     )
 
                     // Long press
                     GestureSettingRow(
                         title = stringResource(R.string.long_press_title),
-                        actionName = pillLongPressAction,
-                        enabled = isPillGestureEnabled,
+                        actionName = longPressAction,
+                        enabled = isGestureEnabled,
                         onClick = { activeGestureBottomSheet = PillGesture.LONG_PRESS }
                     )
 
                     // Swipe up
                     GestureSettingRow(
                         title = stringResource(R.string.swipe_up_title),
-                        actionName = pillSwipeUpAction,
-                        enabled = isPillGestureEnabled,
+                        actionName = swipeUpAction,
+                        enabled = isGestureEnabled,
                         onClick = { activeGestureBottomSheet = PillGesture.SWIPE_UP }
                     )
 
                     // Swipe down
                     GestureSettingRow(
                         title = stringResource(R.string.swipe_down_title),
-                        actionName = pillSwipeDownAction,
-                        enabled = isPillGestureEnabled,
+                        actionName = swipeDownAction,
+                        enabled = isGestureEnabled,
                         onClick = { activeGestureBottomSheet = PillGesture.SWIPE_DOWN }
                     )
                 }
@@ -585,42 +615,37 @@ fun AdvancedSettingsScreen(
         val (title, currentAction, onSelect) = when (gesture) {
             PillGesture.DOUBLE_TAP -> Triple(
                 stringResource(gesture.titleRes),
-                pillDoubleTapAction
+                doubleTapAction
             ) { action: MenuAction ->
-                viewModel.setPillDoubleTapAction(action.name)
-                context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
+                viewModel.setDoubleTapAction(action.name)
             }
 
             PillGesture.TRIPLE_TAP -> Triple(
                 stringResource(gesture.titleRes),
-                pillTripleTapAction
+                tripleTapAction
             ) { action: MenuAction ->
-                viewModel.setPillTripleTapAction(action.name)
-                context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
+                viewModel.setTripleTapAction(action.name)
             }
 
             PillGesture.LONG_PRESS -> Triple(
                 stringResource(gesture.titleRes),
-                pillLongPressAction
+                longPressAction
             ) { action: MenuAction ->
-                viewModel.setPillLongPressAction(action.name)
-                context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
+                viewModel.setLongPressAction(action.name)
             }
 
             PillGesture.SWIPE_UP -> Triple(
                 stringResource(gesture.titleRes),
-                pillSwipeUpAction
+                swipeUpAction
             ) { action: MenuAction ->
-                viewModel.setPillSwipeUpAction(action.name)
-                context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
+                viewModel.setSwipeUpAction(action.name)
             }
 
             PillGesture.SWIPE_DOWN -> Triple(
                 stringResource(gesture.titleRes),
-                pillSwipeDownAction
+                swipeDownAction
             ) { action: MenuAction ->
-                viewModel.setPillSwipeDownAction(action.name)
-                context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
+                viewModel.setSwipeDownAction(action.name)
             }
         }
 

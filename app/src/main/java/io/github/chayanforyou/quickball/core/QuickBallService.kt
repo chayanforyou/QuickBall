@@ -26,6 +26,7 @@ import io.github.chayanforyou.quickball.domain.AppPreference
 import io.github.chayanforyou.quickball.domain.models.MenuAction
 import io.github.chayanforyou.quickball.domain.handlers.QuickBallActionHandler
 import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItem
+import io.github.chayanforyou.quickball.ui.floating.GestureListener
 import io.github.chayanforyou.quickball.ui.floating.QuickBallFloatingButton
 import io.github.chayanforyou.quickball.ui.floating.QuickBallFloatingMenu
 import io.github.chayanforyou.quickball.ui.floating.QuickBallPillView
@@ -311,10 +312,7 @@ class QuickBallService : AccessibilityService() {
         params.x = if (isOnRight) screenW - pillWidth else 0
         params.y = fabY + (fabSizePx - pillHeight) / 2
 
-        pill.setPillColor(prefs.pillColor)
-        pill.setPillThickness(prefs.pillThickness)
-        pill.setPillArcAngle(prefs.pillArcAngle)
-        pill.isGestureEnabled = prefs.isPillGestureEnabled
+        pill.update()
 
         try {
             wm.updateViewLayout(pill, params)
@@ -322,12 +320,21 @@ class QuickBallService : AccessibilityService() {
         }
     }
 
-    private fun executePillAction(actionName: String) {
-        if (!prefs.isPillGestureEnabled) return
+    private open inner class QuickBallGestureListener : GestureListener {
+        override fun onDoubleTap() = executeGestureAction(prefs.doubleTapAction)
+        override fun onTripleTap() = executeGestureAction(prefs.tripleTapAction)
+        override fun onLongPress() = executeGestureAction(prefs.longPressAction)
+        override fun onSwipeUp() = executeGestureAction(prefs.swipeUpAction)
+        override fun onSwipeDown() = executeGestureAction(prefs.swipeDownAction)
+    }
+
+    private fun executeGestureAction(actionName: String) {
+        if (!prefs.isGestureEnabled) return
         performHapticFeedback()
         val action = MenuAction.fromName(actionName) ?: return
         val menuItem = QuickBallMenuItem(action = action)
         actionHandler?.onMenuAction(menuItem)
+        resetInactivityTimer()
     }
 
     /* -------------------- FAB Window & Gestures -------------------- */
@@ -357,8 +364,9 @@ class QuickBallService : AccessibilityService() {
         val button = QuickBallFloatingButton(this).apply {
             setExpanded(isExpanded, animate = false)
 
-            onTouchDownListener = {
-                if (!isStashing) {
+            listener = object : QuickBallGestureListener() {
+                override fun onTouchDown() {
+                    if (isStashing) return
                     stopInactivityTimer()
                     fabAnimator?.cancel()
                     isStashed = false
@@ -369,15 +377,14 @@ class QuickBallService : AccessibilityService() {
                     screenW = sw
                     screenH = sh
                 }
-            }
 
-            onTouchCanceledListener = {
-                isDragging = false
-                resetInactivityTimer()
-            }
+                override fun onTouchCancel() {
+                    isDragging = false
+                    resetInactivityTimer()
+                }
 
-            onDragMoveListener = { dx, dy ->
-                if (!isStashing) {
+                override fun onDragMove(dx: Float, dy: Float) {
+                    if (isStashing) return
                     isDragging = true
                     stopInactivityTimer()
                     alpha = 1.0f
@@ -388,22 +395,23 @@ class QuickBallService : AccessibilityService() {
 
                     params.x = fabX
                     params.y = fabY
-                    updateFabViewLayout(this, params)
+                    updateFabViewLayout(this@apply, params)
                 }
-            }
 
-            onClickListener = {
-                isDragging = false
-                if (!isStickToEdge) alpha = 1.0f
-                if (!isStashing) {
+                override fun onDragEnd() {
+                    isDragging = false
+                    if (!isStashing) snapToEdge()
+                }
+
+                override fun onSingleTap() {
+                    isDragging = false
+                    if (!isStickToEdge) alpha = 1.0f
+                    if (isStashed || isStashing) {
+                        unstashFab()
+                    }
                     performHapticFeedback()
                     expandMenu()
                 }
-            }
-
-            onDragEndListener = {
-                isDragging = false
-                if (!isStashing) snapToEdge()
             }
         }
 
@@ -483,7 +491,7 @@ class QuickBallService : AccessibilityService() {
     }
 
     private fun unstashFab(animated: Boolean = true, onFinished: (() -> Unit)? = null) {
-        if (!isStashed) {
+        if (!isStashed && !isStashing) {
             onFinished?.invoke()
             return
         }
@@ -561,7 +569,10 @@ class QuickBallService : AccessibilityService() {
         animator.start()
     }
 
-    private fun updateFabViewLayout(view: QuickBallFloatingButton, params: WindowManager.LayoutParams) {
+    private fun updateFabViewLayout(
+        view: QuickBallFloatingButton,
+        params: WindowManager.LayoutParams
+    ) {
         val wm = windowManager ?: return
         try {
             wm.updateViewLayout(view, params)
@@ -581,19 +592,14 @@ class QuickBallService : AccessibilityService() {
 
         val pill = QuickBallPillView(this).apply {
             onRight = isOnRight
-            isGestureEnabled = prefs.isPillGestureEnabled
-            onSingleTapListener = {
-                performHapticFeedback()
-                removePill()
-                val targetX = getEdgeX()
-                unstashFab()
-                expandMenu(targetX)
+            listener = object : QuickBallGestureListener() {
+                override fun onSingleTap() {
+                    performHapticFeedback()
+                    removePill()
+                    unstashFab()
+                    expandMenu()
+                }
             }
-            onDoubleTapListener = { executePillAction(prefs.pillDoubleTapAction) }
-            onTripleTapListener = { executePillAction(prefs.pillTripleTapAction) }
-            onLongPressListener = { executePillAction(prefs.pillLongPressAction) }
-            onSwipeUpListener = { executePillAction(prefs.pillSwipeUpAction) }
-            onSwipeDownListener = { executePillAction(prefs.pillSwipeDownAction) }
         }
 
         val (screenW, _) = getScreenSize()
@@ -629,7 +635,7 @@ class QuickBallService : AccessibilityService() {
 
     /* -------------------- Menu Window Management -------------------- */
 
-    private fun expandMenu(targetX: Int = fabX) {
+    private fun expandMenu() {
         val wm = windowManager ?: return
 
         isExpanded = true
@@ -662,7 +668,7 @@ class QuickBallService : AccessibilityService() {
             context = this,
             fabSize = fabSizePx,
             items = getMenuItems(),
-            fabX = targetX,
+            fabX = getEdgeX(),
             fabY = fabY,
             onDismiss = {
                 startCollapsingMenu()

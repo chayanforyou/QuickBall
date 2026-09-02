@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 
 data class QuickBallUiState(
     val isQuickBallEnabled: Boolean = true,
+    val lockBallPosition: Boolean = false,
     val showOnLockScreen: Boolean = false,
     val hideOnLandscape: Boolean = false,
     val stickToEdge: Boolean = true,
@@ -32,12 +33,12 @@ data class QuickBallUiState(
     val pillThickness: Float = AppDefaults.PILL_THICKNESS,
     val pillTouchWidth: Float = AppDefaults.PILL_TOUCH_WIDTH,
     val pillArcAngle: Float = AppDefaults.PILL_ARC_ANGLE,
-    val isPillGestureEnabled: Boolean = AppDefaults.PILL_GESTURE_ENABLED,
-    val pillDoubleTapAction: String = AppDefaults.PILL_DOUBLE_TAP_ACTION,
-    val pillTripleTapAction: String = AppDefaults.PILL_TRIPLE_TAP_ACTION,
-    val pillLongPressAction: String = AppDefaults.PILL_LONG_PRESS_ACTION,
-    val pillSwipeUpAction: String = AppDefaults.PILL_SWIPE_UP_ACTION,
-    val pillSwipeDownAction: String = AppDefaults.PILL_SWIPE_DOWN_ACTION,
+    val isGestureEnabled: Boolean = AppDefaults.GESTURE_ENABLED,
+    val doubleTapAction: String = AppDefaults.DOUBLE_TAP_ACTION,
+    val tripleTapAction: String = AppDefaults.TRIPLE_TAP_ACTION,
+    val longPressAction: String = AppDefaults.LONG_PRESS_ACTION,
+    val swipeUpAction: String = AppDefaults.SWIPE_UP_ACTION,
+    val swipeDownAction: String = AppDefaults.SWIPE_DOWN_ACTION,
     val isHapticFeedbackEnabled: Boolean = AppDefaults.HAPTIC_FEEDBACK_ENABLED,
     val hapticIntensity: String = AppDefaults.HAPTIC_INTENSITY,
     val isAccessibilityGranted: Boolean = false,
@@ -52,6 +53,7 @@ class QuickBallViewModel(application: Application) : AndroidViewModel(applicatio
     private val _uiState = MutableStateFlow(
         QuickBallUiState(
             isQuickBallEnabled = prefs.isQuickBallEnabled,
+            lockBallPosition = prefs.isLockBallPositionEnabled,
             showOnLockScreen = prefs.isShowOnLockScreenEnabled,
             hideOnLandscape = prefs.isHideOnLandscapeEnabled,
             stickToEdge = prefs.isStickToEdgeEnabled,
@@ -70,12 +72,12 @@ class QuickBallViewModel(application: Application) : AndroidViewModel(applicatio
             pillThickness = prefs.pillThickness,
             pillTouchWidth = prefs.pillTouchWidth,
             pillArcAngle = prefs.pillArcAngle,
-            isPillGestureEnabled = prefs.isPillGestureEnabled,
-            pillDoubleTapAction = prefs.pillDoubleTapAction,
-            pillTripleTapAction = prefs.pillTripleTapAction,
-            pillLongPressAction = prefs.pillLongPressAction,
-            pillSwipeUpAction = prefs.pillSwipeUpAction,
-            pillSwipeDownAction = prefs.pillSwipeDownAction,
+            isGestureEnabled = prefs.isGestureEnabled,
+            doubleTapAction = prefs.doubleTapAction,
+            tripleTapAction = prefs.tripleTapAction,
+            longPressAction = prefs.longPressAction,
+            swipeUpAction = prefs.swipeUpAction,
+            swipeDownAction = prefs.swipeDownAction,
             isHapticFeedbackEnabled = prefs.isHapticFeedbackEnabled,
             hapticIntensity = prefs.hapticIntensity,
             selectedMenuItems = prefs.selectedMenuItems,
@@ -111,6 +113,11 @@ class QuickBallViewModel(application: Application) : AndroidViewModel(applicatio
     fun setQuickBallEnabled(enabled: Boolean) {
         prefs.isQuickBallEnabled = enabled
         _uiState.update { it.copy(isQuickBallEnabled = enabled) }
+    }
+
+    fun setLockBallPosition(enabled: Boolean) {
+        prefs.isLockBallPositionEnabled = enabled
+        _uiState.update { it.copy(lockBallPosition = enabled) }
     }
 
     fun setShowOnLockScreen(enabled: Boolean) {
@@ -203,34 +210,34 @@ class QuickBallViewModel(application: Application) : AndroidViewModel(applicatio
         _uiState.update { it.copy(pillArcAngle = angle) }
     }
 
-    fun setPillGestureEnabled(enabled: Boolean) {
-        prefs.isPillGestureEnabled = enabled
-        _uiState.update { it.copy(isPillGestureEnabled = enabled) }
+    fun setGestureEnabled(enabled: Boolean) {
+        prefs.isGestureEnabled = enabled
+        _uiState.update { it.copy(isGestureEnabled = enabled) }
     }
 
-    fun setPillDoubleTapAction(action: String) {
-        prefs.pillDoubleTapAction = action
-        _uiState.update { it.copy(pillDoubleTapAction = action) }
+    fun setDoubleTapAction(action: String) {
+        prefs.doubleTapAction = action
+        _uiState.update { it.copy(doubleTapAction = action) }
     }
 
-    fun setPillTripleTapAction(action: String) {
-        prefs.pillTripleTapAction = action
-        _uiState.update { it.copy(pillTripleTapAction = action) }
+    fun setTripleTapAction(action: String) {
+        prefs.tripleTapAction = action
+        _uiState.update { it.copy(tripleTapAction = action) }
     }
 
-    fun setPillLongPressAction(action: String) {
-        prefs.pillLongPressAction = action
-        _uiState.update { it.copy(pillLongPressAction = action) }
+    fun setLongPressAction(action: String) {
+        prefs.longPressAction = action
+        _uiState.update { it.copy(longPressAction = action) }
     }
 
-    fun setPillSwipeUpAction(action: String) {
-        prefs.pillSwipeUpAction = action
-        _uiState.update { it.copy(pillSwipeUpAction = action) }
+    fun setSwipeUpAction(action: String) {
+        prefs.swipeUpAction = action
+        _uiState.update { it.copy(swipeUpAction = action) }
     }
 
-    fun setPillSwipeDownAction(action: String) {
-        prefs.pillSwipeDownAction = action
-        _uiState.update { it.copy(pillSwipeDownAction = action) }
+    fun setSwipeDownAction(action: String) {
+        prefs.swipeDownAction = action
+        _uiState.update { it.copy(swipeDownAction = action) }
     }
 
     fun setHapticFeedbackEnabled(enabled: Boolean) {

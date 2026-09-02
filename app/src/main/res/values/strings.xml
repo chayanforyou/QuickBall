@@ -44,6 +44,9 @@
     <!-- Advanced Settings -->
     <string name="advanced_settings_title">Advanced settings</string>
 
+    <!-- Lock Ball Position -->
+    <string name="lock_ball_position_title">Lock ball position</string>
+
     <!-- Show On Lock Screen -->
     <string name="show_on_lock_screen_title">Show on Lock screen</string>
 
@@ -137,6 +140,7 @@
 
     <!-- Gestures -->
     <string name="gesture_header_title">Gesture</string>
+    <string name="gesture_requirement_notice">Gestures work on the edge pill when \"Stick to edge\" is enabled, or on the floating ball when \"Lock ball position\" is enabled.</string>
     <string name="enable_gestures_title">Enable gestures</string>
     <string name="enable_gestures_description">Enabling gestures may slightly delay opening the menu.</string>
     <string name="double_tap_title">Double tap</string>
@@ -153,4 +157,15 @@
     <string name="haptic_light">Light</string>
     <string name="haptic_medium">Medium</string>
     <string name="haptic_strong">Strong</string>
+
+    <!-- App Rating Dialog -->
+    <string name="rate_dialog_title">A Message from the Dev ❤️</string>
+    <string name="rate_dialog_p1">Hey, it\'s me, the person who makes %1$s.</string>
+    <string name="rate_dialog_p2">I build this app on my own—the features, the improvements, and the bug fixes, all in my spare time. Your support is genuinely what keeps me motivated to keep making %1$s better.</string>
+    <string name="rate_dialog_p3">If something isn\'t working, or there\'s a feature you\'d love to see, just email me. I read every message and I\'ll always do my best to help and get things sorted out quickly.</string>
+    <string name="rate_dialog_p4">And if you\'re enjoying %1$s, a 5★ review would mean a lot to me. It only takes a minute, but it helps more people discover the app—and honestly, it really does make my day.</string>
+    <string name="rate_dialog_thank_you">Thank you for using %1$s and supporting my work.</string>
+    <string name="rate_dialog_signature">Chayan</string>
+    <string name="rate_dialog_leave_review">Leave a 5★ review</string>
+    <string name="rate_dialog_email_me">Email me</string>
 </resources>

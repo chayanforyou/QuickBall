@@ -19,12 +19,12 @@ object AppDefaults {
     const val PILL_THICKNESS = 3f
     const val PILL_TOUCH_WIDTH = 25f
     const val PILL_ARC_ANGLE = 40f
-    const val PILL_GESTURE_ENABLED = false
-    val PILL_DOUBLE_TAP_ACTION = MenuAction.LOCK_SCREEN.name
-    val PILL_TRIPLE_TAP_ACTION = MenuAction.SCREENSHOT.name
-    val PILL_LONG_PRESS_ACTION = MenuAction.POWER_DIALOG.name
-    val PILL_SWIPE_UP_ACTION = MenuAction.RECENT.name
-    val PILL_SWIPE_DOWN_ACTION = MenuAction.NOTIFICATION.name
+    const val GESTURE_ENABLED = false
+    val DOUBLE_TAP_ACTION = MenuAction.LOCK_SCREEN.name
+    val TRIPLE_TAP_ACTION = MenuAction.SCREENSHOT.name
+    val LONG_PRESS_ACTION = MenuAction.POWER_DIALOG.name
+    val SWIPE_UP_ACTION = MenuAction.RECENT.name
+    val SWIPE_DOWN_ACTION = MenuAction.NOTIFICATION.name
     const val HAPTIC_FEEDBACK_ENABLED = true
     val HAPTIC_INTENSITY = HapticIntensity.LIGHT.name
 }
