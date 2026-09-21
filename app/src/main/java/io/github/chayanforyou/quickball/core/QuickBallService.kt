@@ -18,6 +18,7 @@ import android.os.Looper
 import android.util.Log
 import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import android.view.animation.PathInterpolator
@@ -27,9 +28,9 @@ import io.github.chayanforyou.quickball.domain.models.MenuAction
 import io.github.chayanforyou.quickball.domain.handlers.QuickBallActionHandler
 import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItem
 import io.github.chayanforyou.quickball.ui.floating.GestureListener
-import io.github.chayanforyou.quickball.ui.floating.QuickBallFloatingButton
-import io.github.chayanforyou.quickball.ui.floating.QuickBallFloatingMenu
-import io.github.chayanforyou.quickball.ui.floating.QuickBallPillView
+import io.github.chayanforyou.quickball.ui.floating.FloatTouchView
+import io.github.chayanforyou.quickball.ui.floating.FloatPanelView
+import io.github.chayanforyou.quickball.ui.floating.SideKickView
 import io.github.chayanforyou.quickball.utils.DensityUtils
 import io.github.chayanforyou.quickball.utils.getScreenSize
 import io.github.chayanforyou.quickball.utils.performHapticFeedback
@@ -67,11 +68,11 @@ class QuickBallService : AccessibilityService() {
 
     // Window Managers & Views
     private var windowManager: WindowManager? = null
-    private var fabView: QuickBallFloatingButton? = null
+    private var fabView: FloatTouchView? = null
     private var fabParams: WindowManager.LayoutParams? = null
-    private var pillView: QuickBallPillView? = null
+    private var pillView: SideKickView? = null
     private var pillParams: WindowManager.LayoutParams? = null
-    private var menuView: QuickBallFloatingMenu? = null
+    private var menuView: FloatPanelView? = null
     private var menuParams: WindowManager.LayoutParams? = null
     private var actionHandler: QuickBallActionHandler? = null
 
@@ -219,7 +220,7 @@ class QuickBallService : AccessibilityService() {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         refreshBallVisibility()
-        recalculatePositionForNewScreenSize()
+        recalculatePosition()
     }
 
     private fun shouldHandlePackage(packageName: String): Boolean {
@@ -288,14 +289,15 @@ class QuickBallService : AccessibilityService() {
     }
 
     private fun updateBall() {
-        fabView?.setBallColor(prefs.ballColor)
-        fabView?.setBallIconColor(prefs.ballIconColor)
-        val newSize = fabSizePx
-        fabParams?.let { params ->
-            params.width = newSize
-            params.height = newSize
-        }
-        recalculatePositionForNewScreenSize()
+        val fab = fabView ?: return
+        val params = fabParams ?: return
+
+        params.width = fabSizePx
+        params.height = fabSizePx
+
+        fab.update()
+
+        recalculatePosition()
     }
 
     private fun updatePill() {
@@ -347,21 +349,20 @@ class QuickBallService : AccessibilityService() {
         fabX = getEdgeX()
         fabY = getEdgeY()
 
-        val params = createSystemWindowParams(
+        var initialWindowX = 0
+        var initialWindowY = 0
+        var screenW = 0
+        var screenH = 0
+
+        fabParams = createSystemWindowParams(
             width = fabSizePx,
             height = fabSizePx,
         ).apply {
             x = fabX
             y = fabY
         }
-        fabParams = params
 
-        var initialWindowX = 0
-        var initialWindowY = 0
-        var screenW = 0
-        var screenH = 0
-
-        val button = QuickBallFloatingButton(this).apply {
+        fabView = FloatTouchView(this).apply {
             setExpanded(isExpanded, animate = false)
 
             listener = object : QuickBallGestureListener() {
@@ -393,9 +394,9 @@ class QuickBallService : AccessibilityService() {
                     fabY = (initialWindowY + dy).roundToInt()
                         .coerceIn(topBoundary, screenH - fabSizePx - bottomBoundary)
 
-                    params.x = fabX
-                    params.y = fabY
-                    updateFabViewLayout(this@apply, params)
+                    fabParams?.x = fabX
+                    fabParams?.y = fabY
+                    updateFabViewLayout(this@apply, fabParams)
                 }
 
                 override fun onDragEnd() {
@@ -415,8 +416,7 @@ class QuickBallService : AccessibilityService() {
             }
         }
 
-        wm.addView(button, params)
-        fabView = button
+        wm.addView(fabView, fabParams)
 
         resetInactivityTimer()
     }
@@ -510,7 +510,7 @@ class QuickBallService : AccessibilityService() {
             updateFabViewLayout(view, params)
             fabX = params.x
 
-            animateFabX(targetX, 50L, alpha = 1.0f) {
+            animateFabX(targetX, 250L, alpha = 1.0f) {
                 isStashed = false
                 resetInactivityTimer()
                 onFinished?.invoke()
@@ -569,10 +569,7 @@ class QuickBallService : AccessibilityService() {
         animator.start()
     }
 
-    private fun updateFabViewLayout(
-        view: QuickBallFloatingButton,
-        params: WindowManager.LayoutParams
-    ) {
+    private fun updateFabViewLayout(view: View, params: ViewGroup.LayoutParams?) {
         val wm = windowManager ?: return
         try {
             wm.updateViewLayout(view, params)
@@ -590,7 +587,11 @@ class QuickBallService : AccessibilityService() {
         val pillWidth = DensityUtils.dp2px(prefs.pillTouchWidth)
         val pillHeight = DensityUtils.dp2px(prefs.pillHeight)
 
-        val pill = QuickBallPillView(this).apply {
+        val (screenW, _) = getScreenSize()
+        val targetX = if (isOnRight) screenW - pillWidth else 0
+        val targetY = fabY + (fabSizePx - pillHeight) / 2
+
+        pillView = SideKickView(this).apply {
             onRight = isOnRight
             listener = object : QuickBallGestureListener() {
                 override fun onSingleTap() {
@@ -602,11 +603,7 @@ class QuickBallService : AccessibilityService() {
             }
         }
 
-        val (screenW, _) = getScreenSize()
-        val targetX = if (isOnRight) screenW - pillWidth else 0
-        val targetY = fabY + (fabSizePx - pillHeight) / 2
-
-        val params = createSystemWindowParams(
+        pillParams = createSystemWindowParams(
             width = pillWidth,
             height = pillHeight,
         ).apply {
@@ -614,12 +611,7 @@ class QuickBallService : AccessibilityService() {
             y = targetY
         }
 
-        try {
-            wm.addView(pill, params)
-            pillView = pill
-            pillParams = params
-        } catch (_: Exception) {
-        }
+        wm.addView(pillView, pillParams)
     }
 
     private fun removePill() {
@@ -655,21 +647,12 @@ class QuickBallService : AccessibilityService() {
             return
         }
 
-        val params = createSystemWindowParams(
-            width = WindowManager.LayoutParams.MATCH_PARENT,
-            height = WindowManager.LayoutParams.MATCH_PARENT,
-        ).apply {
-            x = 0
-            y = 0
-        }
-        menuParams = params
-
-        val overlay = QuickBallFloatingMenu(
+        menuView = FloatPanelView(
             context = this,
-            fabSize = fabSizePx,
-            items = getMenuItems(),
             fabX = getEdgeX(),
             fabY = fabY,
+            fabSize = fabSizePx,
+            items = getMenuItems(),
             onDismiss = {
                 startCollapsingMenu()
             },
@@ -692,10 +675,16 @@ class QuickBallService : AccessibilityService() {
             }
         )
 
-        wm.addView(overlay, params)
-        menuView = overlay
+        menuParams = createSystemWindowParams(
+            width = WindowManager.LayoutParams.MATCH_PARENT,
+            height = WindowManager.LayoutParams.MATCH_PARENT,
+        ).apply {
+            x = 0
+            y = 0
+        }
 
-        overlay.animateExpand()
+        wm.addView(menuView, menuParams)
+        menuView?.animateExpand()
     }
 
     private fun startCollapsingMenu() {
@@ -752,7 +741,7 @@ class QuickBallService : AccessibilityService() {
         stashHandler.removeCallbacks(stashRunnable)
     }
 
-    private fun recalculatePositionForNewScreenSize() {
+    private fun recalculatePosition() {
         if (isExpanded) {
             removeMenuWindow()
         }

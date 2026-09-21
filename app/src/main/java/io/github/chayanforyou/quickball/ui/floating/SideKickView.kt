@@ -18,7 +18,7 @@ import io.github.chayanforyou.quickball.utils.DensityUtils
  *
  * Handles single tap, double tap, triple tap, long-press, and vertical swipe gestures via exposed callback listeners.
  */
-class QuickBallPillView @JvmOverloads constructor(
+class SideKickView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
