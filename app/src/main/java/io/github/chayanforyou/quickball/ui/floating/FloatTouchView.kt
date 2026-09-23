@@ -24,20 +24,23 @@ import kotlin.math.hypot
  * Renders a dark grey circular FAB that swaps between ic_menu_open and ic_menu_close when toggled,
  * and handles raw touch events for dragging, clicking, and release gestures via exposed callbacks.
  */
-class QuickBallFloatingButton @JvmOverloads constructor(
+class FloatTouchView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr) {
 
     companion object {
-        const val ICON_MARGIN_DP = 9f
-        private const val RIPPLE_COLOR = "#40FFFFFF"
+        const val ICON_MARGIN_DP = 16f
+        private val RIPPLE_COLOR = ColorStateList.valueOf("#40FFFFFF".toColorInt())
     }
 
     private val prefs by lazy { AppPreference.getInstance(context) }
-    private val marginPx by lazy { DensityUtils.dp2px(ICON_MARGIN_DP) }
-    private val imageView: ImageView
+    private val iconSize get() = DensityUtils.dp2px(prefs.ballSize - ICON_MARGIN_DP)
+
+    private val imageView = ImageView(context).apply {
+        setImageResource(R.drawable.ic_menu_open)
+    }
 
     // Whether the radial menu is currently expanded
     var isExpanded: Boolean = false
@@ -60,44 +63,40 @@ class QuickBallFloatingButton @JvmOverloads constructor(
     private val gestureDetector by lazy {
         GestureDetector(
             context = context,
-            isGestureEnabled = { prefs.isGestureEnabled && !prefs.isStickToEdgeEnabled }
+            isGestureEnabled = {
+                prefs.isGestureEnabled
+                        && !prefs.isStickToEdgeEnabled
+            }
         )
     }
 
     init {
-        // Initialize background shape & ripple with saved ball color
-        setBallColor(prefs.ballColor)
-
-        // Center menu icon ImageView
-        imageView = ImageView(context).apply {
-            setImageResource(R.drawable.ic_menu_open)
-            setColorFilter(prefs.ballIconColor)
-            layoutParams = LayoutParams(
-                LayoutParams.MATCH_PARENT,
-                LayoutParams.MATCH_PARENT,
-                Gravity.CENTER
-            ).apply {
-                setMargins(marginPx, marginPx, marginPx, marginPx)
-            }
-        }
-
         addView(imageView)
+        update()
+    }
+
+    /**
+     * Update floating ball appearance and size
+     */
+    fun update() {
+        setBallColor(prefs.ballColor)
+        setBallIconColor(prefs.ballIconColor)
+        updateBallSize()
     }
 
     /**
      * Update the background color of the floating ball.
      */
     fun setBallColor(color: Int) {
-        val shape = GradientDrawable().apply {
+        background = GradientDrawable().apply {
             this.shape = GradientDrawable.OVAL
             setColor(color)
         }
-        background = shape
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             foreground = RippleDrawable(
-                ColorStateList.valueOf(RIPPLE_COLOR.toColorInt()),
+                RIPPLE_COLOR,
                 null,
-                shape
+                background
             )
         }
     }
@@ -107,6 +106,15 @@ class QuickBallFloatingButton @JvmOverloads constructor(
      */
     fun setBallIconColor(color: Int) {
         imageView.setColorFilter(color)
+    }
+
+    /**
+     * Update the icon size
+     */
+    fun updateBallSize() {
+        imageView.layoutParams = LayoutParams(
+            iconSize, iconSize, Gravity.CENTER
+        )
     }
 
     /**
