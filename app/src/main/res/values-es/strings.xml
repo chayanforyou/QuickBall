@@ -3,6 +3,10 @@
     <string name="remove_battery_restriction">No cierres mi aplicación</string>
     <string name="github_repository">Repositorio de GitHub</string>
     <string name="support_me">Si te gusta mi trabajo.\npor favor considera apoyarme</string>
+    <string name="support_title">Apoya mi trabajo</string>
+    <string name="support_description">Elige una plataforma. Cada café me ayuda a seguir mejorando esta app.</string>
+    <string name="copy_number">Copiar número</string>
+    <string name="number_copied">Número copiado</string>
 
     <!-- Accessibility Service (for AndroidManifest.xml) -->
     <string name="accessibility_service_description">Servicio QuickBall que proporciona una bola flotante en tu pantalla para acceso rápido a funciones.</string>
@@ -35,7 +39,7 @@
     <string name="permission_grant">Conceder</string>
 
     <!-- Shortcut -->
-    <string name="shortcuts_title">Seleccionar atajos</string>
+    <string name="shortcuts_title">Atajos</string>
 
     <!-- Hide Automatically -->
     <string name="hide_automatically_title">Ocultar automáticamente</string>
@@ -57,7 +61,7 @@
     <string name="stick_to_edge_title">Fijar al borde tras inactividad</string>
 
     <!-- Ball Size -->
-    <string name="ball_size_title">Tamaño de la bola</string>
+    <string name="ball_size_title">Tamaño</string>
 
     <!-- System Settings Permission -->
     <string name="system_settings_title">Modificar configuración del sistema</string>
@@ -65,9 +69,14 @@
     <!-- Select Shortcut Fragment -->
     <string name="quick_settings_title">Configuración rápida</string>
     <string name="apps_title">Aplicaciones</string>
-    <string name="select_shortcut_description">Elige un atajo para reemplazar el actual</string>
-    <string name="reorder_shortcut_description">Arrastra un acceso directo para reordenar su posición</string>
+    <string name="select_shortcut_description">Toca un atajo para cambiarlo</string>
+    <string name="reorder_shortcut_description">Arrastra el control para reordenar</string>
     <string name="drag_handle_description">Arrastra para reordenar</string>
+    <string name="add_shortcut">Añadir acceso directo</string>
+    <string name="remove_shortcut">Eliminar acceso directo</string>
+    <string name="choose_shortcut_title">Elegir atajo</string>
+    <string name="shortcut_limit_description">Puedes tener de %1$d a %2$d atajos</string>
+    <string name="preview_title">Vista previa</string>
 
     <!-- Language Settings -->
     <string name="language_title">Idioma</string>
@@ -106,41 +115,49 @@
     <string name="menu_screenshot">Captura de pantalla</string>
     <string name="menu_lock_screen">Bloquear pantalla</string>
     <string name="menu_notification">Notificación</string>
-    <string name="menu_quick_settings">Centro de control</string>
+    <string name="menu_quick_settings">Configuración rápida</string>
     <string name="menu_power_dialog">Menú de apagado</string>
 
     <!-- Color Picker -->
     <string name="choose_color">Elegir color</string>
     <string name="hex_color_hint">Color Hex (#AARRGGBB)</string>
+    <string name="opacity_title">Opacidad</string>
+    <string name="brightness_title">Brillo</string>
     <string name="select">Seleccionar</string>
     <string name="cancel">Cancelar</string>
 
     <!-- Appearance & Customization -->
     <string name="reset_to_default">Restablecer por defecto</string>
-    <string name="ball_header_title">Bola</string>
-    <string name="ball_color_title">Color de la bola</string>
+    <string name="ball_header_title">Bola flotante</string>
     <string name="ball_icon_color_title">Color del icono</string>
+    <string name="border_section_title">Borde</string>
+    <string name="connector_section_title">Conector</string>
+    <string name="setting_color_title">Color</string>
+    <string name="setting_width_title">Ancho</string>
+    <string name="setting_style_title">Estilo</string>
     <string name="menu_header_title">Menú</string>
-    <string name="menu_color_title">Color del menú</string>
     <string name="menu_icon_color_title">Color del icono</string>
-    <string name="menu_size_title">Tamaño del menú</string>
+    <string name="menu_size_title">Tamaño del botón</string>
     <string name="menu_icon_size_title">Tamaño del icono</string>
-    <string name="menu_radius_title">Radio del menú</string>
-    <string name="pill_header_title">Píldora</string>
-    <string name="pill_color_title">Color de la píldora</string>
-    <string name="pill_height_title">Altura de la píldora</string>
-    <string name="pill_thickness_title">Grosor de la píldora</string>
+    <string name="menu_radius_title">Distancia desde la bola</string>
+    <string name="connector_style_none">Ninguno</string>
+    <string name="connector_style_line">Línea</string>
+    <string name="connector_style_dotted">Punteado</string>
+    <string name="connector_style_arc">Arco</string>
+    <string name="pill_header_title">Asa de borde</string>
+    <string name="pill_height_title">Altura</string>
+    <string name="pill_thickness_title">Grosor</string>
     <string name="pill_touch_width_title">Ancho del área táctil</string>
-    <string name="pill_arc_angle_title">Ángulo de arco de la píldora</string>
+    <string name="pill_arc_angle_title">Ángulo del arco</string>
 
     <!-- Toast -->
-    <string name="toast_header_title">Toast</string>
+    <string name="toast_header_title">Mensaje emergente</string>
     <string name="toast_bg_color_title">Color de fondo</string>
-    <string name="toast_fg_color_title">Color de primer plano</string>
+    <string name="toast_fg_color_title">Color del texto</string>
 
     <!-- Gestures -->
     <string name="gesture_header_title">Gestos</string>
-    <string name="gesture_requirement_notice">Los gestos funcionan en la pastilla del borde cuando \"Fijar al borde\" está activado, o en la bola flotante cuando \"Bloquear posición de la bola\" está activado.</string>
+    <string name="gesture_requirement_notice">Los gestos funcionan en el asa de borde cuando \"Fijar al borde\" está activado, o en la bola flotante cuando \"Bloquear posición de la bola\" está activado.</string>
     <string name="enable_gestures_title">Activar gestos</string>
     <string name="enable_gestures_description">Activar los gestos puede retrasar ligeramente la apertura del menú.</string>
     <string name="double_tap_title">Doble toque</string>

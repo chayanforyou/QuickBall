@@ -91,6 +91,9 @@ class FloatTouchView @JvmOverloads constructor(
         background = GradientDrawable().apply {
             this.shape = GradientDrawable.OVAL
             setColor(color)
+
+            val borderWidth = DensityUtils.dp2px(prefs.ballBorderWidth)
+            if (borderWidth > 0) setStroke(borderWidth, prefs.ballBorderColor)
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             foreground = RippleDrawable(

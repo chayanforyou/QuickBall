@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 data class QuickBallUiState(
     val isQuickBallEnabled: Boolean = true,
@@ -23,6 +24,13 @@ data class QuickBallUiState(
     val ballIconColor: Int = AppDefaults.BALL_ICON_COLOR,
     val menuColor: Int = AppDefaults.MENU_COLOR,
     val menuIconColor: Int = AppDefaults.MENU_ICON_COLOR,
+    val ballBorderColor: Int = AppDefaults.BALL_BORDER_COLOR,
+    val ballBorderWidth: Float = AppDefaults.BALL_BORDER_WIDTH,
+    val menuBorderColor: Int = AppDefaults.MENU_BORDER_COLOR,
+    val menuBorderWidth: Float = AppDefaults.MENU_BORDER_WIDTH,
+    val menuConnectorColor: Int = AppDefaults.MENU_CONNECTOR_COLOR,
+    val menuConnectorStyle: String = AppDefaults.MENU_CONNECTOR_STYLE,
+    val menuConnectorWidth: Float = AppDefaults.MENU_CONNECTOR_WIDTH,
     val menuSize: Float = AppDefaults.MENU_SIZE,
     val menuIconSize: Float = AppDefaults.MENU_ICON_SIZE,
     val menuRadius: Float = AppDefaults.MENU_RADIUS,
@@ -62,6 +70,13 @@ class QuickBallViewModel(application: Application) : AndroidViewModel(applicatio
             ballIconColor = prefs.ballIconColor,
             menuColor = prefs.menuColor,
             menuIconColor = prefs.menuIconColor,
+            ballBorderColor = prefs.ballBorderColor,
+            ballBorderWidth = prefs.ballBorderWidth,
+            menuBorderColor = prefs.menuBorderColor,
+            menuBorderWidth = prefs.menuBorderWidth,
+            menuConnectorColor = prefs.menuConnectorColor,
+            menuConnectorStyle = prefs.menuConnectorStyle,
+            menuConnectorWidth = prefs.menuConnectorWidth,
             menuSize = prefs.menuSize,
             menuIconSize = prefs.menuIconSize,
             menuRadius = prefs.menuRadius,
@@ -158,6 +173,47 @@ class QuickBallViewModel(application: Application) : AndroidViewModel(applicatio
     fun setMenuIconColor(color: Int) {
         prefs.menuIconColor = color
         _uiState.update { it.copy(menuIconColor = color) }
+    }
+
+    fun setBallBorderColor(color: Int) {
+        prefs.ballBorderColor = color
+        _uiState.update { it.copy(ballBorderColor = color) }
+    }
+
+    fun setBallBorderWidth(width: Float) {
+        // Snap to half dp so slider float drift is not stored
+        val snapped = (width * 2).roundToInt() / 2f
+        prefs.ballBorderWidth = snapped
+        _uiState.update { it.copy(ballBorderWidth = snapped) }
+    }
+
+    fun setMenuBorderColor(color: Int) {
+        prefs.menuBorderColor = color
+        _uiState.update { it.copy(menuBorderColor = color) }
+    }
+
+    fun setMenuBorderWidth(width: Float) {
+        // Snap to half dp so slider float drift is not stored
+        val snapped = (width * 2).roundToInt() / 2f
+        prefs.menuBorderWidth = snapped
+        _uiState.update { it.copy(menuBorderWidth = snapped) }
+    }
+
+    fun setMenuConnectorColor(color: Int) {
+        prefs.menuConnectorColor = color
+        _uiState.update { it.copy(menuConnectorColor = color) }
+    }
+
+    fun setMenuConnectorStyle(style: String) {
+        prefs.menuConnectorStyle = style
+        _uiState.update { it.copy(menuConnectorStyle = style) }
+    }
+
+    fun setMenuConnectorWidth(width: Float) {
+        // Snap to one decimal so slider float drift is not stored
+        val snapped = (width * 10).roundToInt() / 10f
+        prefs.menuConnectorWidth = snapped
+        _uiState.update { it.copy(menuConnectorWidth = snapped) }
     }
 
     fun setMenuSize(size: Float) {
@@ -270,6 +326,30 @@ class QuickBallViewModel(application: Application) : AndroidViewModel(applicatio
         setMenuIconColor(AppDefaults.MENU_ICON_COLOR)
     }
 
+    fun resetBallBorderColor() {
+        setBallBorderColor(AppDefaults.BALL_BORDER_COLOR)
+    }
+
+    fun resetBallBorderWidth() {
+        setBallBorderWidth(AppDefaults.BALL_BORDER_WIDTH)
+    }
+
+    fun resetMenuBorderColor() {
+        setMenuBorderColor(AppDefaults.MENU_BORDER_COLOR)
+    }
+
+    fun resetMenuBorderWidth() {
+        setMenuBorderWidth(AppDefaults.MENU_BORDER_WIDTH)
+    }
+
+    fun resetMenuConnectorColor() {
+        setMenuConnectorColor(AppDefaults.MENU_CONNECTOR_COLOR)
+    }
+
+    fun resetMenuConnectorWidth() {
+        setMenuConnectorWidth(AppDefaults.MENU_CONNECTOR_WIDTH)
+    }
+
     fun resetMenuSize() {
         setMenuSize(AppDefaults.MENU_SIZE)
     }
@@ -319,11 +399,23 @@ class QuickBallViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun selectMenuItem(index: Int, menuItem: QuickBallMenuItem) {
         val currentItems = _uiState.value.selectedMenuItems.toMutableList()
-        if (index in currentItems.indices) {
-            currentItems[index] = menuItem
-            prefs.selectedMenuItems = currentItems
-            _uiState.update { it.copy(selectedMenuItems = currentItems) }
+        when {
+            index in currentItems.indices -> currentItems[index] = menuItem
+            // Target index past the last item appends a new one
+            index == currentItems.size && index < AppDefaults.MENU_ITEMS_MAX -> currentItems.add(menuItem)
+            else -> return
         }
+        prefs.selectedMenuItems = currentItems
+        _uiState.update { it.copy(selectedMenuItems = currentItems) }
+    }
+
+    fun removeMenuItem(index: Int) {
+        val currentItems = _uiState.value.selectedMenuItems.toMutableList()
+        if (index !in currentItems.indices || currentItems.size <= AppDefaults.MENU_ITEMS_MIN) return
+
+        currentItems.removeAt(index)
+        prefs.selectedMenuItems = currentItems
+        _uiState.update { it.copy(selectedMenuItems = currentItems) }
     }
 
     fun updateMenuItems(newItems: List<QuickBallMenuItem>) {

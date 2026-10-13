@@ -168,7 +168,7 @@ fun SelectAppsScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable(enabled = !isAlreadySelected) { selectApp(app) }
-                                    .padding(horizontal = 20.dp, vertical = 14.dp),
+                                    .padding(horizontal = 16.dp, vertical = 10.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Image(

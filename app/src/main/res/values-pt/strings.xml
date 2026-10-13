@@ -3,6 +3,10 @@
     <string name="remove_battery_restriction">Não mate meu aplicativo</string>
     <string name="github_repository">Repositório GitHub</string>
     <string name="support_me">Se você ama meu trabalho.\npor favor considere me apoiar</string>
+    <string name="support_title">Apoie meu trabalho</string>
+    <string name="support_description">Escolha uma plataforma abaixo. Cada café me ajuda a continuar melhorando este app.</string>
+    <string name="copy_number">Copiar número</string>
+    <string name="number_copied">Número copiado</string>
 
     <!-- Accessibility Service (for AndroidManifest.xml) -->
     <string name="accessibility_service_description">Serviço QuickBall que fornece uma bola flutuante na tela para acesso rápido aos recursos.</string>
@@ -35,7 +39,7 @@
     <string name="permission_grant">Conceder</string>
 
     <!-- Shortcut -->
-    <string name="shortcuts_title">Selecionar atalhos</string>
+    <string name="shortcuts_title">Atalhos</string>
 
     <!-- Hide Automatically -->
     <string name="hide_automatically_title">Ocultar automaticamente</string>
@@ -57,7 +61,7 @@
     <string name="stick_to_edge_title">Fixar na borda após inatividade</string>
 
     <!-- Ball Size -->
-    <string name="ball_size_title">Tamanho da bola</string>
+    <string name="ball_size_title">Tamanho</string>
 
     <!-- System Settings Permission -->
     <string name="system_settings_title">Modificar configurações do sistema</string>
@@ -65,9 +69,14 @@
     <!-- Select Shortcut Fragment -->
     <string name="quick_settings_title">Configurações rápidas</string>
     <string name="apps_title">Aplicativos</string>
-    <string name="select_shortcut_description">Escolha um atalho para substituir o atual</string>
-    <string name="reorder_shortcut_description">Arraste um atalho para reordenar sua posição</string>
+    <string name="select_shortcut_description">Toque em um atalho para alterá-lo</string>
+    <string name="reorder_shortcut_description">Arraste a alça para reordenar</string>
     <string name="drag_handle_description">Arraste para reordenar</string>
+    <string name="add_shortcut">Adicionar atalho</string>
+    <string name="remove_shortcut">Remover atalho</string>
+    <string name="choose_shortcut_title">Escolher atalho</string>
+    <string name="shortcut_limit_description">Você pode ter de %1$d a %2$d atalhos</string>
+    <string name="preview_title">Pré-visualização</string>
 
     <!-- Language Settings -->
     <string name="language_title">Idioma</string>
@@ -106,41 +115,49 @@
     <string name="menu_screenshot">Captura de tela</string>
     <string name="menu_lock_screen">Bloquear tela</string>
     <string name="menu_notification">Notificação</string>
-    <string name="menu_quick_settings">Centro de controle</string>
+    <string name="menu_quick_settings">Configurações rápidas</string>
     <string name="menu_power_dialog">Menu de energia</string>
 
     <!-- Color Picker -->
     <string name="choose_color">Escolher cor</string>
     <string name="hex_color_hint">Cor Hex (#AARRGGBB)</string>
+    <string name="opacity_title">Opacidade</string>
+    <string name="brightness_title">Brilho</string>
     <string name="select">Selecionar</string>
     <string name="cancel">Cancelar</string>
 
     <!-- Appearance & Customization -->
     <string name="reset_to_default">Redefinir para o padrão</string>
-    <string name="ball_header_title">Esfera</string>
-    <string name="ball_color_title">Cor da esfera</string>
+    <string name="ball_header_title">Esfera flutuante</string>
     <string name="ball_icon_color_title">Cor do ícone</string>
+    <string name="border_section_title">Borda</string>
+    <string name="connector_section_title">Conector</string>
+    <string name="setting_color_title">Cor</string>
+    <string name="setting_width_title">Largura</string>
+    <string name="setting_style_title">Estilo</string>
     <string name="menu_header_title">Menu</string>
-    <string name="menu_color_title">Cor do menu</string>
     <string name="menu_icon_color_title">Cor do ícone</string>
-    <string name="menu_size_title">Tamanho do menu</string>
+    <string name="menu_size_title">Tamanho do botão</string>
     <string name="menu_icon_size_title">Tamanho do ícone</string>
-    <string name="menu_radius_title">Raio do menu</string>
-    <string name="pill_header_title">Pílula</string>
-    <string name="pill_color_title">Cor da pílula</string>
-    <string name="pill_height_title">Altura da pílula</string>
-    <string name="pill_thickness_title">Espessura da pílula</string>
+    <string name="menu_radius_title">Distância da esfera</string>
+    <string name="connector_style_none">Nenhum</string>
+    <string name="connector_style_line">Linha</string>
+    <string name="connector_style_dotted">Pontilhado</string>
+    <string name="connector_style_arc">Arco</string>
+    <string name="pill_header_title">Alça lateral</string>
+    <string name="pill_height_title">Altura</string>
+    <string name="pill_thickness_title">Espessura</string>
     <string name="pill_touch_width_title">Largura da área de toque</string>
-    <string name="pill_arc_angle_title">Ângulo do arco da pílula</string>
+    <string name="pill_arc_angle_title">Ângulo do arco</string>
 
     <!-- Toast -->
-    <string name="toast_header_title">Toast</string>
+    <string name="toast_header_title">Mensagem pop-up</string>
     <string name="toast_bg_color_title">Cor de fundo</string>
-    <string name="toast_fg_color_title">Cor do primeiro plano</string>
+    <string name="toast_fg_color_title">Cor do texto</string>
 
     <!-- Gestures -->
     <string name="gesture_header_title">Gestos</string>
-    <string name="gesture_requirement_notice">Os gestos funcionam na pílula de borda quando \"Fixar na borda\" está ativado, ou na bola flutuante quando \"Bloquear posição da bola\" está ativado.</string>
+    <string name="gesture_requirement_notice">Os gestos funcionam na alça lateral quando \"Fixar na borda\" está ativado, ou na bola flutuante quando \"Bloquear posição da bola\" está ativado.</string>
     <string name="enable_gestures_title">Ativar gestos</string>
     <string name="enable_gestures_description">Ativar gestos pode atrasar ligeiramente a abertura do menu.</string>
     <string name="double_tap_title">Toque duplo</string>

@@ -2,7 +2,10 @@ package io.github.chayanforyou.quickball.ui.screens.shortcut.components
 
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.awaitVerticalTouchSlopOrCancellation
+import androidx.compose.foundation.gestures.verticalDrag
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.lazy.LazyItemScope
@@ -20,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.zIndex
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -39,25 +43,34 @@ fun rememberDragDropState(
     }
 }
 
+/**
+ * Reorders by dragging inside the handle strip at the start of the list. Touches outside
+ * the strip are left alone, so a scrolling parent still receives them.
+ */
 fun Modifier.draggableContainer(
     dragDropState: DragDropState,
-    handleWidthPx: Float
+    handleWidthPx: Float,
+    onDragStarted: () -> Unit = {}
 ): Modifier = this.pointerInput(dragDropState, handleWidthPx) {
-    detectDragGestures(
-        onDragStart = { offset ->
-            if (offset.x <= handleWidthPx) {
-                dragDropState.onDragStart(offset)
-            }
-        },
-        onDrag = { change, dragAmount ->
+    awaitEachGesture {
+        val down = awaitFirstDown(requireUnconsumed = false)
+        if (down.position.x > handleWidthPx) return@awaitEachGesture
+
+        val drag = awaitVerticalTouchSlopOrCancellation(down.id) { change, _ ->
+            change.consume()
+        } ?: return@awaitEachGesture
+
+        dragDropState.onDragStart(down.position)
+        if (dragDropState.currentIndexOfDraggedItem != null) onDragStarted()
+
+        verticalDrag(drag.id) { change ->
             if (dragDropState.currentIndexOfDraggedItem != null) {
-                change.consume()
-                dragDropState.onDrag(offset = dragAmount)
+                dragDropState.onDrag(offset = Offset(0f, change.positionChange().y))
             }
-        },
-        onDragEnd = { dragDropState.onDragInterrupted() },
-        onDragCancel = { dragDropState.onDragInterrupted() }
-    )
+            change.consume()
+        }
+        dragDropState.onDragInterrupted()
+    }
 }
 
 private fun LazyListState.getVisibleItemInfoFor(absoluteIndex: Int): LazyListItemInfo? {

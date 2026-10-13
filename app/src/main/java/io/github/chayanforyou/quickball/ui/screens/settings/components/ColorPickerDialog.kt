@@ -9,12 +9,14 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
@@ -38,10 +40,12 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.chayanforyou.quickball.R
 import kotlin.math.atan2
 import kotlin.math.cos
+import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlin.math.sqrt
 import androidx.core.graphics.toColorInt
@@ -141,22 +145,28 @@ fun ColorPickerDialog(
                     modifier = Modifier.size(200.dp)
                 )
 
-                // 4. Alpha Slider
-                AlphaSliderBar(
-                    color = currentColor.copy(alpha = 1f),
-                    alpha = alpha,
-                    onAlphaChanged = { alpha = it },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                // 4. Alpha Slider with opacity percentage
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    PercentLabel(title = stringResource(R.string.opacity_title), fraction = alpha)
+                    AlphaSliderBar(
+                        color = currentColor.copy(alpha = 1f),
+                        alpha = alpha,
+                        onAlphaChanged = { alpha = it },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
 
-                // 5. Brightness Slider
-                BrightnessSliderBar(
-                    hue = hue,
-                    saturation = saturation,
-                    value = value,
-                    onValueChanged = { value = it },
-                    modifier = Modifier.fillMaxWidth()
-                )
+                // 5. Brightness Slider with brightness percentage
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    PercentLabel(title = stringResource(R.string.brightness_title), fraction = value)
+                    BrightnessSliderBar(
+                        hue = hue,
+                        saturation = saturation,
+                        value = value,
+                        onValueChanged = { value = it },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
         },
         confirmButton = {
@@ -283,6 +293,29 @@ private fun HsvColorWheel(
             radius = 10.dp.toPx(),
             center = selectorOffset,
             style = Stroke(width = 2.dp.toPx())
+        )
+    }
+}
+
+@Composable
+private fun PercentLabel(
+    title: String,
+    fraction: Float
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Text(
+            text = "${(fraction * 100).roundToInt()}%",
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.primary
         )
     }
 }

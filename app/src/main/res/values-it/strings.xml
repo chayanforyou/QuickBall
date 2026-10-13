@@ -3,6 +3,10 @@
     <string name="remove_battery_restriction">Non chiudere la mia app</string>
     <string name="github_repository">Repository GitHub</string>
     <string name="support_me">Se ami il mio lavoro.\nper favore considera di supportarmi</string>
+    <string name="support_title">Sostieni il mio lavoro</string>
+    <string name="support_description">Scegli una piattaforma. Ogni caffè mi aiuta a continuare a migliorare questa app.</string>
+    <string name="copy_number">Copia numero</string>
+    <string name="number_copied">Numero copiato</string>
 
     <!-- Accessibility Service (for AndroidManifest.xml) -->
     <string name="accessibility_service_description">Servizio QuickBall che fornisce una sfera fluttuante sullo schermo per un accesso rapido alle funzionalità.</string>
@@ -35,7 +39,7 @@
     <string name="permission_grant">Concedi</string>
 
     <!-- Shortcut -->
-    <string name="shortcuts_title">Seleziona scorciatoie</string>
+    <string name="shortcuts_title">Scorciatoie</string>
 
     <!-- Hide Automatically -->
     <string name="hide_automatically_title">Nascondi automaticamente</string>
@@ -57,7 +61,7 @@
     <string name="stick_to_edge_title">Aggancia al bordo dopo inattività</string>
 
     <!-- Ball Size -->
-    <string name="ball_size_title">Dimensione sfera</string>
+    <string name="ball_size_title">Dimensione</string>
 
     <!-- System Settings Permission -->
     <string name="system_settings_title">Modifica impostazioni di sistema</string>
@@ -65,9 +69,14 @@
     <!-- Select Shortcut Fragment -->
     <string name="quick_settings_title">Impostazioni rapide</string>
     <string name="apps_title">App</string>
-    <string name="select_shortcut_description">Scegli una scorciatoia per sostituire quella attuale</string>
-    <string name="reorder_shortcut_description">Trascina una scorciatoia per riordinarne la posizione</string>
+    <string name="select_shortcut_description">Tocca una scorciatoia per cambiarla</string>
+    <string name="reorder_shortcut_description">Trascina la maniglia per riordinare</string>
     <string name="drag_handle_description">Trascina per riordinare</string>
+    <string name="add_shortcut">Aggiungi scorciatoia</string>
+    <string name="remove_shortcut">Rimuovi scorciatoia</string>
+    <string name="choose_shortcut_title">Scegli scorciatoia</string>
+    <string name="shortcut_limit_description">Puoi avere da %1$d a %2$d scorciatoie</string>
+    <string name="preview_title">Anteprima</string>
 
     <!-- Language Settings -->
     <string name="language_title">Lingua</string>
@@ -106,41 +115,49 @@
     <string name="menu_screenshot">Screenshot</string>
     <string name="menu_lock_screen">Blocca schermo</string>
     <string name="menu_notification">Notifica</string>
-    <string name="menu_quick_settings">Centro di controllo</string>
+    <string name="menu_quick_settings">Impostazioni rapide</string>
     <string name="menu_power_dialog">Menu di spegnimento</string>
 
     <!-- Color Picker -->
     <string name="choose_color">Scegli colore</string>
     <string name="hex_color_hint">Colore esadecimale (#AARRGGBB)</string>
+    <string name="opacity_title">Opacità</string>
+    <string name="brightness_title">Luminosità</string>
     <string name="select">Seleziona</string>
     <string name="cancel">Annulla</string>
 
     <!-- Appearance & Customization -->
     <string name="reset_to_default">Ripristina predefiniti</string>
-    <string name="ball_header_title">Sfera</string>
-    <string name="ball_color_title">Colore sfera</string>
+    <string name="ball_header_title">Sfera flottante</string>
     <string name="ball_icon_color_title">Colore icona</string>
+    <string name="border_section_title">Bordo</string>
+    <string name="connector_section_title">Connettore</string>
+    <string name="setting_color_title">Colore</string>
+    <string name="setting_width_title">Spessore</string>
+    <string name="setting_style_title">Stile</string>
     <string name="menu_header_title">Menu</string>
-    <string name="menu_color_title">Colore menu</string>
     <string name="menu_icon_color_title">Colore icona</string>
-    <string name="menu_size_title">Dimensione menu</string>
+    <string name="menu_size_title">Dimensione pulsanti</string>
     <string name="menu_icon_size_title">Dimensione icona</string>
-    <string name="menu_radius_title">Raggio menu</string>
-    <string name="pill_header_title">Pillola</string>
-    <string name="pill_color_title">Colore pillola</string>
-    <string name="pill_height_title">Altezza pillola</string>
-    <string name="pill_thickness_title">Spessore pillola</string>
+    <string name="menu_radius_title">Distanza dalla sfera</string>
+    <string name="connector_style_none">Nessuno</string>
+    <string name="connector_style_line">Linea</string>
+    <string name="connector_style_dotted">Punteggiato</string>
+    <string name="connector_style_arc">Arco</string>
+    <string name="pill_header_title">Maniglia laterale</string>
+    <string name="pill_height_title">Altezza</string>
+    <string name="pill_thickness_title">Spessore</string>
     <string name="pill_touch_width_title">Larghezza area tattile</string>
-    <string name="pill_arc_angle_title">Angolo arco pillola</string>
+    <string name="pill_arc_angle_title">Angolo arco</string>
 
     <!-- Toast -->
-    <string name="toast_header_title">Toast</string>
+    <string name="toast_header_title">Messaggio pop-up</string>
     <string name="toast_bg_color_title">Colore di sfondo</string>
-    <string name="toast_fg_color_title">Colore in primo piano</string>
+    <string name="toast_fg_color_title">Colore del testo</string>
 
     <!-- Gestures -->
     <string name="gesture_header_title">Gesti</string>
-    <string name="gesture_requirement_notice">I gesti funzionano sulla pillola laterale quando \"Aggancia al bordo\" è abilitato, o sulla sfera fluttuante quando \"Blocca posizione della sfera\" è abilitato.</string>
+    <string name="gesture_requirement_notice">I gesti funzionano sulla maniglia laterale quando \"Aggancia al bordo\" è abilitato, o sulla sfera fluttuante quando \"Blocca posizione della sfera\" è abilitato.</string>
     <string name="enable_gestures_title">Abilita gesti</string>
     <string name="enable_gestures_description">L\'abilitazione dei gesti potrebbe ritardare leggermente l\'apertura del menu.</string>
     <string name="double_tap_title">Doppio tocco</string>

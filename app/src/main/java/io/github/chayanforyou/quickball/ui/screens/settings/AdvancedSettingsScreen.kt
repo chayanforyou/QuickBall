@@ -22,7 +22,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -40,14 +39,18 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.chayanforyou.quickball.R
+import io.github.chayanforyou.quickball.domain.AppDefaults
 import io.github.chayanforyou.quickball.core.QuickBallService
+import io.github.chayanforyou.quickball.domain.models.HapticIntensity
 import io.github.chayanforyou.quickball.domain.models.MenuAction
+import io.github.chayanforyou.quickball.domain.models.MenuConnectorStyle
 import io.github.chayanforyou.quickball.domain.models.PillGesture
+import io.github.chayanforyou.quickball.ui.components.AppSwitch
 import io.github.chayanforyou.quickball.ui.screens.settings.components.ColorPickerDialog
 import io.github.chayanforyou.quickball.ui.screens.settings.components.ColorSettingRow
 import io.github.chayanforyou.quickball.ui.screens.settings.components.GestureActionBottomSheet
 import io.github.chayanforyou.quickball.ui.screens.settings.components.GestureSettingRow
-import io.github.chayanforyou.quickball.ui.screens.settings.components.HapticIntensitySelector
+import io.github.chayanforyou.quickball.ui.screens.settings.components.SegmentedSelector
 import io.github.chayanforyou.quickball.ui.screens.settings.components.SliderSettingItem
 import io.github.chayanforyou.quickball.ui.theme.AppCardDefaults
 import io.github.chayanforyou.quickball.ui.viewmodels.QuickBallViewModel
@@ -71,6 +74,13 @@ fun AdvancedSettingsScreen(
     val menuRadius = uiState.menuRadius
     val menuColor = uiState.menuColor
     val menuIconColor = uiState.menuIconColor
+    val ballBorderColor = uiState.ballBorderColor
+    val ballBorderWidth = uiState.ballBorderWidth
+    val menuBorderColor = uiState.menuBorderColor
+    val menuBorderWidth = uiState.menuBorderWidth
+    val menuConnectorColor = uiState.menuConnectorColor
+    val menuConnectorStyle = uiState.menuConnectorStyle
+    val menuConnectorWidth = uiState.menuConnectorWidth
     val toastBgColor = uiState.toastBgColor
     val toastFgColor = uiState.toastFgColor
     val pillColor = uiState.pillColor
@@ -90,6 +100,9 @@ fun AdvancedSettingsScreen(
     var showIconColorDialog by remember { mutableStateOf(false) }
     var showMenuColorDialog by remember { mutableStateOf(false) }
     var showMenuIconColorDialog by remember { mutableStateOf(false) }
+    var showBallBorderColorDialog by remember { mutableStateOf(false) }
+    var showMenuBorderColorDialog by remember { mutableStateOf(false) }
+    var showMenuConnectorColorDialog by remember { mutableStateOf(false) }
     var showPillColorDialog by remember { mutableStateOf(false) }
     var showToastBgColorDialog by remember { mutableStateOf(false) }
     var showToastFgColorDialog by remember { mutableStateOf(false) }
@@ -129,6 +142,7 @@ fun AdvancedSettingsScreen(
             Text(
                 text = stringResource(R.string.ball_header_title),
                 style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(start = 4.dp)
             )
@@ -139,12 +153,12 @@ fun AdvancedSettingsScreen(
                 colors = AppCardDefaults.cardColors()
             ) {
                 Column(
-                    modifier = Modifier.padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     // Ball Color Setting Option
                     ColorSettingRow(
-                        title = stringResource(R.string.ball_color_title),
+                        title = stringResource(R.string.setting_color_title),
                         color = ballColor,
                         onReset = {
                             viewModel.resetBallColor()
@@ -179,6 +193,36 @@ fun AdvancedSettingsScreen(
                             context.controlQuickBallService(QuickBallService.ACTION_UPDATE_BALL)
                         }
                     )
+
+                    SettingsSubHeader(title = stringResource(R.string.border_section_title))
+
+                    // Ball Border Color Setting Option
+                    ColorSettingRow(
+                        title = stringResource(R.string.setting_color_title),
+                        color = ballBorderColor,
+                        onReset = {
+                            viewModel.resetBallBorderColor()
+                            context.controlQuickBallService(QuickBallService.ACTION_UPDATE_BALL)
+                        },
+                        onClick = { showBallBorderColorDialog = true }
+                    )
+
+                    // Ball Border Width Setting Option
+                    SliderSettingItem(
+                        title = stringResource(R.string.setting_width_title),
+                        value = ballBorderWidth,
+                        valueRange = AppDefaults.BORDER_WIDTH_MIN..AppDefaults.BORDER_WIDTH_MAX,
+                        steps = 7,
+                        decimals = 1,
+                        onValueChange = { value ->
+                            viewModel.setBallBorderWidth(value)
+                            context.controlQuickBallService(QuickBallService.ACTION_UPDATE_BALL)
+                        },
+                        onReset = {
+                            viewModel.resetBallBorderWidth()
+                            context.controlQuickBallService(QuickBallService.ACTION_UPDATE_BALL)
+                        }
+                    )
                 }
             }
 
@@ -186,6 +230,7 @@ fun AdvancedSettingsScreen(
             Text(
                 text = stringResource(R.string.menu_header_title),
                 style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(start = 4.dp, top = 12.dp)
             )
@@ -196,12 +241,12 @@ fun AdvancedSettingsScreen(
                 colors = AppCardDefaults.cardColors()
             ) {
                 Column(
-                    modifier = Modifier.padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     // Menu Color Setting Option
                     ColorSettingRow(
-                        title = stringResource(R.string.menu_color_title),
+                        title = stringResource(R.string.setting_color_title),
                         color = menuColor,
                         onReset = { viewModel.resetMenuColor() },
                         onClick = { showMenuColorDialog = true }
@@ -219,8 +264,8 @@ fun AdvancedSettingsScreen(
                     SliderSettingItem(
                         title = stringResource(R.string.menu_size_title),
                         value = menuSize,
-                        valueRange = 40f..60f,
-                        steps = 19,
+                        valueRange = AppDefaults.MENU_SIZE_MIN..AppDefaults.MENU_SIZE_MAX,
+                        steps = 15,
                         onValueChange = { viewModel.setMenuSize(it) },
                         onReset = { viewModel.resetMenuSize() }
                     )
@@ -239,10 +284,67 @@ fun AdvancedSettingsScreen(
                     SliderSettingItem(
                         title = stringResource(R.string.menu_radius_title),
                         value = menuRadius,
-                        valueRange = 60f..100f,
-                        steps = 39,
+                        valueRange = AppDefaults.MENU_RADIUS_MIN..AppDefaults.MENU_RADIUS_MAX,
+                        steps = 59,
                         onValueChange = { viewModel.setMenuRadius(it) },
                         onReset = { viewModel.resetMenuRadius() }
+                    )
+
+                    SettingsSubHeader(title = stringResource(R.string.border_section_title))
+
+                    // Menu Border Color Setting Option
+                    ColorSettingRow(
+                        title = stringResource(R.string.setting_color_title),
+                        color = menuBorderColor,
+                        onReset = { viewModel.resetMenuBorderColor() },
+                        onClick = { showMenuBorderColorDialog = true }
+                    )
+
+                    // Menu Border Width Setting Option
+                    SliderSettingItem(
+                        title = stringResource(R.string.setting_width_title),
+                        value = menuBorderWidth,
+                        valueRange = AppDefaults.BORDER_WIDTH_MIN..AppDefaults.BORDER_WIDTH_MAX,
+                        steps = 7,
+                        decimals = 1,
+                        onValueChange = { viewModel.setMenuBorderWidth(it) },
+                        onReset = { viewModel.resetMenuBorderWidth() }
+                    )
+
+                    SettingsSubHeader(title = stringResource(R.string.connector_section_title))
+
+                    // Menu Connector Style Setting Option
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Text(
+                            text = stringResource(R.string.setting_style_title),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        SegmentedSelector(
+                            items = MenuConnectorStyle.entries,
+                            selectedItem = MenuConnectorStyle.entries.find { it.name == menuConnectorStyle },
+                            itemTitle = { stringResource(it.titleRes) },
+                            onItemSelected = { viewModel.setMenuConnectorStyle(it.name) }
+                        )
+                    }
+
+                    // Menu Connector Color Setting Option
+                    ColorSettingRow(
+                        title = stringResource(R.string.setting_color_title),
+                        color = menuConnectorColor,
+                        onReset = { viewModel.resetMenuConnectorColor() },
+                        onClick = { showMenuConnectorColorDialog = true }
+                    )
+
+                    // Menu Connector Width Setting Option
+                    SliderSettingItem(
+                        title = stringResource(R.string.setting_width_title),
+                        value = menuConnectorWidth,
+                        valueRange = AppDefaults.MENU_CONNECTOR_WIDTH_MIN..AppDefaults.MENU_CONNECTOR_WIDTH_MAX,
+                        steps = 19,
+                        decimals = 1,
+                        enabled = menuConnectorStyle != MenuConnectorStyle.NONE.name,
+                        onValueChange = { viewModel.setMenuConnectorWidth(it) },
+                        onReset = { viewModel.resetMenuConnectorWidth() }
                     )
                 }
             }
@@ -251,6 +353,7 @@ fun AdvancedSettingsScreen(
             Text(
                 text = stringResource(R.string.pill_header_title),
                 style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(start = 4.dp, top = 12.dp)
             )
@@ -261,12 +364,12 @@ fun AdvancedSettingsScreen(
                 colors = AppCardDefaults.cardColors()
             ) {
                 Column(
-                    modifier = Modifier.padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     // Pill Color Setting Option
                     ColorSettingRow(
-                        title = stringResource(R.string.pill_color_title),
+                        title = stringResource(R.string.setting_color_title),
                         color = pillColor,
                         onReset = {
                             viewModel.resetPillColor()
@@ -329,6 +432,7 @@ fun AdvancedSettingsScreen(
             Text(
                 text = stringResource(R.string.toast_header_title),
                 style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(start = 4.dp, top = 12.dp)
             )
@@ -339,8 +443,8 @@ fun AdvancedSettingsScreen(
                 colors = AppCardDefaults.cardColors()
             ) {
                 Column(
-                    modifier = Modifier.padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     // Toast Background Color Setting Option
                     ColorSettingRow(
@@ -364,6 +468,7 @@ fun AdvancedSettingsScreen(
             Text(
                 text = stringResource(R.string.gesture_header_title),
                 style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(start = 4.dp, top = 12.dp)
             )
@@ -402,8 +507,8 @@ fun AdvancedSettingsScreen(
                 colors = AppCardDefaults.cardColors()
             ) {
                 Column(
-                    modifier = Modifier.padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     // Enable Gestures Switch
                     Row(
@@ -423,7 +528,7 @@ fun AdvancedSettingsScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
-                        Switch(
+                        AppSwitch(
                             checked = isGestureEnabled,
                             onCheckedChange = { enabled ->
                                 viewModel.setGestureEnabled(enabled)
@@ -479,6 +584,7 @@ fun AdvancedSettingsScreen(
             Text(
                 text = stringResource(R.string.haptics_header_title),
                 style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(start = 4.dp, top = 12.dp)
             )
@@ -489,8 +595,8 @@ fun AdvancedSettingsScreen(
                 colors = AppCardDefaults.cardColors()
             ) {
                 Column(
-                    modifier = Modifier.padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -509,7 +615,7 @@ fun AdvancedSettingsScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
-                        Switch(
+                        AppSwitch(
                             checked = isHapticFeedbackEnabled,
                             onCheckedChange = { enabled ->
                                 viewModel.setHapticFeedbackEnabled(enabled)
@@ -518,10 +624,12 @@ fun AdvancedSettingsScreen(
                         )
                     }
 
-                    HapticIntensitySelector(
-                        selectedIntensityName = hapticIntensity,
+                    SegmentedSelector(
+                        items = HapticIntensity.entries,
+                        selectedItem = HapticIntensity.entries.find { it.name == hapticIntensity },
+                        itemTitle = { stringResource(it.titleRes) },
                         enabled = isHapticFeedbackEnabled,
-                        onIntensitySelected = { intensity ->
+                        onItemSelected = { intensity ->
                             viewModel.setHapticIntensity(intensity.name)
                             context.performHapticFeedback()
                         }
@@ -573,6 +681,40 @@ fun AdvancedSettingsScreen(
             onColorSelected = { selectedColorInt ->
                 viewModel.setMenuIconColor(selectedColorInt)
                 showMenuIconColorDialog = false
+            }
+        )
+    }
+
+    if (showBallBorderColorDialog) {
+        ColorPickerDialog(
+            initialColor = ballBorderColor,
+            onDismissRequest = { showBallBorderColorDialog = false },
+            onColorSelected = { selectedColorInt ->
+                viewModel.setBallBorderColor(selectedColorInt)
+                context.controlQuickBallService(QuickBallService.ACTION_UPDATE_BALL)
+                showBallBorderColorDialog = false
+            }
+        )
+    }
+
+    if (showMenuBorderColorDialog) {
+        ColorPickerDialog(
+            initialColor = menuBorderColor,
+            onDismissRequest = { showMenuBorderColorDialog = false },
+            onColorSelected = { selectedColorInt ->
+                viewModel.setMenuBorderColor(selectedColorInt)
+                showMenuBorderColorDialog = false
+            }
+        )
+    }
+
+    if (showMenuConnectorColorDialog) {
+        ColorPickerDialog(
+            initialColor = menuConnectorColor,
+            onDismissRequest = { showMenuConnectorColorDialog = false },
+            onColorSelected = { selectedColorInt ->
+                viewModel.setMenuConnectorColor(selectedColorInt)
+                showMenuConnectorColorDialog = false
             }
         )
     }
@@ -654,6 +796,18 @@ fun AdvancedSettingsScreen(
             currentActionName = currentAction,
             onActionSelected = onSelect,
             onDismissRequest = { activeGestureBottomSheet = null }
+        )
+    }
+}
+
+@Composable
+private fun SettingsSubHeader(title: String) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+        Text(
+            text = title,
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary
         )
     }
 }

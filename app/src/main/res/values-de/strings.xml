@@ -3,6 +3,10 @@
     <string name="remove_battery_restriction">Meine App nicht beenden</string>
     <string name="github_repository">GitHub-Repository</string>
     <string name="support_me">Wenn dir meine Arbeit gefällt.\nbitte erwäge mich zu unterstützen</string>
+    <string name="support_title">Meine Arbeit unterstützen</string>
+    <string name="support_description">Wähle unten eine Plattform. Jeder Kaffee hilft mir, diese App weiter zu verbessern.</string>
+    <string name="copy_number">Nummer kopieren</string>
+    <string name="number_copied">Nummer kopiert</string>
 
     <!-- Accessibility Service (for AndroidManifest.xml) -->
     <string name="accessibility_service_description">QuickBall-Dienst, der eine schwebende Kugel auf Ihrem Bildschirm für schnellen Zugriff auf Funktionen bereitstellt.</string>
@@ -35,7 +39,7 @@
     <string name="permission_grant">Gewähren</string>
 
     <!-- Shortcut -->
-    <string name="shortcuts_title">Verknüpfungen auswählen</string>
+    <string name="shortcuts_title">Verknüpfungen</string>
 
     <!-- Hide Automatically -->
     <string name="hide_automatically_title">Automatisch ausblenden</string>
@@ -57,7 +61,7 @@
     <string name="stick_to_edge_title">Am Rand anheften nach Inaktivität</string>
 
     <!-- Ball Size -->
-    <string name="ball_size_title">Kugelgröße</string>
+    <string name="ball_size_title">Größe</string>
 
     <!-- System Settings Permission -->
     <string name="system_settings_title">Systemeinstellungen ändern</string>
@@ -65,9 +69,14 @@
     <!-- Select Shortcut Fragment -->
     <string name="quick_settings_title">Schnelleinstellungen</string>
     <string name="apps_title">Apps</string>
-    <string name="select_shortcut_description">Wählen Sie eine Verknüpfung, um die aktuelle zu ersetzen</string>
-    <string name="reorder_shortcut_description">Ziehen Sie eine Verknüpfung, um ihre Position zu ändern</string>
+    <string name="select_shortcut_description">Tippen Sie auf eine Verknüpfung, um sie zu ändern</string>
+    <string name="reorder_shortcut_description">Ziehen Sie am Griff, um die Reihenfolge zu ändern</string>
     <string name="drag_handle_description">Zum Neuordnen ziehen</string>
+    <string name="add_shortcut">Verknüpfung hinzufügen</string>
+    <string name="remove_shortcut">Verknüpfung entfernen</string>
+    <string name="choose_shortcut_title">Verknüpfung auswählen</string>
+    <string name="shortcut_limit_description">Sie können %1$d bis %2$d Verknüpfungen haben</string>
+    <string name="preview_title">Vorschau</string>
 
     <!-- Language Settings -->
     <string name="language_title">Sprache</string>
@@ -106,41 +115,49 @@
     <string name="menu_screenshot">Screenshot</string>
     <string name="menu_lock_screen">Bildschirm sperren</string>
     <string name="menu_notification">Benachrichtigung</string>
-    <string name="menu_quick_settings">Kontrollzentrum</string>
+    <string name="menu_quick_settings">Schnelleinstellungen</string>
     <string name="menu_power_dialog">Ein-/Aus-Menü</string>
 
     <!-- Color Picker -->
     <string name="choose_color">Farbe wählen</string>
     <string name="hex_color_hint">Hex-Farbe (#AARRGGBB)</string>
+    <string name="opacity_title">Deckkraft</string>
+    <string name="brightness_title">Helligkeit</string>
     <string name="select">Auswählen</string>
     <string name="cancel">Abbrechen</string>
 
     <!-- Appearance & Customization -->
     <string name="reset_to_default">Auf Standard zurücksetzen</string>
-    <string name="ball_header_title">Kugel</string>
-    <string name="ball_color_title">Kugelfarbe</string>
+    <string name="ball_header_title">Schwebende Kugel</string>
     <string name="ball_icon_color_title">Symbolfarbe</string>
+    <string name="border_section_title">Rahmen</string>
+    <string name="connector_section_title">Verbindung</string>
+    <string name="setting_color_title">Farbe</string>
+    <string name="setting_width_title">Breite</string>
+    <string name="setting_style_title">Stil</string>
     <string name="menu_header_title">Menü</string>
-    <string name="menu_color_title">Menüfarbe</string>
     <string name="menu_icon_color_title">Symbolfarbe</string>
-    <string name="menu_size_title">Menügröße</string>
+    <string name="menu_size_title">Tastengröße</string>
     <string name="menu_icon_size_title">Symbolgröße</string>
-    <string name="menu_radius_title">Menüradius</string>
-    <string name="pill_header_title">Pille</string>
-    <string name="pill_color_title">Pillenfarbe</string>
-    <string name="pill_height_title">Pillenhöhe</string>
-    <string name="pill_thickness_title">Pillendicke</string>
+    <string name="menu_radius_title">Abstand zur Kugel</string>
+    <string name="connector_style_none">Keine</string>
+    <string name="connector_style_line">Linie</string>
+    <string name="connector_style_dotted">Gepunktet</string>
+    <string name="connector_style_arc">Bogen</string>
+    <string name="pill_header_title">Randgriff</string>
+    <string name="pill_height_title">Höhe</string>
+    <string name="pill_thickness_title">Dicke</string>
     <string name="pill_touch_width_title">Touch-Bereichsbreite</string>
-    <string name="pill_arc_angle_title">Pillenbogenwinkel</string>
+    <string name="pill_arc_angle_title">Bogenwinkel</string>
 
     <!-- Toast -->
-    <string name="toast_header_title">Toast</string>
+    <string name="toast_header_title">Pop-up-Meldung</string>
     <string name="toast_bg_color_title">Hintergrundfarbe</string>
-    <string name="toast_fg_color_title">Vordergrundfarbe</string>
+    <string name="toast_fg_color_title">Textfarbe</string>
 
     <!-- Gestures -->
-    <string name="gesture_header_title">Geste</string>
-    <string name="gesture_requirement_notice">Gesten funktionieren auf der Pill am Rand, wenn \"Am Rand anheften\" aktiviert ist, oder auf dem schwebenden Ball, wenn \"Ballposition sperren\" aktiviert ist.</string>
+    <string name="gesture_header_title">Gesten</string>
+    <string name="gesture_requirement_notice">Gesten funktionieren auf dem Randgriff, wenn \"Am Rand anheften\" aktiviert ist, oder auf dem schwebenden Ball, wenn \"Ballposition sperren\" aktiviert ist.</string>
     <string name="enable_gestures_title">Gesten aktivieren</string>
     <string name="enable_gestures_description">Das Aktivieren von Gesten kann das Öffnen des Menüs leicht verzögern.</string>
     <string name="double_tap_title">Doppeltippen</string>
