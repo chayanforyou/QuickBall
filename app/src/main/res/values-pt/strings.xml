@@ -5,6 +5,9 @@
     <string name="support_me">Se você ama meu trabalho.\npor favor considere me apoiar</string>
     <string name="support_title">Apoie meu trabalho</string>
     <string name="support_description">Escolha uma plataforma abaixo. Cada café me ajuda a continuar melhorando este app.</string>
+    <string name="support_tip_description">Escolha uma gorjeta abaixo. Cada café me ajuda a continuar melhorando este app.</string>
+    <string name="tip_thank_you">Obrigado pelo seu apoio!</string>
+    <string name="tip_unavailable">As gorjetas não estão disponíveis no momento.</string>
     <string name="copy_number">Copiar número</string>
     <string name="number_copied">Número copiado</string>
 

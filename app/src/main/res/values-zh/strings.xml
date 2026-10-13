@@ -5,6 +5,9 @@
     <string name="support_me">如果您喜欢我的作品。\n请考虑支持我</string>
     <string name="support_title">支持我的作品</string>
     <string name="support_description">请在下方选择平台。每一杯咖啡都能帮助我持续改进这款应用。</string>
+    <string name="support_tip_description">请在下方选择打赏金额。每一杯咖啡都能帮助我持续改进这款应用。</string>
+    <string name="tip_thank_you">感谢您的支持！</string>
+    <string name="tip_unavailable">打赏功能暂时不可用。</string>
     <string name="copy_number">复制号码</string>
     <string name="number_copied">号码已复制</string>
 

@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
@@ -23,6 +26,7 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +45,8 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import io.github.chayanforyou.quickball.R
 import kotlin.math.atan2
@@ -95,7 +101,7 @@ fun ColorPickerDialog(
                     .fillMaxWidth()
                     .padding(vertical = 4.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 // 1. Manual Hex Text Input
                 OutlinedTextField(
@@ -128,7 +134,7 @@ fun ColorPickerDialog(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(60.dp)
+                        .height(48.dp)
                         .clip(RoundedCornerShape(16.dp))
                         .background(currentColor)
                         .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(16.dp))
@@ -146,7 +152,7 @@ fun ColorPickerDialog(
                 )
 
                 // 4. Alpha Slider with opacity percentage
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     PercentLabel(title = stringResource(R.string.opacity_title), fraction = alpha)
                     AlphaSliderBar(
                         color = currentColor.copy(alpha = 1f),
@@ -157,7 +163,7 @@ fun ColorPickerDialog(
                 }
 
                 // 5. Brightness Slider with brightness percentage
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     PercentLabel(title = stringResource(R.string.brightness_title), fraction = value)
                     BrightnessSliderBar(
                         hue = hue,
@@ -327,28 +333,14 @@ private fun AlphaSliderBar(
     onAlphaChanged: (Float) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(
+    GradientSliderBar(
+        value = alpha,
+        onValueChange = onAlphaChanged,
+        brush = Brush.horizontalGradient(
+            colors = listOf(color.copy(alpha = 0f), color)
+        ),
         modifier = modifier
-            .height(24.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(
-                brush = Brush.horizontalGradient(
-                    colors = listOf(color.copy(alpha = 0f), color)
-                )
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        Slider(
-            value = alpha,
-            onValueChange = onAlphaChanged,
-            colors = SliderDefaults.colors(
-                thumbColor = Color.White,
-                activeTrackColor = Color.Transparent,
-                inactiveTrackColor = Color.Transparent
-            ),
-            modifier = Modifier.fillMaxWidth()
-        )
-    }
+    )
 }
 
 @Composable
@@ -364,26 +356,66 @@ private fun BrightnessSliderBar(
         Color(argb)
     }
 
-    Box(
+    GradientSliderBar(
+        value = value,
+        onValueChange = onValueChanged,
+        brush = Brush.horizontalGradient(
+            colors = listOf(Color.Black, fullBrightColor)
+        ),
         modifier = modifier
-            .height(24.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(
-                brush = Brush.horizontalGradient(
-                    colors = listOf(Color.Black, fullBrightColor)
-                )
-            ),
+    )
+}
+
+/**
+ * Slider drawn over a gradient bar. It keeps the default Material thumb, which is taller
+ * than the bar and so stays visible on both light and dark parts of the gradient.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun GradientSliderBar(
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    brush: Brush,
+    modifier: Modifier = Modifier
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+
+    Box(
+        modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
-        Slider(
-            value = value,
-            onValueChange = onValueChanged,
-            colors = SliderDefaults.colors(
-                thumbColor = Color.White,
-                activeTrackColor = Color.Transparent,
-                inactiveTrackColor = Color.Transparent
-            ),
-            modifier = Modifier.fillMaxWidth()
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(GradientBarHeight)
+                .background(brush = brush, shape = RoundedCornerShape(12.dp))
         )
+
+        // Drop the 48dp minimum height, so the row is only as tall as the thumb
+        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
+            Slider(
+                value = value,
+                onValueChange = onValueChange,
+                modifier = Modifier.fillMaxWidth(),
+                interactionSource = interactionSource,
+                thumb = {
+                    SliderDefaults.Thumb(
+                        interactionSource = interactionSource,
+                        thumbSize = GradientThumbSize
+                    )
+                },
+                // The gradient bar behind is the track
+                track = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(GradientBarHeight)
+                    )
+                }
+            )
+        }
     }
 }
+
+private val GradientBarHeight = 18.dp
+private val GradientThumbSize = DpSize(4.dp, 32.dp)

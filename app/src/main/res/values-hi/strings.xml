@@ -5,6 +5,9 @@
     <string name="support_me">यदि आप मेरे काम से प्यार करते हैं।\nकृपया मेरा समर्थन करने पर विचार करें</string>
     <string name="support_title">मेरे काम का समर्थन करें</string>
     <string name="support_description">नीचे एक प्लेटफ़ॉर्म चुनें। हर कॉफ़ी मुझे इस ऐप को बेहतर बनाने में मदद करती है।</string>
+    <string name="support_tip_description">नीचे एक टिप चुनें। हर कॉफ़ी मुझे इस ऐप को बेहतर बनाने में मदद करती है।</string>
+    <string name="tip_thank_you">आपके समर्थन के लिए धन्यवाद!</string>
+    <string name="tip_unavailable">टिप अभी उपलब्ध नहीं है।</string>
     <string name="copy_number">नंबर कॉपी करें</string>
     <string name="number_copied">नंबर कॉपी किया गया</string>
 
