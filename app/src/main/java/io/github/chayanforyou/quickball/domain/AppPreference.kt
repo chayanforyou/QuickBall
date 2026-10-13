@@ -18,8 +18,15 @@ class AppPreference private constructor(context: Context) {
         private const val KEY_BALL_SIZE = "ball_size"
         private const val KEY_BALL_COLOR = "ball_color"
         private const val KEY_BALL_ICON_COLOR = "ball_icon_color"
+        private const val KEY_BALL_BORDER_COLOR = "ball_border_color"
+        private const val KEY_BALL_BORDER_WIDTH = "ball_border_width"
+        private const val KEY_MENU_BORDER_COLOR = "menu_border_color"
+        private const val KEY_MENU_BORDER_WIDTH = "menu_border_width"
         private const val KEY_MENU_COLOR = "menu_color"
         private const val KEY_MENU_ICON_COLOR = "menu_icon_color"
+        private const val KEY_MENU_CONNECTOR_COLOR = "menu_connector_color"
+        private const val KEY_MENU_CONNECTOR_STYLE = "menu_connector_style"
+        private const val KEY_MENU_CONNECTOR_WIDTH = "menu_connector_width"
         private const val KEY_MENU_SIZE = "menu_size"
         private const val KEY_MENU_ICON_SIZE = "menu_icon_size"
         private const val KEY_MENU_RADIUS = "menu_radius"
@@ -92,16 +99,49 @@ class AppPreference private constructor(context: Context) {
         get() = prefs.getInt(KEY_MENU_ICON_COLOR, AppDefaults.MENU_ICON_COLOR)
         set(value) = prefs.edit { putInt(KEY_MENU_ICON_COLOR, value) }
 
+    var ballBorderColor: Int
+        get() = prefs.getInt(KEY_BALL_BORDER_COLOR, AppDefaults.BALL_BORDER_COLOR)
+        set(value) = prefs.edit { putInt(KEY_BALL_BORDER_COLOR, value) }
+
+    var ballBorderWidth: Float
+        get() = prefs.getFloat(KEY_BALL_BORDER_WIDTH, AppDefaults.BALL_BORDER_WIDTH)
+            .coerceIn(AppDefaults.BORDER_WIDTH_MIN, AppDefaults.BORDER_WIDTH_MAX)
+        set(value) = prefs.edit { putFloat(KEY_BALL_BORDER_WIDTH, value) }
+
+    var menuBorderColor: Int
+        get() = prefs.getInt(KEY_MENU_BORDER_COLOR, AppDefaults.MENU_BORDER_COLOR)
+        set(value) = prefs.edit { putInt(KEY_MENU_BORDER_COLOR, value) }
+
+    var menuBorderWidth: Float
+        get() = prefs.getFloat(KEY_MENU_BORDER_WIDTH, AppDefaults.MENU_BORDER_WIDTH)
+            .coerceIn(AppDefaults.BORDER_WIDTH_MIN, AppDefaults.BORDER_WIDTH_MAX)
+        set(value) = prefs.edit { putFloat(KEY_MENU_BORDER_WIDTH, value) }
+
+    var menuConnectorColor: Int
+        get() = prefs.getInt(KEY_MENU_CONNECTOR_COLOR, AppDefaults.MENU_CONNECTOR_COLOR)
+        set(value) = prefs.edit { putInt(KEY_MENU_CONNECTOR_COLOR, value) }
+
+    var menuConnectorStyle: String
+        get() = prefs.getString(KEY_MENU_CONNECTOR_STYLE, AppDefaults.MENU_CONNECTOR_STYLE) ?: AppDefaults.MENU_CONNECTOR_STYLE
+        set(value) = prefs.edit { putString(KEY_MENU_CONNECTOR_STYLE, value) }
+
+    var menuConnectorWidth: Float
+        get() = prefs.getFloat(KEY_MENU_CONNECTOR_WIDTH, AppDefaults.MENU_CONNECTOR_WIDTH)
+            .coerceIn(AppDefaults.MENU_CONNECTOR_WIDTH_MIN, AppDefaults.MENU_CONNECTOR_WIDTH_MAX)
+        set(value) = prefs.edit { putFloat(KEY_MENU_CONNECTOR_WIDTH, value) }
+
     var menuIconSize: Float
         get() = prefs.getFloat(KEY_MENU_ICON_SIZE, AppDefaults.MENU_ICON_SIZE)
         set(value) = prefs.edit { putFloat(KEY_MENU_ICON_SIZE, value) }
 
     var menuSize: Float
         get() = prefs.getFloat(KEY_MENU_SIZE, AppDefaults.MENU_SIZE)
+            .coerceIn(AppDefaults.MENU_SIZE_MIN, AppDefaults.MENU_SIZE_MAX)
         set(value) = prefs.edit { putFloat(KEY_MENU_SIZE, value) }
 
     var menuRadius: Float
         get() = prefs.getFloat(KEY_MENU_RADIUS, AppDefaults.MENU_RADIUS)
+            .coerceIn(AppDefaults.MENU_RADIUS_MIN, AppDefaults.MENU_RADIUS_MAX)
         set(value) = prefs.edit { putFloat(KEY_MENU_RADIUS, value) }
 
     var toastBgColor: Int

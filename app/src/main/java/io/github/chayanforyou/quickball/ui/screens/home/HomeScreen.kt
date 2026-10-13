@@ -2,6 +2,11 @@ package io.github.chayanforyou.quickball.ui.screens.home
 
 import android.content.Context
 import android.content.Intent
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.keyframes
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,18 +32,23 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -54,16 +64,20 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.chayanforyou.quickball.BuildConfig
 import io.github.chayanforyou.quickball.R
 import io.github.chayanforyou.quickball.core.QuickBallService
+import io.github.chayanforyou.quickball.ui.components.AppSwitch
 import io.github.chayanforyou.quickball.ui.screens.home.components.AppRatingDialog
 import io.github.chayanforyou.quickball.ui.screens.home.components.DokiBottomSheet
 import io.github.chayanforyou.quickball.ui.screens.home.components.LanguageSelectionBottomSheet
 import io.github.chayanforyou.quickball.ui.screens.home.components.SettingNavigationRow
 import io.github.chayanforyou.quickball.ui.screens.home.components.SettingSwitchRow
+import io.github.chayanforyou.quickball.ui.screens.home.components.SupportBottomSheet
 import io.github.chayanforyou.quickball.ui.theme.AppCardDefaults
 import io.github.chayanforyou.quickball.ui.theme.CookieFontFamily
 import io.github.chayanforyou.quickball.ui.viewmodels.QuickBallViewModel
 import io.github.chayanforyou.quickball.utils.AppRater
 import io.github.chayanforyou.quickball.utils.PermissionUtils
+import kotlin.math.PI
+import kotlin.math.sin
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,12 +95,19 @@ fun HomeScreen(
 
     var showLanguageSheet by remember { mutableStateOf(false) }
     var showDokiSheet by remember { mutableStateOf(false) }
+    var showSupportSheet by remember { mutableStateOf(false) }
     var showRateDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         AppRater.initAppRater(context) {
             showRateDialog = true
         }
+    }
+
+    if (showSupportSheet) {
+        SupportBottomSheet(onDismissRequest = {
+            showSupportSheet = false
+        })
     }
 
     if (showLanguageSheet) {
@@ -203,7 +224,7 @@ fun HomeScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 12.dp),
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -213,19 +234,27 @@ fun HomeScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
 
+                        val attention = rememberAttentionBurst()
+
+                        // Surface is light in light theme and dark in dark theme, the opposite of the button
+                        val buttonColor = MaterialTheme.colorScheme.primary
+                        val shimmerColor = MaterialTheme.colorScheme.surface.copy(alpha = SHIMMER_ALPHA)
+
                         Surface(
-                            onClick = {
-                                val intent = Intent(
-                                    Intent.ACTION_VIEW,
-                                    "https://chayanforyou.gumroad.com/coffee".toUri()
-                                )
-                                context.startActivity(intent)
+                            onClick = { showSupportSheet = true },
+                            modifier = Modifier.graphicsLayer {
+                                // Single soft pop per burst
+                                val scale = 1f + POP_SCALE * sin(attention.value * PI.toFloat())
+                                scaleX = scale
+                                scaleY = scale
                             },
                             shape = RoundedCornerShape(12.dp),
-                            color = MaterialTheme.colorScheme.primary
+                            color = buttonColor
                         ) {
                             Row(
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                modifier = Modifier
+                                    .shimmerSweep(attention, shimmerColor)
+                                    .padding(horizontal = 10.dp, vertical = 6.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
@@ -233,7 +262,14 @@ fun HomeScreen(
                                     painter = painterResource(R.drawable.ic_coffee),
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.inverseOnSurface,
-                                    modifier = Modifier.size(24.dp),
+                                    modifier = Modifier
+                                        .size(24.dp)
+                                        .graphicsLayer {
+                                            // Wiggle that settles by the end of the burst
+                                            val progress = attention.value
+                                            rotationZ = WIGGLE_DEGREES * (1f - progress) *
+                                                    sin(progress * 4f * PI.toFloat())
+                                        },
                                 )
                                 Text(
                                     text = stringResource(R.string.support_me),
@@ -258,7 +294,7 @@ fun HomeScreen(
                 .padding(horizontal = 16.dp)
                 .padding(bottom = 16.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             // Accessibility Setup Card (shown at top if accessibility is OFF)
             if (!isAccessibilityGranted) {
@@ -276,7 +312,7 @@ fun HomeScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 20.dp, vertical = 12.dp),
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -285,7 +321,7 @@ fun HomeScreen(
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Medium
                     )
-                    Switch(
+                    AppSwitch(
                         checked = isQuickBallEnabled,
                         enabled = isAccessibilityGranted,
                         onCheckedChange = { checked ->
@@ -314,8 +350,8 @@ fun HomeScreen(
                 colors = AppCardDefaults.cardColors()
             ) {
                 Column(
-                    modifier = Modifier.padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     SettingNavigationRow(
                         title = stringResource(R.string.shortcuts_title),
@@ -376,7 +412,7 @@ fun HomeScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { onNavigateToAdvanced() }
-                        .padding(horizontal = 20.dp, vertical = 16.dp),
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
@@ -407,7 +443,7 @@ private fun AccessibilitySetupCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp),
+                .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Text(
@@ -446,5 +482,56 @@ private fun controlQuickBallService(context: Context, action: String) {
         Intent(context, QuickBallService::class.java).apply {
             this.action = action
         }
+    )
+}
+
+private const val ATTENTION_CYCLE_MS = 3600
+private const val ATTENTION_BURST_MS = 1300
+private const val POP_SCALE = 0.06f
+private const val WIGGLE_DEGREES = 16f
+private const val SHIMMER_ALPHA = 0.18f
+private const val SHIMMER_WIDTH_FRACTION = 0.45f
+
+/**
+ * Progress of a short attention burst that repeats with a pause in between:
+ * runs 0 to 1 during the burst, then rests at 1 until the next cycle.
+ */
+@Composable
+private fun rememberAttentionBurst(): State<Float> {
+    val transition = rememberInfiniteTransition(label = "attention")
+    return transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = keyframes {
+                durationMillis = ATTENTION_CYCLE_MS
+                0f at 0 using FastOutSlowInEasing
+                1f at ATTENTION_BURST_MS
+                1f at ATTENTION_CYCLE_MS
+            }
+        ),
+        label = "attentionBurst"
+    )
+}
+
+/**
+ * Slanted light band that sweeps across the content once per burst.
+ */
+private fun Modifier.shimmerSweep(
+    progress: State<Float>,
+    color: Color
+): Modifier = drawWithContent {
+    drawContent()
+
+    val bandWidth = size.width * SHIMMER_WIDTH_FRACTION
+    val start = -bandWidth + progress.value * (size.width + bandWidth)
+    if (start >= size.width) return@drawWithContent
+
+    drawRect(
+        brush = Brush.linearGradient(
+            colors = listOf(color.copy(alpha = 0f), color, color.copy(alpha = 0f)),
+            start = Offset(start, 0f),
+            end = Offset(start + bandWidth, size.height)
+        )
     )
 }

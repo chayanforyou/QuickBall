@@ -67,7 +67,7 @@ fun SelectShortcutScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = stringResource(R.string.shortcuts_title),
+                        text = stringResource(R.string.choose_shortcut_title),
                         fontWeight = FontWeight.SemiBold,
                         style = MaterialTheme.typography.titleLarge
                     )
@@ -108,7 +108,7 @@ fun SelectShortcutScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable { onNavigateToApps() }
-                        .padding(horizontal = 20.dp, vertical = 16.dp),
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
@@ -133,7 +133,7 @@ fun SelectShortcutScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             // Section Header: Quick settings
             Text(
@@ -161,7 +161,7 @@ fun SelectShortcutScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable(enabled = !isAlreadySelected) { selectAction(item) }
-                                .padding(horizontal = 20.dp, vertical = 16.dp),
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Icon(
@@ -191,7 +191,7 @@ fun SelectShortcutScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
         }
     }
 }

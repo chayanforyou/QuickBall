@@ -49,6 +49,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.chayanforyou.quickball.R
 import io.github.chayanforyou.quickball.domain.models.InstalledApp
+import io.github.chayanforyou.quickball.ui.components.AppSwitch
 import io.github.chayanforyou.quickball.ui.theme.AppCardDefaults
 import io.github.chayanforyou.quickball.ui.viewmodels.QuickBallViewModel
 import io.github.chayanforyou.quickball.utils.loadInstalledApps
@@ -185,7 +186,7 @@ fun AutoHideSettingsScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable { toggleAppSelection(app.packageName) }
-                                    .padding(horizontal = 20.dp, vertical = 14.dp),
+                                    .padding(horizontal = 16.dp, vertical = 10.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Image(
@@ -203,7 +204,7 @@ fun AutoHideSettingsScreen(
                                     overflow = TextOverflow.Ellipsis,
                                     modifier = Modifier.weight(1f)
                                 )
-                                Switch(
+                                AppSwitch(
                                     checked = isSelected,
                                     onCheckedChange = { toggleAppSelection(app.packageName) }
                                 )

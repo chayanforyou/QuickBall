@@ -3,6 +3,10 @@ package io.github.chayanforyou.quickball.ui.floating
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.ColorStateList
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.RectF
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
 import android.os.Build
@@ -16,18 +20,19 @@ import android.widget.ImageView
 import androidx.core.graphics.toColorInt
 import io.github.chayanforyou.quickball.domain.AppPreference
 import io.github.chayanforyou.quickball.domain.models.MenuAction
+import io.github.chayanforyou.quickball.domain.models.MenuConnectorStyle
 import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItem
 import io.github.chayanforyou.quickball.utils.DensityUtils
 import io.github.chayanforyou.quickball.utils.getAppIcon
 import io.github.chayanforyou.quickball.utils.getScreenSize
-import kotlin.math.cos
-import kotlin.math.sin
+import kotlin.math.hypot
 
 /**
  * Full-screen overlay displaying the radial menu items.
  *
  * Fans out action items from the floating ball position (adapting to left/right edge)
- * and animates them with overshoot and decelerate interpolators.
+ * and animates them with overshoot and decelerate interpolators. Up to [FanLayout.SINGLE_RING_MAX]
+ * items sit on one arc; more items zigzag between an outer and an inner arc.
  */
 @SuppressLint("ViewConstructor")
 class FloatPanelView(
@@ -44,8 +49,7 @@ class FloatPanelView(
     companion object {
         private val RIPPLE_COLOR = ColorStateList.valueOf("#40FFFFFF".toColorInt())
 
-        private const val START_ANGLE = 100f
-        private const val END_ANGLE = 160f
+        private const val SCREEN_MARGIN_DP = 8f
 
         private const val ANIMATION_DURATION = 240L
         private const val STAGGER_DELAY = 15L
@@ -59,6 +63,7 @@ class FloatPanelView(
     private val buttonSize by lazy { DensityUtils.dp2px(prefs.menuSize) }
     private val iconSize by lazy { DensityUtils.dp2px(prefs.menuIconSize) }
     private val radius by lazy { DensityUtils.dp2px(prefs.menuRadius) }
+    private val borderWidth by lazy { DensityUtils.dp2px(prefs.menuBorderWidth) }
 
     // Floating Ball Geometry
     private val halfFab = fabSize / 2
@@ -69,8 +74,30 @@ class FloatPanelView(
         fabCenterX > (screenWidth / 2)
     }
 
+    // Connectors between the ball and each item
+    private val connectorStyle = runCatching { MenuConnectorStyle.valueOf(prefs.menuConnectorStyle) }
+        .getOrDefault(MenuConnectorStyle.DOTTED)
+    private val connectorWidth = DensityUtils.dp2px(prefs.menuConnectorWidth).toFloat()
+    private val dotRadius = connectorWidth * FanLayout.DOT_SIZE_RATIO / 2f
+    private val dotSpacing = connectorWidth * FanLayout.DOT_SPACING_RATIO
+    private val connectorInset = DensityUtils.dp2px(FanLayout.CONNECTOR_INSET_DP).toFloat()
+    private val connectorAlpha = Color.alpha(prefs.menuConnectorColor)
+    private val connectorPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = if (connectorStyle == MenuConnectorStyle.DOTTED) Paint.Style.FILL else Paint.Style.STROKE
+        strokeWidth = connectorWidth
+        strokeCap = Paint.Cap.ROUND
+        color = prefs.menuConnectorColor
+    }
+
+    // Connector arc geometry, set while computing the fan
+    private val arcBounds = RectF()
+    private var arcRadius = 0f
+    private var arcEdgeAngle = 0f
+    private var fanShiftY = 0f
+
     // Views & Animation State
     private val itemViews = ArrayList<FrameLayout>(items.size)
+    private val itemOffsets: List<Pair<Float, Float>>
     private var isCollapsing = false
     private var hasDismissed = false
 
@@ -81,6 +108,8 @@ class FloatPanelView(
 
         clipChildren = false
         clipToPadding = false
+
+        itemOffsets = computeFanningOffsets()
 
         setupTouchHandling()
         createChildViews()
@@ -121,6 +150,7 @@ class FloatPanelView(
                 background = GradientDrawable().apply {
                     this.shape = GradientDrawable.OVAL
                     setColor(prefs.menuColor)
+                    if (borderWidth > 0) setStroke(borderWidth, prefs.menuBorderColor)
                 }
 
                 // Circle ripple foreground
@@ -153,7 +183,7 @@ class FloatPanelView(
             }
 
             // Initially collapse to the FAB center
-            val (offsetX, offsetY) = getFanningOffsets(index)
+            val (offsetX, offsetY) = itemOffsets[index]
 
             itemView.translationX = -offsetX
             itemView.translationY = -offsetY
@@ -168,21 +198,160 @@ class FloatPanelView(
     }
 
     /**
-     * Helper to compute the target fanning offset relative to the central FAB.
+     * Computes the target offset of every item relative to the central FAB, see [FanLayout].
      */
-    private fun getFanningOffsets(index: Int): Pair<Float, Float> {
-        val stepAngle = END_ANGLE / (items.size - 1)
+    private fun computeFanningOffsets(): List<Pair<Float, Float>> {
+        val (_, screenHeight) = context.getScreenSize()
+        val margin = DensityUtils.dp2px(SCREEN_MARGIN_DP)
 
-        val angleDeg = START_ANGLE + stepAngle * index
-        val angleRad = Math.toRadians(angleDeg.toDouble())
-
-        val offsetX = (cos(angleRad) * radius).toFloat()
-        val offsetY = (-sin(angleRad) * radius).toFloat()
-
-        return Pair(
-            if (isOnRight) offsetX else -offsetX,
-            offsetY
+        val layout = FanLayout.compute(
+            count = items.size,
+            buttonSize = buttonSize.toFloat(),
+            radius = radius.toFloat(),
+            halfFab = halfFab.toFloat(),
+            density = resources.displayMetrics.density,
+            maxHalfSpan = if (screenHeight > 0) {
+                (screenHeight - buttonSize) / 2f - margin
+            } else Float.MAX_VALUE
         )
+
+        val offsets = layout.offsets.map { (offsetX, offsetY) ->
+            Pair(if (isOnRight) offsetX else -offsetX, offsetY)
+        }
+
+        fanShiftY = getScreenFitShift(offsets.minOf { it.second }, offsets.maxOf { it.second })
+
+        arcEdgeAngle = layout.arcEdgeAngle
+        arcRadius = layout.arcRadius
+        val fanCenterY = fabCenterY + fanShiftY
+        arcBounds.set(
+            fabCenterX - arcRadius,
+            fanCenterY - arcRadius,
+            fabCenterX + arcRadius,
+            fanCenterY + arcRadius
+        )
+
+        return offsets.map { (offsetX, offsetY) -> Pair(offsetX, offsetY + fanShiftY) }
+    }
+
+    /**
+     * Vertical shift that keeps the whole fan on screen when the FAB is near the top or bottom.
+     */
+    private fun getScreenFitShift(minOffsetY: Float, maxOffsetY: Float): Float {
+        val (_, screenHeight) = context.getScreenSize()
+        if (screenHeight <= 0) return 0f
+
+        val margin = DensityUtils.dp2px(SCREEN_MARGIN_DP)
+        val halfButton = buttonSize / 2f
+        val top = fabCenterY + minOffsetY - halfButton
+        val bottom = fabCenterY + maxOffsetY + halfButton
+
+        return when {
+            top < margin -> margin - top
+            bottom > screenHeight - margin -> screenHeight - margin - bottom
+            else -> 0f
+        }
+    }
+
+    /**
+     * Draw the connectors under the items, following the item animation
+     */
+    override fun dispatchDraw(canvas: Canvas) {
+        when (connectorStyle) {
+            MenuConnectorStyle.NONE -> Unit
+            MenuConnectorStyle.ARC -> drawArcConnectors(canvas)
+            MenuConnectorStyle.LINE, MenuConnectorStyle.DOTTED -> drawRadialConnectors(canvas)
+        }
+
+        super.dispatchDraw(canvas)
+    }
+
+    /**
+     * Straight or dotted connectors from the FAB to each item
+     */
+    private fun drawRadialConnectors(canvas: Canvas) {
+        itemViews.forEachIndexed { index, itemView ->
+            val (offsetX, offsetY) = itemOffsets[index]
+
+            val deltaX = offsetX + itemView.translationX
+            val deltaY = offsetY + itemView.translationY
+            val distance = hypot(deltaX, deltaY)
+            if (distance <= 0f || itemView.alpha <= 0f) return@forEachIndexed
+
+            val directionX = deltaX / distance
+            val directionY = deltaY / distance
+            val start = halfFab + connectorInset
+            val end = distance - buttonSize / 2f * itemView.scaleX
+            if (end <= start) return@forEachIndexed
+
+            connectorPaint.alpha = (connectorAlpha * itemView.alpha.coerceIn(0f, 1f)).toInt()
+
+            if (connectorStyle == MenuConnectorStyle.LINE) {
+                canvas.drawLine(
+                    fabCenterX + directionX * start,
+                    fabCenterY + directionY * start,
+                    fabCenterX + directionX * end,
+                    fabCenterY + directionY * end,
+                    connectorPaint
+                )
+                return@forEachIndexed
+            }
+
+            var position = start
+            while (position < end) {
+                canvas.drawCircle(
+                    fabCenterX + directionX * position,
+                    fabCenterY + directionY * position,
+                    dotRadius,
+                    connectorPaint
+                )
+                position += dotSpacing
+            }
+        }
+    }
+
+    /**
+     * An arc around the FAB, from straight above it to the last item, with a short
+     * stub from the arc to each item
+     */
+    private fun drawArcConnectors(canvas: Canvas) {
+        // While collapsing, the arc is gone by the time the first item is half faded
+        val minAlpha = itemViews.minOf { it.alpha }
+        val arcAlpha = (if (isCollapsing) minAlpha * 2f - 1f else minAlpha).coerceIn(0f, 1f)
+        if (arcAlpha > 0f) {
+            // Canvas angles: 0° points right, 270° points up, clockwise positive
+            val startAngle = if (isOnRight) 180f - arcEdgeAngle else 270f
+            connectorPaint.alpha = (connectorAlpha * arcAlpha).toInt()
+            canvas.drawArc(arcBounds, startAngle, 90f + arcEdgeAngle, false, connectorPaint)
+        }
+
+        val fanCenterY = fabCenterY + fanShiftY
+
+        itemViews.forEachIndexed { index, itemView ->
+            val (offsetX, offsetY) = itemOffsets[index]
+
+            // Stub direction is fixed by the resting position of the item
+            val restX = offsetX
+            val restY = offsetY - fanShiftY
+            val restDistance = hypot(restX, restY)
+            if (restDistance <= 0f || itemView.alpha <= 0f) return@forEachIndexed
+
+            val directionX = restX / restDistance
+            val directionY = restY / restDistance
+
+            val distance = hypot(restX + itemView.translationX, restY + itemView.translationY)
+            val end = distance - buttonSize / 2f * itemView.scaleX
+            if (end <= arcRadius) return@forEachIndexed
+
+            connectorPaint.alpha = (connectorAlpha * itemView.alpha.coerceIn(0f, 1f)).toInt()
+            canvas.drawLine(
+                fabCenterX + directionX * arcRadius,
+                fanCenterY + directionY * arcRadius,
+                fabCenterX + directionX * end,
+                fanCenterY + directionY * end,
+                connectorPaint
+            )
+        }
     }
 
     /**
@@ -204,6 +373,7 @@ class FloatPanelView(
                 .setDuration(ANIMATION_DURATION)
                 .setStartDelay((lastIndex - index) * STAGGER_DELAY)
                 .setInterpolator(OVERSHOOT)
+                .setUpdateListener { invalidate() }
                 .start()
         }
     }
@@ -218,7 +388,7 @@ class FloatPanelView(
         val lastIndex = itemViews.size - 1
 
         itemViews.forEachIndexed { index, itemView ->
-            val (offsetX, offsetY) = getFanningOffsets(index)
+            val (offsetX, offsetY) = itemOffsets[index]
 
             val animator = itemView.animate()
                 .translationX(-offsetX)
@@ -229,6 +399,7 @@ class FloatPanelView(
                 .setDuration(ANIMATION_DURATION)
                 .setStartDelay((lastIndex - index) * STAGGER_DELAY)
                 .setInterpolator(DECELERATE)
+                .setUpdateListener { invalidate() }
 
             if (index == 0) {
                 animator.withEndAction {
@@ -253,7 +424,7 @@ class FloatPanelView(
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         itemViews.forEachIndexed { index, child ->
-            val (offsetX, offsetY) = getFanningOffsets(index)
+            val (offsetX, offsetY) = itemOffsets[index]
 
             val centerX = (fabCenterX + offsetX).toInt()
             val centerY = (fabCenterY + offsetY).toInt()

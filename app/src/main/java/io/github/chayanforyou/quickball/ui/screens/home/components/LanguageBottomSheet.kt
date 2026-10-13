@@ -80,7 +80,7 @@ fun LanguageSelectionBottomSheet(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { selectLanguage(language) }
-                            .padding(horizontal = 24.dp, vertical = 12.dp),
+                            .padding(horizontal = 24.dp, vertical = 2.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {

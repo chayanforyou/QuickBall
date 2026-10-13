@@ -15,10 +15,20 @@ android {
         applicationId = "io.github.chayanforyou.quickball"
         minSdk = 21
         targetSdk = 37
-        versionCode = 22
-        versionName = "5.2.0"
+        versionCode = 24
+        versionName = "6.0.0"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    flavorDimensions += "store"
+    productFlavors {
+        create("foss") {
+            dimension = "store"
+        }
+        create("play") {
+            dimension = "store"
+        }
     }
 
     buildTypes {
@@ -74,4 +84,5 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
+    "playImplementation"(libs.billing)
 }

@@ -1,0 +1,5 @@
+- Choose 3 to 9 shortcuts in the floating menu
+- New menu layout that adapts to the number of shortcuts
+- Connector styles: none, line, dotted or arc, with custom color and width
+- Border color and width for the floating ball and menu buttons
+- Redesigned shortcuts screen: add, remove and reorder

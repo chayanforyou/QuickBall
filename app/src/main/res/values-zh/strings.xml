@@ -3,6 +3,13 @@
     <string name="remove_battery_restriction">不要杀死我的应用</string>
     <string name="github_repository">GitHub 仓库</string>
     <string name="support_me">如果您喜欢我的作品。\n请考虑支持我</string>
+    <string name="support_title">支持我的作品</string>
+    <string name="support_description">请在下方选择平台。每一杯咖啡都能帮助我持续改进这款应用。</string>
+    <string name="support_tip_description">请在下方选择打赏金额。每一杯咖啡都能帮助我持续改进这款应用。</string>
+    <string name="tip_thank_you">感谢您的支持！</string>
+    <string name="tip_unavailable">打赏功能暂时不可用。</string>
+    <string name="copy_number">复制号码</string>
+    <string name="number_copied">号码已复制</string>
 
     <!-- Accessibility Service (for AndroidManifest.xml) -->
     <string name="accessibility_service_description">快球浮动球服务，在您的屏幕上提供浮动球覆盖层，以便快速访问功能。</string>
@@ -35,7 +42,7 @@
     <string name="permission_grant">授予</string>
 
     <!-- Shortcut -->
-    <string name="shortcuts_title">选择快捷方式</string>
+    <string name="shortcuts_title">快捷方式</string>
 
     <!-- Hide Automatically -->
     <string name="hide_automatically_title">自动隐藏</string>
@@ -57,7 +64,7 @@
     <string name="stick_to_edge_title">无操作后吸附边缘</string>
 
     <!-- Ball Size -->
-    <string name="ball_size_title">球体大小</string>
+    <string name="ball_size_title">大小</string>
 
     <!-- System Settings Permission -->
     <string name="system_settings_title">修改系统设置</string>
@@ -65,9 +72,14 @@
     <!-- Select Shortcut Fragment -->
     <string name="quick_settings_title">快速设置</string>
     <string name="apps_title">应用</string>
-    <string name="select_shortcut_description">选择一个快捷方式来替换当前的</string>
-    <string name="reorder_shortcut_description">拖动快捷方式以重新排序其位置</string>
+    <string name="select_shortcut_description">点按快捷方式即可更改</string>
+    <string name="reorder_shortcut_description">拖动手柄以重新排序</string>
     <string name="drag_handle_description">拖动以重新排序</string>
+    <string name="add_shortcut">添加快捷方式</string>
+    <string name="remove_shortcut">移除快捷方式</string>
+    <string name="choose_shortcut_title">选择快捷方式</string>
+    <string name="shortcut_limit_description">可设置 %1$d 到 %2$d 个快捷方式</string>
+    <string name="preview_title">预览</string>
 
     <!-- Language Settings -->
     <string name="language_title">语言</string>
@@ -106,41 +118,49 @@
     <string name="menu_screenshot">截屏</string>
     <string name="menu_lock_screen">锁屏</string>
     <string name="menu_notification">通知</string>
-    <string name="menu_quick_settings">控制中心</string>
+    <string name="menu_quick_settings">快速设置</string>
     <string name="menu_power_dialog">电源菜单</string>
 
     <!-- Color Picker -->
     <string name="choose_color">选择颜色</string>
     <string name="hex_color_hint">十六进制颜色 (#AARRGGBB)</string>
+    <string name="opacity_title">不透明度</string>
+    <string name="brightness_title">亮度</string>
     <string name="select">选择</string>
     <string name="cancel">取消</string>
 
     <!-- Appearance & Customization -->
     <string name="reset_to_default">恢复默认</string>
     <string name="ball_header_title">悬浮球</string>
-    <string name="ball_color_title">悬浮球颜色</string>
     <string name="ball_icon_color_title">图标颜色</string>
+    <string name="border_section_title">边框</string>
+    <string name="connector_section_title">连接线</string>
+    <string name="setting_color_title">颜色</string>
+    <string name="setting_width_title">宽度</string>
+    <string name="setting_style_title">样式</string>
     <string name="menu_header_title">菜单</string>
-    <string name="menu_color_title">菜单颜色</string>
     <string name="menu_icon_color_title">图标颜色</string>
-    <string name="menu_size_title">菜单大小</string>
+    <string name="menu_size_title">按钮大小</string>
     <string name="menu_icon_size_title">图标大小</string>
-    <string name="menu_radius_title">菜单半径</string>
-    <string name="pill_header_title">胶囊条</string>
-    <string name="pill_color_title">胶囊条颜色</string>
-    <string name="pill_height_title">胶囊条高度</string>
-    <string name="pill_thickness_title">胶囊条厚度</string>
+    <string name="menu_radius_title">与悬浮球的距离</string>
+    <string name="connector_style_none">无</string>
+    <string name="connector_style_line">实线</string>
+    <string name="connector_style_dotted">点线</string>
+    <string name="connector_style_arc">弧线</string>
+    <string name="pill_header_title">边缘手柄</string>
+    <string name="pill_height_title">高度</string>
+    <string name="pill_thickness_title">厚度</string>
     <string name="pill_touch_width_title">触摸区域宽度</string>
-    <string name="pill_arc_angle_title">胶囊条弧度角</string>
+    <string name="pill_arc_angle_title">弧度角</string>
 
     <!-- Toast -->
-    <string name="toast_header_title">Toast 提示</string>
+    <string name="toast_header_title">弹出提示</string>
     <string name="toast_bg_color_title">背景颜色</string>
-    <string name="toast_fg_color_title">前景颜色</string>
+    <string name="toast_fg_color_title">文字颜色</string>
 
     <!-- Gestures -->
     <string name="gesture_header_title">手势</string>
-    <string name="gesture_requirement_notice">当启用“吸附边缘”时手势在边缘药丸条上生效，或当启用“锁定悬浮球位置”时在悬浮球上生效。</string>
+    <string name="gesture_requirement_notice">当启用“吸附边缘”时手势在边缘手柄上生效，或当启用“锁定悬浮球位置”时在悬浮球上生效。</string>
     <string name="enable_gestures_title">启用手势</string>
     <string name="enable_gestures_description">启用手势可能会稍微延迟菜单的打开。</string>
     <string name="double_tap_title">双击</string>

@@ -8,13 +8,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import io.github.chayanforyou.quickball.ui.components.AppSwitch
 
 @Composable
 fun SettingSwitchRow(
@@ -45,7 +45,7 @@ fun SettingSwitchRow(
             }
         }
         Spacer(modifier = Modifier.width(8.dp))
-        Switch(
+        AppSwitch(
             checked = checked,
             onCheckedChange = onCheckedChange
         )
