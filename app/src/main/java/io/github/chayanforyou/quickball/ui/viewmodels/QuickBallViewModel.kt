@@ -346,6 +346,10 @@ class QuickBallViewModel(application: Application) : AndroidViewModel(applicatio
         setMenuConnectorColor(AppDefaults.MENU_CONNECTOR_COLOR)
     }
 
+    fun resetMenuConnectorStyle() {
+        setMenuConnectorStyle(AppDefaults.MENU_CONNECTOR_STYLE)
+    }
+
     fun resetMenuConnectorWidth() {
         setMenuConnectorWidth(AppDefaults.MENU_CONNECTOR_WIDTH)
     }

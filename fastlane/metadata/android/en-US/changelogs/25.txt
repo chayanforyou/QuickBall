@@ -1,0 +1,5 @@
+- New styles: None, Line, Dot, Arc, Line ring, Dot ring, Curve, Fade,
+  Dash, Taper, Wave, Bubble, Zigzag, Double, Glow
+- Choose a style from a sheet with a small picture of each one
+- Settings show a preview of the selected style
+- Softer default border color

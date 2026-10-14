@@ -4,9 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.RectF
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
 import android.os.Build
@@ -75,25 +72,21 @@ class FloatPanelView(
     }
 
     // Connectors between the ball and each item
-    private val connectorStyle = runCatching { MenuConnectorStyle.valueOf(prefs.menuConnectorStyle) }
-        .getOrDefault(MenuConnectorStyle.DOTTED)
-    private val connectorWidth = DensityUtils.dp2px(prefs.menuConnectorWidth).toFloat()
-    private val dotRadius = connectorWidth * FanLayout.DOT_SIZE_RATIO / 2f
-    private val dotSpacing = connectorWidth * FanLayout.DOT_SPACING_RATIO
-    private val connectorInset = DensityUtils.dp2px(FanLayout.CONNECTOR_INSET_DP).toFloat()
-    private val connectorAlpha = Color.alpha(prefs.menuConnectorColor)
-    private val connectorPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        style = if (connectorStyle == MenuConnectorStyle.DOTTED) Paint.Style.FILL else Paint.Style.STROKE
-        strokeWidth = connectorWidth
-        strokeCap = Paint.Cap.ROUND
-        color = prefs.menuConnectorColor
-    }
+    private val connectors = ConnectorRenderer(
+        style = runCatching { MenuConnectorStyle.valueOf(prefs.menuConnectorStyle) }
+            .getOrDefault(MenuConnectorStyle.DOTTED),
+        color = prefs.menuConnectorColor,
+        strokeWidth = DensityUtils.dp2px(prefs.menuConnectorWidth).toFloat()
+    )
+    private val connectorStart = halfFab + DensityUtils.dp2px(ConnectorRenderer.INSET_DP).toFloat()
 
-    // Connector arc geometry, set while computing the fan
-    private val arcBounds = RectF()
+    // Fan geometry for the connectors, set while computing the fan
     private var arcRadius = 0f
     private var arcEdgeAngle = 0f
     private var fanShiftY = 0f
+    private var ringStart = 0.0
+    private var ringSweep = 0.0
+    private var curveBends = emptyList<Float>()
 
     // Views & Animation State
     private val itemViews = ArrayList<FrameLayout>(items.size)
@@ -110,6 +103,11 @@ class FloatPanelView(
         clipToPadding = false
 
         itemOffsets = computeFanningOffsets()
+        FanLayout.angleRange(itemOffsets).let { (start, sweep) ->
+            ringStart = start
+            ringSweep = sweep
+        }
+        curveBends = FanLayout.curveBends(itemOffsets)
 
         setupTouchHandling()
         createChildViews()
@@ -223,13 +221,6 @@ class FloatPanelView(
 
         arcEdgeAngle = layout.arcEdgeAngle
         arcRadius = layout.arcRadius
-        val fanCenterY = fabCenterY + fanShiftY
-        arcBounds.set(
-            fabCenterX - arcRadius,
-            fanCenterY - arcRadius,
-            fabCenterX + arcRadius,
-            fanCenterY + arcRadius
-        )
 
         return offsets.map { (offsetX, offsetY) -> Pair(offsetX, offsetY + fanShiftY) }
     }
@@ -257,75 +248,73 @@ class FloatPanelView(
      * Draw the connectors under the items, following the item animation
      */
     override fun dispatchDraw(canvas: Canvas) {
-        when (connectorStyle) {
+        when (connectors.style) {
             MenuConnectorStyle.NONE -> Unit
             MenuConnectorStyle.ARC -> drawArcConnectors(canvas)
-            MenuConnectorStyle.LINE, MenuConnectorStyle.DOTTED -> drawRadialConnectors(canvas)
+            else -> drawRadialConnectors(canvas)
         }
 
         super.dispatchDraw(canvas)
     }
 
     /**
-     * Straight or dotted connectors from the FAB to each item
+     * A connector from the FAB to each item, plus the ring around the FAB for ring styles.
      */
     private fun drawRadialConnectors(canvas: Canvas) {
+        val centerX = fabCenterX.toFloat()
+        val centerY = fabCenterY.toFloat()
+
+        if (connectors.hasRing) {
+            connectors.drawRing(
+                canvas,
+                centerX,
+                centerY,
+                connectorStart,
+                ringStart,
+                ringSweep,
+                groupOpacity()
+            )
+        }
+
         itemViews.forEachIndexed { index, itemView ->
             val (offsetX, offsetY) = itemOffsets[index]
 
+            // Follow the item while it animates
             val deltaX = offsetX + itemView.translationX
             val deltaY = offsetY + itemView.translationY
             val distance = hypot(deltaX, deltaY)
-            if (distance <= 0f || itemView.alpha <= 0f) return@forEachIndexed
+            if (distance <= 0f) return@forEachIndexed
 
-            val directionX = deltaX / distance
-            val directionY = deltaY / distance
-            val start = halfFab + connectorInset
-            val end = distance - buttonSize / 2f * itemView.scaleX
-            if (end <= start) return@forEachIndexed
-
-            connectorPaint.alpha = (connectorAlpha * itemView.alpha.coerceIn(0f, 1f)).toInt()
-
-            if (connectorStyle == MenuConnectorStyle.LINE) {
-                canvas.drawLine(
-                    fabCenterX + directionX * start,
-                    fabCenterY + directionY * start,
-                    fabCenterX + directionX * end,
-                    fabCenterY + directionY * end,
-                    connectorPaint
-                )
-                return@forEachIndexed
-            }
-
-            var position = start
-            while (position < end) {
-                canvas.drawCircle(
-                    fabCenterX + directionX * position,
-                    fabCenterY + directionY * position,
-                    dotRadius,
-                    connectorPaint
-                )
-                position += dotSpacing
-            }
+            connectors.drawConnector(
+                canvas = canvas,
+                centerX = centerX,
+                centerY = centerY,
+                directionX = deltaX / distance,
+                directionY = deltaY / distance,
+                start = connectorStart,
+                end = distance - buttonSize / 2f * itemView.scaleX,
+                opacity = itemView.alpha,
+                bend = curveBends.getOrElse(index) { 0f }
+            )
         }
     }
 
     /**
-     * An arc around the FAB, from straight above it to the last item, with a short
-     * stub from the arc to each item
+     * An arc around the fan center, from straight above it to the last item, with a short
+     * stub from the arc to each item.
      */
     private fun drawArcConnectors(canvas: Canvas) {
-        // While collapsing, the arc is gone by the time the first item is half faded
-        val minAlpha = itemViews.minOf { it.alpha }
-        val arcAlpha = (if (isCollapsing) minAlpha * 2f - 1f else minAlpha).coerceIn(0f, 1f)
-        if (arcAlpha > 0f) {
-            // Canvas angles: 0° points right, 270° points up, clockwise positive
-            val startAngle = if (isOnRight) 180f - arcEdgeAngle else 270f
-            connectorPaint.alpha = (connectorAlpha * arcAlpha).toInt()
-            canvas.drawArc(arcBounds, startAngle, 90f + arcEdgeAngle, false, connectorPaint)
-        }
+        val centerX = fabCenterX.toFloat()
+        val centerY = fabCenterY + fanShiftY
 
-        val fanCenterY = fabCenterY + fanShiftY
+        // Canvas angles: 0° points right, 270° points up, clockwise positive
+        val startAngle = if (isOnRight) 180f - arcEdgeAngle else 270f
+        connectors.drawRing(
+            canvas, centerX, centerY, arcRadius,
+            Math.toRadians(startAngle.toDouble()),
+            Math.toRadians(90.0 + arcEdgeAngle),
+            groupOpacity()
+        )
 
         itemViews.forEachIndexed { index, itemView ->
             val (offsetX, offsetY) = itemOffsets[index]
@@ -334,24 +323,30 @@ class FloatPanelView(
             val restX = offsetX
             val restY = offsetY - fanShiftY
             val restDistance = hypot(restX, restY)
-            if (restDistance <= 0f || itemView.alpha <= 0f) return@forEachIndexed
-
-            val directionX = restX / restDistance
-            val directionY = restY / restDistance
+            if (restDistance <= 0f) return@forEachIndexed
 
             val distance = hypot(restX + itemView.translationX, restY + itemView.translationY)
-            val end = distance - buttonSize / 2f * itemView.scaleX
-            if (end <= arcRadius) return@forEachIndexed
 
-            connectorPaint.alpha = (connectorAlpha * itemView.alpha.coerceIn(0f, 1f)).toInt()
-            canvas.drawLine(
-                fabCenterX + directionX * arcRadius,
-                fanCenterY + directionY * arcRadius,
-                fabCenterX + directionX * end,
-                fanCenterY + directionY * end,
-                connectorPaint
+            connectors.drawConnector(
+                canvas = canvas,
+                centerX = centerX,
+                centerY = centerY,
+                directionX = restX / restDistance,
+                directionY = restY / restDistance,
+                start = arcRadius,
+                end = distance - buttonSize / 2f * itemView.scaleX,
+                opacity = itemView.alpha
             )
         }
+    }
+
+    /**
+     * Opacity of the ring or arc shared by all items: it follows the least visible item,
+     * and while collapsing it is gone by the time that item is half faded.
+     */
+    private fun groupOpacity(): Float {
+        val minAlpha = itemViews.minOf { it.alpha }
+        return (if (isCollapsing) minAlpha * 2f - 1f else minAlpha).coerceIn(0f, 1f)
     }
 
     /**
