@@ -16,12 +16,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -30,12 +26,12 @@ import io.github.chayanforyou.quickball.R
 import io.github.chayanforyou.quickball.domain.models.MenuAction
 import io.github.chayanforyou.quickball.domain.models.MenuConnectorStyle
 import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItem
+import io.github.chayanforyou.quickball.ui.components.drawConnectors
 import io.github.chayanforyou.quickball.ui.floating.FanLayout
 import io.github.chayanforyou.quickball.ui.floating.FloatTouchView
 import io.github.chayanforyou.quickball.ui.viewmodels.QuickBallUiState
 import io.github.chayanforyou.quickball.utils.getAppIcon
 import kotlin.math.abs
-import kotlin.math.hypot
 import kotlin.math.max
 import kotlin.math.min
 
@@ -85,9 +81,14 @@ fun MenuPreview(
             Canvas(modifier = Modifier.matchParentSize()) {
                 drawConnectors(
                     layout = layout,
-                    uiState = uiState,
+                    style = MenuConnectorStyle.entries.find { it.name == uiState.menuConnectorStyle }
+                        ?: MenuConnectorStyle.DOTTED,
+                    color = Color(uiState.menuConnectorColor),
                     center = Offset((reach * scale).dp.toPx(), (halfHeight * scale).dp.toPx()),
-                    unit = scale.dp.toPx()
+                    unit = scale.dp.toPx(),
+                    strokeWidth = (uiState.menuConnectorWidth * scale).dp.toPx(),
+                    halfBall = halfFab,
+                    halfButton = buttonSize / 2f
                 )
             }
 
@@ -153,70 +154,4 @@ fun MenuPreview(
 
 private fun Modifier.circleBorder(widthDp: Float, color: Int): Modifier {
     return if (widthDp > 0f) border(widthDp.dp, Color(color), CircleShape) else this
-}
-
-/**
- * Draws the connectors the same way the overlay does, for a FAB on the right edge.
- *
- * @param unit length of one layout dp in pixels, after scaling
- */
-private fun DrawScope.drawConnectors(
-    layout: FanLayout,
-    uiState: QuickBallUiState,
-    center: Offset,
-    unit: Float
-) {
-    val style = MenuConnectorStyle.entries.find { it.name == uiState.menuConnectorStyle }
-        ?: MenuConnectorStyle.DOTTED
-    if (style == MenuConnectorStyle.NONE) return
-
-    val color = Color(uiState.menuConnectorColor)
-    val width = uiState.menuConnectorWidth * unit
-    val halfButton = uiState.menuSize / 2f * unit
-
-    val start = if (style == MenuConnectorStyle.ARC) {
-        layout.arcRadius * unit
-    } else {
-        (uiState.ballSize / 2f + FanLayout.CONNECTOR_INSET_DP) * unit
-    }
-
-    if (style == MenuConnectorStyle.ARC) {
-        drawArc(
-            color = color,
-            startAngle = 180f - layout.arcEdgeAngle,
-            sweepAngle = 90f + layout.arcEdgeAngle,
-            useCenter = false,
-            topLeft = Offset(center.x - start, center.y - start),
-            size = Size(start * 2f, start * 2f),
-            style = Stroke(width = width, cap = StrokeCap.Round)
-        )
-    }
-
-    layout.offsets.forEach { (offsetX, offsetY) ->
-        val distance = hypot(offsetX, offsetY)
-        if (distance <= 0f) return@forEach
-
-        val direction = Offset(offsetX / distance, offsetY / distance)
-        val end = distance * unit - halfButton
-        if (end <= start) return@forEach
-
-        if (style == MenuConnectorStyle.DOTTED) {
-            val dotRadius = width * FanLayout.DOT_SIZE_RATIO / 2f
-            val dotSpacing = width * FanLayout.DOT_SPACING_RATIO
-
-            var position = start
-            while (position < end) {
-                drawCircle(color, dotRadius, center + direction * position)
-                position += dotSpacing
-            }
-        } else {
-            drawLine(
-                color = color,
-                start = center + direction * start,
-                end = center + direction * end,
-                strokeWidth = width,
-                cap = StrokeCap.Round
-            )
-        }
-    }
 }

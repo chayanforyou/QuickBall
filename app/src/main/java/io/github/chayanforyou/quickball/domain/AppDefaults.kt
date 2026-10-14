@@ -8,13 +8,13 @@ object AppDefaults {
     const val BALL_SIZE = 45f
     const val BALL_COLOR = 0xBF2C2C2C.toInt()
     const val BALL_ICON_COLOR = 0xFFFFFFFF.toInt()
-    const val BALL_BORDER_COLOR = 0xFFFFFFFF.toInt()
+    const val BALL_BORDER_COLOR = 0x66FFFFFF
     const val BALL_BORDER_WIDTH = 0f
     const val BORDER_WIDTH_MIN = 0f
     const val BORDER_WIDTH_MAX = 4f
     const val MENU_COLOR = 0xBF2C2C2C.toInt()
     const val MENU_ICON_COLOR = 0xFFFFFFFF.toInt()
-    const val MENU_BORDER_COLOR = 0xFFFFFFFF.toInt()
+    const val MENU_BORDER_COLOR = 0x66FFFFFF
     const val MENU_BORDER_WIDTH = 0f
     const val MENU_CONNECTOR_COLOR = 0x802C2C2C.toInt()
     val MENU_CONNECTOR_STYLE = MenuConnectorStyle.DOTTED.name

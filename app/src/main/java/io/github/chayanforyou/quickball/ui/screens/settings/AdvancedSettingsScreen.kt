@@ -48,6 +48,8 @@ import io.github.chayanforyou.quickball.domain.models.PillGesture
 import io.github.chayanforyou.quickball.ui.components.AppSwitch
 import io.github.chayanforyou.quickball.ui.screens.settings.components.ColorPickerDialog
 import io.github.chayanforyou.quickball.ui.screens.settings.components.ColorSettingRow
+import io.github.chayanforyou.quickball.ui.screens.settings.components.ConnectorStyleBottomSheet
+import io.github.chayanforyou.quickball.ui.screens.settings.components.ConnectorStyleRow
 import io.github.chayanforyou.quickball.ui.screens.settings.components.GestureActionBottomSheet
 import io.github.chayanforyou.quickball.ui.screens.settings.components.GestureSettingRow
 import io.github.chayanforyou.quickball.ui.screens.settings.components.SegmentedSelector
@@ -103,6 +105,7 @@ fun AdvancedSettingsScreen(
     var showBallBorderColorDialog by remember { mutableStateOf(false) }
     var showMenuBorderColorDialog by remember { mutableStateOf(false) }
     var showMenuConnectorColorDialog by remember { mutableStateOf(false) }
+    var showConnectorStyleSheet by remember { mutableStateOf(false) }
     var showPillColorDialog by remember { mutableStateOf(false) }
     var showToastBgColorDialog by remember { mutableStateOf(false) }
     var showToastFgColorDialog by remember { mutableStateOf(false) }
@@ -314,18 +317,12 @@ fun AdvancedSettingsScreen(
                     SettingsSubHeader(title = stringResource(R.string.connector_section_title))
 
                     // Menu Connector Style Setting Option
-                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Text(
-                            text = stringResource(R.string.setting_style_title),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        SegmentedSelector(
-                            items = MenuConnectorStyle.entries,
-                            selectedItem = MenuConnectorStyle.entries.find { it.name == menuConnectorStyle },
-                            itemTitle = { stringResource(it.titleRes) },
-                            onItemSelected = { viewModel.setMenuConnectorStyle(it.name) }
-                        )
-                    }
+                    ConnectorStyleRow(
+                        title = stringResource(R.string.setting_style_title),
+                        selectedStyleName = menuConnectorStyle,
+                        onReset = { viewModel.resetMenuConnectorStyle() },
+                        onClick = { showConnectorStyleSheet = true }
+                    )
 
                     // Menu Connector Color Setting Option
                     ColorSettingRow(
@@ -705,6 +702,15 @@ fun AdvancedSettingsScreen(
                 viewModel.setMenuBorderColor(selectedColorInt)
                 showMenuBorderColorDialog = false
             }
+        )
+    }
+
+    if (showConnectorStyleSheet) {
+        ConnectorStyleBottomSheet(
+            title = stringResource(R.string.connector_section_title),
+            selectedStyleName = menuConnectorStyle,
+            onStyleSelected = { viewModel.setMenuConnectorStyle(it.name) },
+            onDismissRequest = { showConnectorStyleSheet = false }
         )
     }
 
