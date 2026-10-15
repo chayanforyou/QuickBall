@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import io.github.chayanforyou.quickball.domain.AppDefaults
 import io.github.chayanforyou.quickball.domain.AppPreference
 import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItem
+import io.github.chayanforyou.quickball.domain.models.QuickBallTheme
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,8 +25,10 @@ data class QuickBallUiState(
     val ballIconColor: Int = AppDefaults.BALL_ICON_COLOR,
     val menuColor: Int = AppDefaults.MENU_COLOR,
     val menuIconColor: Int = AppDefaults.MENU_ICON_COLOR,
+    val isBallBorderEnabled: Boolean = AppDefaults.BALL_BORDER_ENABLED,
     val ballBorderColor: Int = AppDefaults.BALL_BORDER_COLOR,
     val ballBorderWidth: Float = AppDefaults.BALL_BORDER_WIDTH,
+    val isMenuBorderEnabled: Boolean = AppDefaults.MENU_BORDER_ENABLED,
     val menuBorderColor: Int = AppDefaults.MENU_BORDER_COLOR,
     val menuBorderWidth: Float = AppDefaults.MENU_BORDER_WIDTH,
     val menuConnectorColor: Int = AppDefaults.MENU_CONNECTOR_COLOR,
@@ -70,8 +73,10 @@ class QuickBallViewModel(application: Application) : AndroidViewModel(applicatio
             ballIconColor = prefs.ballIconColor,
             menuColor = prefs.menuColor,
             menuIconColor = prefs.menuIconColor,
+            isBallBorderEnabled = prefs.isBallBorderEnabled,
             ballBorderColor = prefs.ballBorderColor,
             ballBorderWidth = prefs.ballBorderWidth,
+            isMenuBorderEnabled = prefs.isMenuBorderEnabled,
             menuBorderColor = prefs.menuBorderColor,
             menuBorderWidth = prefs.menuBorderWidth,
             menuConnectorColor = prefs.menuConnectorColor,
@@ -175,6 +180,11 @@ class QuickBallViewModel(application: Application) : AndroidViewModel(applicatio
         _uiState.update { it.copy(menuIconColor = color) }
     }
 
+    fun setBallBorderEnabled(enabled: Boolean) {
+        prefs.isBallBorderEnabled = enabled
+        _uiState.update { it.copy(isBallBorderEnabled = enabled) }
+    }
+
     fun setBallBorderColor(color: Int) {
         prefs.ballBorderColor = color
         _uiState.update { it.copy(ballBorderColor = color) }
@@ -185,6 +195,11 @@ class QuickBallViewModel(application: Application) : AndroidViewModel(applicatio
         val snapped = (width * 2).roundToInt() / 2f
         prefs.ballBorderWidth = snapped
         _uiState.update { it.copy(ballBorderWidth = snapped) }
+    }
+
+    fun setMenuBorderEnabled(enabled: Boolean) {
+        prefs.isMenuBorderEnabled = enabled
+        _uiState.update { it.copy(isMenuBorderEnabled = enabled) }
     }
 
     fun setMenuBorderColor(color: Int) {
@@ -202,6 +217,19 @@ class QuickBallViewModel(application: Application) : AndroidViewModel(applicatio
     fun setMenuConnectorColor(color: Int) {
         prefs.menuConnectorColor = color
         _uiState.update { it.copy(menuConnectorColor = color) }
+    }
+
+    fun applyTheme(theme: QuickBallTheme) {
+        setBallColor(theme.ballColor)
+        setBallIconColor(theme.ballIconColor)
+        setBallBorderColor(theme.ballBorderColor)
+        setBallBorderEnabled(theme.isBorderEnabled)
+        setMenuColor(theme.menuColor)
+        setMenuIconColor(theme.menuIconColor)
+        setMenuBorderColor(theme.menuBorderColor)
+        setMenuBorderEnabled(theme.isBorderEnabled)
+        setMenuConnectorColor(theme.connectorColor)
+        setPillColor(theme.pillColor)
     }
 
     fun setMenuConnectorStyle(style: String) {

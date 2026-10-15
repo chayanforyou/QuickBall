@@ -135,6 +135,8 @@
     <string name="ball_icon_color_title">आइकॉन का रंग</string>
     <string name="border_section_title">बॉर्डर</string>
     <string name="connector_section_title">कनेक्टर</string>
+    <string name="theme_title">थीम</string>
+    <string name="theme_custom">कस्टम</string>
     <string name="setting_color_title">रंग</string>
     <string name="setting_width_title">चौड़ाई</string>
     <string name="setting_style_title">शैली</string>

@@ -17,7 +17,8 @@ fun AppSwitch(
     checked: Boolean,
     onCheckedChange: ((Boolean) -> Unit)?,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    scale: Float = SWITCH_SCALE
 ) {
     Switch(
         checked = checked,
@@ -26,12 +27,12 @@ fun AppSwitch(
         modifier = modifier
             .layout { measurable, constraints ->
                 val placeable = measurable.measure(constraints)
-                val width = (placeable.width * SWITCH_SCALE).roundToInt()
-                val height = (placeable.height * SWITCH_SCALE).roundToInt()
+                val width = (placeable.width * scale).roundToInt()
+                val height = (placeable.height * scale).roundToInt()
                 layout(width, height) {
                     placeable.place((width - placeable.width) / 2, (height - placeable.height) / 2)
                 }
             }
-            .scale(SWITCH_SCALE)
+            .scale(scale)
     )
 }

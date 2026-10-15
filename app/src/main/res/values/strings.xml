@@ -135,6 +135,8 @@
     <string name="ball_icon_color_title">Icon color</string>
     <string name="border_section_title">Border</string>
     <string name="connector_section_title">Connector</string>
+    <string name="theme_title">Theme</string>
+    <string name="theme_custom">Custom</string>
     <string name="setting_color_title">Color</string>
     <string name="setting_width_title">Width</string>
     <string name="setting_style_title">Style</string>

@@ -135,6 +135,8 @@
     <string name="ball_icon_color_title">图标颜色</string>
     <string name="border_section_title">边框</string>
     <string name="connector_section_title">连接线</string>
+    <string name="theme_title">主题</string>
+    <string name="theme_custom">自定义</string>
     <string name="setting_color_title">颜色</string>
     <string name="setting_width_title">宽度</string>
     <string name="setting_style_title">样式</string>
