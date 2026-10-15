@@ -60,7 +60,9 @@ class FloatPanelView(
     private val buttonSize by lazy { DensityUtils.dp2px(prefs.menuSize) }
     private val iconSize by lazy { DensityUtils.dp2px(prefs.menuIconSize) }
     private val radius by lazy { DensityUtils.dp2px(prefs.menuRadius) }
-    private val borderWidth by lazy { DensityUtils.dp2px(prefs.menuBorderWidth) }
+    private val borderWidth by lazy {
+        if (prefs.isMenuBorderEnabled) DensityUtils.dp2px(prefs.menuBorderWidth) else 0
+    }
 
     // Floating Ball Geometry
     private val halfFab = fabSize / 2

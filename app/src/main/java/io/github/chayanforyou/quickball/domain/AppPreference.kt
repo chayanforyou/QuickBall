@@ -19,8 +19,10 @@ class AppPreference private constructor(context: Context) {
         private const val KEY_BALL_COLOR = "ball_color"
         private const val KEY_BALL_ICON_COLOR = "ball_icon_color"
         private const val KEY_BALL_BORDER_COLOR = "ball_border_color"
+        private const val KEY_BALL_BORDER_ENABLED = "ball_border_enabled"
         private const val KEY_BALL_BORDER_WIDTH = "ball_border_width"
         private const val KEY_MENU_BORDER_COLOR = "menu_border_color"
+        private const val KEY_MENU_BORDER_ENABLED = "menu_border_enabled"
         private const val KEY_MENU_BORDER_WIDTH = "menu_border_width"
         private const val KEY_MENU_COLOR = "menu_color"
         private const val KEY_MENU_ICON_COLOR = "menu_icon_color"
@@ -103,6 +105,14 @@ class AppPreference private constructor(context: Context) {
         get() = prefs.getInt(KEY_BALL_BORDER_COLOR, AppDefaults.BALL_BORDER_COLOR)
         set(value) = prefs.edit { putInt(KEY_BALL_BORDER_COLOR, value) }
 
+    // Before the toggle existed, a non-zero width meant the border was on
+    var isBallBorderEnabled: Boolean
+        get() = prefs.getBoolean(
+            KEY_BALL_BORDER_ENABLED,
+            prefs.getFloat(KEY_BALL_BORDER_WIDTH, 0f) > 0f || AppDefaults.BALL_BORDER_ENABLED
+        )
+        set(value) = prefs.edit { putBoolean(KEY_BALL_BORDER_ENABLED, value) }
+
     var ballBorderWidth: Float
         get() = prefs.getFloat(KEY_BALL_BORDER_WIDTH, AppDefaults.BALL_BORDER_WIDTH)
             .coerceIn(AppDefaults.BORDER_WIDTH_MIN, AppDefaults.BORDER_WIDTH_MAX)
@@ -111,6 +121,14 @@ class AppPreference private constructor(context: Context) {
     var menuBorderColor: Int
         get() = prefs.getInt(KEY_MENU_BORDER_COLOR, AppDefaults.MENU_BORDER_COLOR)
         set(value) = prefs.edit { putInt(KEY_MENU_BORDER_COLOR, value) }
+
+    // Before the toggle existed, a non-zero width meant the border was on
+    var isMenuBorderEnabled: Boolean
+        get() = prefs.getBoolean(
+            KEY_MENU_BORDER_ENABLED,
+            prefs.getFloat(KEY_MENU_BORDER_WIDTH, 0f) > 0f || AppDefaults.MENU_BORDER_ENABLED
+        )
+        set(value) = prefs.edit { putBoolean(KEY_MENU_BORDER_ENABLED, value) }
 
     var menuBorderWidth: Float
         get() = prefs.getFloat(KEY_MENU_BORDER_WIDTH, AppDefaults.MENU_BORDER_WIDTH)

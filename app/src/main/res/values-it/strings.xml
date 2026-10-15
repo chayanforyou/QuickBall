@@ -135,6 +135,8 @@
     <string name="ball_icon_color_title">Colore icona</string>
     <string name="border_section_title">Bordo</string>
     <string name="connector_section_title">Connettore</string>
+    <string name="theme_title">Tema</string>
+    <string name="theme_custom">Personalizzato</string>
     <string name="setting_color_title">Colore</string>
     <string name="setting_width_title">Spessore</string>
     <string name="setting_style_title">Stile</string>

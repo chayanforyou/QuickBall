@@ -135,6 +135,8 @@
     <string name="ball_icon_color_title">Symbolfarbe</string>
     <string name="border_section_title">Rahmen</string>
     <string name="connector_section_title">Verbindung</string>
+    <string name="theme_title">Design</string>
+    <string name="theme_custom">Benutzerdefiniert</string>
     <string name="setting_color_title">Farbe</string>
     <string name="setting_width_title">Breite</string>
     <string name="setting_style_title">Stil</string>

@@ -104,7 +104,7 @@ fun MenuPreview(
                         )
                         .size((buttonSize * scale).dp)
                         .background(Color(uiState.menuColor), CircleShape)
-                        .circleBorder(uiState.menuBorderWidth * scale, uiState.menuBorderColor),
+                        .circleBorder(uiState.isMenuBorderEnabled, uiState.menuBorderWidth * scale, uiState.menuBorderColor),
                     contentAlignment = Alignment.Center
                 ) {
                     val iconModifier = Modifier.size((uiState.menuIconSize * scale).dp)
@@ -136,7 +136,7 @@ fun MenuPreview(
                     )
                     .size((uiState.ballSize * scale).dp)
                     .background(Color(uiState.ballColor), CircleShape)
-                    .circleBorder(uiState.ballBorderWidth * scale, uiState.ballBorderColor),
+                    .circleBorder(uiState.isBallBorderEnabled, uiState.ballBorderWidth * scale, uiState.ballBorderColor),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -152,6 +152,6 @@ fun MenuPreview(
     }
 }
 
-private fun Modifier.circleBorder(widthDp: Float, color: Int): Modifier {
-    return if (widthDp > 0f) border(widthDp.dp, Color(color), CircleShape) else this
+private fun Modifier.circleBorder(enabled: Boolean, widthDp: Float, color: Int): Modifier {
+    return if (enabled) border(widthDp.dp, Color(color), CircleShape) else this
 }

@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -49,8 +50,11 @@ private const val TILE_COLUMNS = 3
 // Sample fan drawn in each tile, in dp before scaling: 3 items at the default sizes
 private const val SAMPLE_ITEM_COUNT = 3
 private const val SAMPLE_BALL_SIZE = 45f
-private const val SAMPLE_BUTTON_SIZE = 50f
+private const val SAMPLE_BUTTON_SIZE = 48f
 private const val SAMPLE_RADIUS = 90f
+
+// Icon stand-in drawn inside each circle when a sample shows a theme
+private const val SAMPLE_ICON_FRACTION = 0.3f
 
 private val SampleLayout = FanLayout.compute(
     count = SAMPLE_ITEM_COUNT,
@@ -146,8 +150,8 @@ fun ConnectorStyleBottomSheet(
     onStyleSelected: (MenuConnectorStyle) -> Unit,
     onDismissRequest: () -> Unit
 ) {
-    // Opens half way; drag up or scroll to see every style
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
+    // Opens fully expanded; scroll when the tiles do not fit
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
@@ -263,7 +267,11 @@ fun ConnectorStyleSample(
     itemColor: Color,
     ballColor: Color,
     modifier: Modifier = Modifier,
-    strokeWidth: Dp = SampleStrokeWidth
+    strokeWidth: Dp = SampleStrokeWidth,
+    itemBorderColor: Color? = null,
+    ballBorderColor: Color? = null,
+    itemIconColor: Color? = null,
+    ballIconColor: Color? = null
 ) {
     Canvas(modifier = modifier) {
         val halfBall = SAMPLE_BALL_SIZE / 2f
@@ -290,14 +298,22 @@ fun ConnectorStyleSample(
             halfButton = halfButton
         )
 
+        val borderStroke = Stroke(width = strokeWidth.toPx())
+        val iconRadius = halfButton * unit * SAMPLE_ICON_FRACTION
+
         SampleLayout.offsets.forEach { (offsetX, offsetY) ->
-            drawCircle(
-                color = itemColor,
-                radius = halfButton * unit,
-                center = center + Offset(offsetX * unit, offsetY * unit)
-            )
+            val itemCenter = center + Offset(offsetX * unit, offsetY * unit)
+            drawCircle(color = itemColor, radius = halfButton * unit, center = itemCenter)
+            itemBorderColor?.let {
+                drawCircle(it, radius = halfButton * unit - borderStroke.width / 2f, center = itemCenter, style = borderStroke)
+            }
+            itemIconColor?.let { drawCircle(it, radius = iconRadius, center = itemCenter) }
         }
 
         drawCircle(color = ballColor, radius = halfBall * unit, center = center)
+        ballBorderColor?.let {
+            drawCircle(it, radius = halfBall * unit - borderStroke.width / 2f, center = center, style = borderStroke)
+        }
+        ballIconColor?.let { drawCircle(it, radius = iconRadius, center = center) }
     }
 }

@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -30,7 +31,8 @@ fun ColorSettingRow(
     color: Int,
     onReset: () -> Unit,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -42,7 +44,7 @@ fun ColorSettingRow(
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier
                 .weight(1f)
-                .clickable { onClick() }
+                .clickable(enabled = enabled) { onClick() }
         )
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -50,6 +52,7 @@ fun ColorSettingRow(
         ) {
             IconButton(
                 onClick = onReset,
+                enabled = enabled,
                 modifier = Modifier.size(28.dp)
             ) {
                 Icon(
@@ -62,10 +65,11 @@ fun ColorSettingRow(
             Box(
                 modifier = Modifier
                     .size(36.dp)
+                    .alpha(if (enabled) 1f else 0.38f)
                     .clip(CircleShape)
                     .background(Color(color))
                     .border(1.5.dp, MaterialTheme.colorScheme.outline, CircleShape)
-                    .clickable { onClick() }
+                    .clickable(enabled = enabled) { onClick() }
             )
         }
     }
