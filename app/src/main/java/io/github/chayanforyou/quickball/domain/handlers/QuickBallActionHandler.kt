@@ -482,11 +482,39 @@ class QuickBallActionHandler(
     }
 
     private fun lockScreen() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            accessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_LOCK_SCREEN)
-        } else {
-            showToast("Lock screen not supported on this device.", performHaptic = true)
+        // Custom: the "Lock Screen" option now runs a shell command instead of
+        // GLOBAL_ACTION_LOCK_SCREEN.
+        Thread {
+            val success = runShellCommand("settings put secure any_screen_running 1")
+            if (!success) {
+                handler.post {
+                    showToast("Shell command failed (needs root/shell permission).", performHaptic = true)
+                }
+            }
+        }.start()
+    }
+
+    /**
+     * Runs [command] in a shell. Tries a plain shell first, then falls back to `su`
+     * for rooted devices. Returns true if the command exited with code 0.
+     */
+    private fun runShellCommand(command: String): Boolean {
+        val attempts = listOf(
+            arrayOf("sh", "-c", command),
+            arrayOf("su", "-c", command)
+        )
+        for (cmd in attempts) {
+            try {
+                val process = ProcessBuilder(*cmd).redirectErrorStream(true).start()
+                val output = process.inputStream.bufferedReader().use { it.readText() }
+                val exitCode = process.waitFor()
+                if (exitCode == 0) return true
+                Log.w(TAG, "Command ${cmd.joinToString(" ")} exited with $exitCode: $output")
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to run ${cmd.joinToString(" ")}", e)
+            }
         }
+        return false
     }
 
     // -------------------- Auto Rotate --------------------
