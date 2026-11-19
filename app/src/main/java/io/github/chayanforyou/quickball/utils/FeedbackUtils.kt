@@ -9,19 +9,27 @@ import android.os.VibratorManager
 import androidx.annotation.RequiresApi
 import io.github.chayanforyou.quickball.domain.AppPreference
 import io.github.chayanforyou.quickball.domain.models.HapticIntensity
+import java.util.concurrent.Executors
 
 object FeedbackUtils {
+
+    private val executor = Executors.newSingleThreadExecutor()
 
     fun performHapticFeedback(context: Context) {
         val prefs = AppPreference.getInstance(context)
         if (!prefs.isHapticFeedbackEnabled) return
 
-        val vibrator = getVibrator(context)
-        if (!vibrator.hasVibrator()) return
-
         val intensity = runCatching {
             HapticIntensity.valueOf(prefs.hapticIntensity)
         }.getOrDefault(HapticIntensity.LIGHT)
+
+        val appContext = context.applicationContext
+        executor.execute { vibrate(appContext, intensity) }
+    }
+
+    private fun vibrate(context: Context, intensity: HapticIntensity) {
+        val vibrator = getVibrator(context)
+        if (!vibrator.hasVibrator()) return
 
         val durationMs = when (intensity) {
             HapticIntensity.LIGHT -> 30L
@@ -67,7 +75,7 @@ object FeedbackUtils {
                 context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
             vibratorManager.defaultVibrator
         } else {
-            @Suppress("deprecation")
+            @Suppress("DEPRECATION")
             context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         }
     }

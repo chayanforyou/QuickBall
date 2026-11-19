@@ -2,32 +2,46 @@ package io.github.chayanforyou.quickball.ui.screens.settings
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.provider.OpenableColumns
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.outlined.FileDownload
+import androidx.compose.material.icons.outlined.FileUpload
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,32 +49,27 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.chayanforyou.quickball.R
-import io.github.chayanforyou.quickball.domain.AppDefaults
 import io.github.chayanforyou.quickball.core.QuickBallService
-import io.github.chayanforyou.quickball.domain.models.HapticIntensity
-import io.github.chayanforyou.quickball.domain.models.MenuAction
+import io.github.chayanforyou.quickball.domain.AppDefaults
 import io.github.chayanforyou.quickball.domain.models.MenuConnectorStyle
-import io.github.chayanforyou.quickball.domain.models.PillGesture
 import io.github.chayanforyou.quickball.domain.models.QuickBallTheme
 import io.github.chayanforyou.quickball.ui.components.AppSwitch
 import io.github.chayanforyou.quickball.ui.screens.settings.components.ColorPickerDialog
 import io.github.chayanforyou.quickball.ui.screens.settings.components.ColorSettingRow
 import io.github.chayanforyou.quickball.ui.screens.settings.components.ConnectorStyleBottomSheet
 import io.github.chayanforyou.quickball.ui.screens.settings.components.ConnectorStyleRow
-import io.github.chayanforyou.quickball.ui.screens.settings.components.GestureActionBottomSheet
-import io.github.chayanforyou.quickball.ui.screens.settings.components.GestureSettingRow
-import io.github.chayanforyou.quickball.ui.screens.settings.components.SegmentedSelector
 import io.github.chayanforyou.quickball.ui.screens.settings.components.SliderSettingItem
 import io.github.chayanforyou.quickball.ui.screens.settings.components.ThemeBottomSheet
 import io.github.chayanforyou.quickball.ui.screens.settings.components.ThemePreviewColors
 import io.github.chayanforyou.quickball.ui.screens.settings.components.ThemeRow
 import io.github.chayanforyou.quickball.ui.theme.AppCardDefaults
 import io.github.chayanforyou.quickball.ui.viewmodels.QuickBallViewModel
-import io.github.chayanforyou.quickball.utils.performHapticFeedback
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -95,14 +104,6 @@ fun AdvancedSettingsScreen(
     val pillHeight = uiState.pillHeight
     val pillThickness = uiState.pillThickness
     val pillTouchWidth = uiState.pillTouchWidth
-    val isGestureEnabled = uiState.isGestureEnabled
-    val doubleTapAction = uiState.doubleTapAction
-    val tripleTapAction = uiState.tripleTapAction
-    val longPressAction = uiState.longPressAction
-    val swipeUpAction = uiState.swipeUpAction
-    val swipeDownAction = uiState.swipeDownAction
-    val isHapticFeedbackEnabled = uiState.isHapticFeedbackEnabled
-    val hapticIntensity = uiState.hapticIntensity
 
     // Null once any color was changed by hand
     val selectedTheme = QuickBallTheme.matching(
@@ -113,7 +114,9 @@ fun AdvancedSettingsScreen(
         menuIconColor = menuIconColor,
         menuBorderColor = menuBorderColor,
         connectorColor = menuConnectorColor,
-        pillColor = pillColor
+        pillColor = pillColor,
+        toastBgColor = toastBgColor,
+        toastFgColor = toastFgColor
     )
     val currentThemeColors = ThemePreviewColors(
         ballColor = ballColor,
@@ -137,7 +140,48 @@ fun AdvancedSettingsScreen(
     var showPillColorDialog by remember { mutableStateOf(false) }
     var showToastBgColorDialog by remember { mutableStateOf(false) }
     var showToastFgColorDialog by remember { mutableStateOf(false) }
-    var activeGestureBottomSheet by remember { mutableStateOf<PillGesture?>(null) }
+    var showOverflowMenu by remember { mutableStateOf(false) }
+
+    val scope = rememberCoroutineScope()
+
+    val exportLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("application/octet-stream")
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        val json = viewModel.exportThemeConfig()
+        scope.launch {
+            val saved = withContext(Dispatchers.IO) {
+                runCatching {
+                    context.contentResolver.openOutputStream(uri, "wt")?.use {
+                        it.write(json.toByteArray())
+                    } ?: error("No output stream")
+                }.isSuccess
+            }
+            val message = if (saved) R.string.settings_exported else R.string.settings_export_failed
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    val importLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        scope.launch {
+            val json = withContext(Dispatchers.IO) {
+                runCatching {
+                    if (!context.fileName(uri).endsWith(".qbtheme", ignoreCase = true)) return@runCatching null
+                    context.contentResolver.openInputStream(uri)?.use { it.reader().readText() }
+                }.getOrNull()
+            }
+            val imported = json != null && viewModel.importThemeConfig(json)
+            if (imported) {
+                context.controlQuickBallService(QuickBallService.ACTION_UPDATE_BALL)
+                context.controlQuickBallService(QuickBallService.ACTION_UPDATE_PILL)
+            }
+            val message = if (imported) R.string.settings_imported else R.string.settings_import_failed
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        }
+    }
 
     Scaffold(
         modifier = modifier,
@@ -156,6 +200,43 @@ fun AdvancedSettingsScreen(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.menu_back)
                         )
+                    }
+                },
+                actions = {
+                    Box {
+                        TooltipBox(
+                            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                            tooltip = { PlainTooltip { Text(stringResource(R.string.import_export_settings)) } },
+                            state = rememberTooltipState()
+                        ) {
+                            IconButton(onClick = { showOverflowMenu = true }) {
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert,
+                                    contentDescription = stringResource(R.string.import_export_settings)
+                                )
+                            }
+                        }
+                        DropdownMenu(
+                            expanded = showOverflowMenu,
+                            onDismissRequest = { showOverflowMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.import_settings)) },
+                                leadingIcon = { Icon(Icons.Outlined.FileDownload, contentDescription = null) },
+                                onClick = {
+                                    showOverflowMenu = false
+                                    importLauncher.launch(arrayOf("*/*"))
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.export_settings)) },
+                                leadingIcon = { Icon(Icons.Outlined.FileUpload, contentDescription = null) },
+                                onClick = {
+                                    showOverflowMenu = false
+                                    exportLauncher.launch("quickball.qbtheme")
+                                }
+                            )
+                        }
                     }
                 }
             )
@@ -282,7 +363,7 @@ fun AdvancedSettingsScreen(
                     SliderSettingItem(
                         title = stringResource(R.string.ball_size_title),
                         value = ballSize,
-                        valueRange = 40f..60f,
+                        valueRange = AppDefaults.BALL_SIZE_MIN..AppDefaults.BALL_SIZE_MAX,
                         steps = 19,
                         onValueChange = { value ->
                             viewModel.setBallSize(value)
@@ -385,7 +466,7 @@ fun AdvancedSettingsScreen(
                     SliderSettingItem(
                         title = stringResource(R.string.menu_icon_size_title),
                         value = menuIconSize,
-                        valueRange = 15f..35f,
+                        valueRange = AppDefaults.MENU_ICON_SIZE_MIN..AppDefaults.MENU_ICON_SIZE_MAX,
                         steps = 19,
                         onValueChange = { viewModel.setMenuIconSize(it) },
                         onReset = { viewModel.resetMenuIconSize() }
@@ -465,7 +546,7 @@ fun AdvancedSettingsScreen(
                     SliderSettingItem(
                         title = stringResource(R.string.pill_height_title),
                         value = pillHeight,
-                        valueRange = 30f..80f,
+                        valueRange = AppDefaults.PILL_HEIGHT_MIN..AppDefaults.PILL_HEIGHT_MAX,
                         steps = 49,
                         onValueChange = { value ->
                             viewModel.setPillHeight(value)
@@ -481,7 +562,7 @@ fun AdvancedSettingsScreen(
                     SliderSettingItem(
                         title = stringResource(R.string.pill_thickness_title),
                         value = pillThickness,
-                        valueRange = 1f..10f,
+                        valueRange = AppDefaults.PILL_THICKNESS_MIN..AppDefaults.PILL_THICKNESS_MAX,
                         steps = 8,
                         onValueChange = { value ->
                             viewModel.setPillThickness(value)
@@ -497,7 +578,7 @@ fun AdvancedSettingsScreen(
                     SliderSettingItem(
                         title = stringResource(R.string.pill_touch_width_title),
                         value = pillTouchWidth,
-                        valueRange = 15f..50f,
+                        valueRange = AppDefaults.PILL_TOUCH_WIDTH_MIN..AppDefaults.PILL_TOUCH_WIDTH_MAX,
                         steps = 34,
                         onValueChange = { value ->
                             viewModel.setPillTouchWidth(value)
@@ -543,179 +624,6 @@ fun AdvancedSettingsScreen(
                         color = toastFgColor,
                         onReset = { viewModel.resetToastFgColor() },
                         onClick = { showToastFgColorDialog = true }
-                    )
-                }
-            }
-
-            // Gesture Settings Header
-            Text(
-                text = stringResource(R.string.gesture_header_title),
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(start = 4.dp, top = 12.dp)
-            )
-
-            // Gesture Requirement Notice Card
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = AppCardDefaults.cardColors()
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Info,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Text(
-                        text = stringResource(R.string.gesture_requirement_notice),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        lineHeight = 18.sp
-                    )
-                }
-            }
-
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = AppCardDefaults.cardColors()
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    // Enable Gestures Switch
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = stringResource(R.string.enable_gestures_title),
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Normal
-                            )
-                            Text(
-                                text = stringResource(R.string.enable_gestures_description),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        AppSwitch(
-                            checked = isGestureEnabled,
-                            onCheckedChange = { enabled ->
-                                viewModel.setGestureEnabled(enabled)
-                            }
-                        )
-                    }
-
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-
-                    // Double tap
-                    GestureSettingRow(
-                        title = stringResource(R.string.double_tap_title),
-                        actionName = doubleTapAction,
-                        enabled = isGestureEnabled,
-                        onClick = { activeGestureBottomSheet = PillGesture.DOUBLE_TAP }
-                    )
-
-                    // Triple tap
-                    GestureSettingRow(
-                        title = stringResource(R.string.triple_tap_title),
-                        actionName = tripleTapAction,
-                        enabled = isGestureEnabled,
-                        onClick = { activeGestureBottomSheet = PillGesture.TRIPLE_TAP }
-                    )
-
-                    // Long press
-                    GestureSettingRow(
-                        title = stringResource(R.string.long_press_title),
-                        actionName = longPressAction,
-                        enabled = isGestureEnabled,
-                        onClick = { activeGestureBottomSheet = PillGesture.LONG_PRESS }
-                    )
-
-                    // Swipe up
-                    GestureSettingRow(
-                        title = stringResource(R.string.swipe_up_title),
-                        actionName = swipeUpAction,
-                        enabled = isGestureEnabled,
-                        onClick = { activeGestureBottomSheet = PillGesture.SWIPE_UP }
-                    )
-
-                    // Swipe down
-                    GestureSettingRow(
-                        title = stringResource(R.string.swipe_down_title),
-                        actionName = swipeDownAction,
-                        enabled = isGestureEnabled,
-                        onClick = { activeGestureBottomSheet = PillGesture.SWIPE_DOWN }
-                    )
-                }
-            }
-
-            // Haptics Section
-            Text(
-                text = stringResource(R.string.haptics_header_title),
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(start = 4.dp, top = 12.dp)
-            )
-
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = AppCardDefaults.cardColors()
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = stringResource(R.string.vibration_feedback_title),
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Normal
-                            )
-                            Text(
-                                text = stringResource(R.string.vibration_feedback_description),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                        AppSwitch(
-                            checked = isHapticFeedbackEnabled,
-                            onCheckedChange = { enabled ->
-                                viewModel.setHapticFeedbackEnabled(enabled)
-                                if (enabled) context.performHapticFeedback()
-                            }
-                        )
-                    }
-
-                    SegmentedSelector(
-                        items = HapticIntensity.entries,
-                        selectedItem = HapticIntensity.entries.find { it.name == hapticIntensity },
-                        itemTitle = { stringResource(it.titleRes) },
-                        enabled = isHapticFeedbackEnabled,
-                        onItemSelected = { intensity ->
-                            viewModel.setHapticIntensity(intensity.name)
-                            context.performHapticFeedback()
-                        }
                     )
                 }
             }
@@ -858,52 +766,6 @@ fun AdvancedSettingsScreen(
             }
         )
     }
-
-    activeGestureBottomSheet?.let { gesture ->
-        val (title, currentAction, onSelect) = when (gesture) {
-            PillGesture.DOUBLE_TAP -> Triple(
-                stringResource(gesture.titleRes),
-                doubleTapAction
-            ) { action: MenuAction ->
-                viewModel.setDoubleTapAction(action.name)
-            }
-
-            PillGesture.TRIPLE_TAP -> Triple(
-                stringResource(gesture.titleRes),
-                tripleTapAction
-            ) { action: MenuAction ->
-                viewModel.setTripleTapAction(action.name)
-            }
-
-            PillGesture.LONG_PRESS -> Triple(
-                stringResource(gesture.titleRes),
-                longPressAction
-            ) { action: MenuAction ->
-                viewModel.setLongPressAction(action.name)
-            }
-
-            PillGesture.SWIPE_UP -> Triple(
-                stringResource(gesture.titleRes),
-                swipeUpAction
-            ) { action: MenuAction ->
-                viewModel.setSwipeUpAction(action.name)
-            }
-
-            PillGesture.SWIPE_DOWN -> Triple(
-                stringResource(gesture.titleRes),
-                swipeDownAction
-            ) { action: MenuAction ->
-                viewModel.setSwipeDownAction(action.name)
-            }
-        }
-
-        GestureActionBottomSheet(
-            title = title,
-            currentActionName = currentAction,
-            onActionSelected = onSelect,
-            onDismissRequest = { activeGestureBottomSheet = null }
-        )
-    }
 }
 
 @Composable
@@ -926,6 +788,12 @@ private fun SettingsSubHeader(
             trailing?.invoke()
         }
     }
+}
+
+private fun Context.fileName(uri: Uri): String {
+    return contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use {
+        if (it.moveToFirst()) it.getString(0) else null
+    }.orEmpty()
 }
 
 private fun Context.controlQuickBallService(action: String) {

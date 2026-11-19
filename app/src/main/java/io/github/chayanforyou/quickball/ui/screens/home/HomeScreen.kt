@@ -78,12 +78,15 @@ import io.github.chayanforyou.quickball.utils.AppRater
 import io.github.chayanforyou.quickball.utils.PermissionUtils
 import kotlin.math.PI
 import kotlin.math.sin
+import io.github.chayanforyou.quickball.utils.SupportPrompter
+import io.github.chayanforyou.quickball.ui.screens.home.components.SupportPromptDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     onNavigateToShortcuts: () -> Unit,
     onNavigateToAutoHide: () -> Unit,
+    onNavigateToGestures: () -> Unit,
     onNavigateToAdvanced: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: QuickBallViewModel = viewModel()
@@ -97,11 +100,33 @@ fun HomeScreen(
     var showDokiSheet by remember { mutableStateOf(false) }
     var showSupportSheet by remember { mutableStateOf(false) }
     var showRateDialog by remember { mutableStateOf(false) }
+    var showSupportPrompt by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         AppRater.initAppRater(context) {
             showRateDialog = true
         }
+        SupportPrompter.initSupportPrompter(context) {
+            if (!showRateDialog) showSupportPrompt = true
+        }
+    }
+
+    if (showSupportPrompt) {
+        SupportPromptDialog(
+            onDismissRequest = {
+                showSupportPrompt = false
+                SupportPrompter.remindLater(context)
+            },
+            onSupport = {
+                showSupportPrompt = false
+                SupportPrompter.remindLater(context)
+                showSupportSheet = true
+            },
+            onDontShowAgain = {
+                showSupportPrompt = false
+                SupportPrompter.setDontShowAgain(context)
+            }
+        )
     }
 
     if (showSupportSheet) {
@@ -355,7 +380,14 @@ fun HomeScreen(
                 ) {
                     SettingNavigationRow(
                         title = stringResource(R.string.shortcuts_title),
+                        subtitle = stringResource(R.string.shortcuts_description),
                         onClick = onNavigateToShortcuts
+                    )
+
+                    SettingNavigationRow(
+                        title = stringResource(R.string.gestures_haptics_title),
+                        subtitle = stringResource(R.string.gestures_description),
+                        onClick = onNavigateToGestures
                     )
 
                     SettingNavigationRow(

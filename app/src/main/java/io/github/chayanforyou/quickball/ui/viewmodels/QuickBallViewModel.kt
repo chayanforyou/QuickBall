@@ -6,7 +6,11 @@ import androidx.lifecycle.viewModelScope
 import io.github.chayanforyou.quickball.domain.AppDefaults
 import io.github.chayanforyou.quickball.domain.AppPreference
 import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItem
+import io.github.chayanforyou.quickball.domain.models.MenuConnectorStyle
 import io.github.chayanforyou.quickball.domain.models.QuickBallTheme
+import io.github.chayanforyou.quickball.domain.models.ThemeConfig
+import io.github.chayanforyou.quickball.domain.models.ThemeConfig.Companion.parseColor
+import io.github.chayanforyou.quickball.domain.models.ThemeConfig.Companion.toHex
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -45,6 +49,7 @@ data class QuickBallUiState(
     val pillTouchWidth: Float = AppDefaults.PILL_TOUCH_WIDTH,
     val pillArcAngle: Float = AppDefaults.PILL_ARC_ANGLE,
     val isGestureEnabled: Boolean = AppDefaults.GESTURE_ENABLED,
+    val singleTapAction: String = AppDefaults.SINGLE_TAP_ACTION,
     val doubleTapAction: String = AppDefaults.DOUBLE_TAP_ACTION,
     val tripleTapAction: String = AppDefaults.TRIPLE_TAP_ACTION,
     val longPressAction: String = AppDefaults.LONG_PRESS_ACTION,
@@ -93,6 +98,7 @@ class QuickBallViewModel(application: Application) : AndroidViewModel(applicatio
             pillTouchWidth = prefs.pillTouchWidth,
             pillArcAngle = prefs.pillArcAngle,
             isGestureEnabled = prefs.isGestureEnabled,
+            singleTapAction = prefs.singleTapAction,
             doubleTapAction = prefs.doubleTapAction,
             tripleTapAction = prefs.tripleTapAction,
             longPressAction = prefs.longPressAction,
@@ -230,6 +236,101 @@ class QuickBallViewModel(application: Application) : AndroidViewModel(applicatio
         setMenuBorderEnabled(theme.isBorderEnabled)
         setMenuConnectorColor(theme.connectorColor)
         setPillColor(theme.pillColor)
+        setToastBgColor(theme.toastBgColor)
+        setToastFgColor(theme.toastFgColor)
+    }
+
+    fun exportThemeConfig(): String {
+        val state = _uiState.value
+        return ThemeConfig(
+            ball = ThemeConfig.Ball(
+                color = state.ballColor.toHex(),
+                iconColor = state.ballIconColor.toHex(),
+                size = state.ballSize,
+                border = ThemeConfig.Border(
+                    enabled = state.isBallBorderEnabled,
+                    color = state.ballBorderColor.toHex(),
+                    width = state.ballBorderWidth
+                )
+            ),
+            menu = ThemeConfig.Menu(
+                color = state.menuColor.toHex(),
+                iconColor = state.menuIconColor.toHex(),
+                size = state.menuSize,
+                iconSize = state.menuIconSize,
+                radius = state.menuRadius,
+                border = ThemeConfig.Border(
+                    enabled = state.isMenuBorderEnabled,
+                    color = state.menuBorderColor.toHex(),
+                    width = state.menuBorderWidth
+                )
+            ),
+            connector = ThemeConfig.Connector(
+                style = state.menuConnectorStyle,
+                color = state.menuConnectorColor.toHex(),
+                width = state.menuConnectorWidth
+            ),
+            pill = ThemeConfig.Pill(
+                color = state.pillColor.toHex(),
+                height = state.pillHeight,
+                thickness = state.pillThickness,
+                touchWidth = state.pillTouchWidth
+            ),
+            toast = ThemeConfig.Toast(
+                backgroundColor = state.toastBgColor.toHex(),
+                textColor = state.toastFgColor.toHex()
+            )
+        ).toJson()
+    }
+
+    fun importThemeConfig(json: String): Boolean {
+        val config = ThemeConfig.fromJson(json) ?: return false
+
+        config.ball?.let { ball ->
+            parseColor(ball.color)?.let { setBallColor(it) }
+            parseColor(ball.iconColor)?.let { setBallIconColor(it) }
+            ball.size.fitIn(AppDefaults.BALL_SIZE_MIN, AppDefaults.BALL_SIZE_MAX)?.let { setBallSize(it) }
+            ball.border?.let { border ->
+                border.enabled?.let { setBallBorderEnabled(it) }
+                parseColor(border.color)?.let { setBallBorderColor(it) }
+                border.width.fitIn(AppDefaults.BORDER_WIDTH_MIN, AppDefaults.BORDER_WIDTH_MAX)?.let { setBallBorderWidth(it) }
+            }
+        }
+
+        config.menu?.let { menu ->
+            parseColor(menu.color)?.let { setMenuColor(it) }
+            parseColor(menu.iconColor)?.let { setMenuIconColor(it) }
+            menu.size.fitIn(AppDefaults.MENU_SIZE_MIN, AppDefaults.MENU_SIZE_MAX)?.let { setMenuSize(it) }
+            menu.iconSize.fitIn(AppDefaults.MENU_ICON_SIZE_MIN, AppDefaults.MENU_ICON_SIZE_MAX)?.let { setMenuIconSize(it) }
+            menu.radius.fitIn(AppDefaults.MENU_RADIUS_MIN, AppDefaults.MENU_RADIUS_MAX)?.let { setMenuRadius(it) }
+            menu.border?.let { border ->
+                border.enabled?.let { setMenuBorderEnabled(it) }
+                parseColor(border.color)?.let { setMenuBorderColor(it) }
+                border.width.fitIn(AppDefaults.BORDER_WIDTH_MIN, AppDefaults.BORDER_WIDTH_MAX)?.let { setMenuBorderWidth(it) }
+            }
+        }
+
+        config.connector?.let { connector ->
+            connector.style
+                ?.takeIf { style -> MenuConnectorStyle.entries.any { it.name == style } }
+                ?.let { setMenuConnectorStyle(it) }
+            parseColor(connector.color)?.let { setMenuConnectorColor(it) }
+            connector.width.fitIn(AppDefaults.MENU_CONNECTOR_WIDTH_MIN, AppDefaults.MENU_CONNECTOR_WIDTH_MAX)
+                ?.let { setMenuConnectorWidth(it) }
+        }
+
+        config.pill?.let { pill ->
+            parseColor(pill.color)?.let { setPillColor(it) }
+            pill.height.fitIn(AppDefaults.PILL_HEIGHT_MIN, AppDefaults.PILL_HEIGHT_MAX)?.let { setPillHeight(it) }
+            pill.thickness.fitIn(AppDefaults.PILL_THICKNESS_MIN, AppDefaults.PILL_THICKNESS_MAX)?.let { setPillThickness(it) }
+            pill.touchWidth.fitIn(AppDefaults.PILL_TOUCH_WIDTH_MIN, AppDefaults.PILL_TOUCH_WIDTH_MAX)?.let { setPillTouchWidth(it) }
+        }
+
+        config.toast?.let { toast ->
+            parseColor(toast.backgroundColor)?.let { setToastBgColor(it) }
+            parseColor(toast.textColor)?.let { setToastFgColor(it) }
+        }
+        return true
     }
 
     fun setMenuConnectorStyle(style: String) {
@@ -297,6 +398,11 @@ class QuickBallViewModel(application: Application) : AndroidViewModel(applicatio
     fun setGestureEnabled(enabled: Boolean) {
         prefs.isGestureEnabled = enabled
         _uiState.update { it.copy(isGestureEnabled = enabled) }
+    }
+
+    fun setSingleTapAction(action: String) {
+        prefs.singleTapAction = action
+        _uiState.update { it.copy(singleTapAction = action) }
     }
 
     fun setDoubleTapAction(action: String) {
@@ -469,4 +575,8 @@ class QuickBallViewModel(application: Application) : AndroidViewModel(applicatio
         }
         setAutoHideApps(currentSet)
     }
+}
+
+private fun Float?.fitIn(min: Float, max: Float): Float? {
+    return this?.takeIf { it.isFinite() }?.coerceIn(min, max)
 }

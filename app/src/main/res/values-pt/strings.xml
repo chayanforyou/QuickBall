@@ -43,6 +43,7 @@
 
     <!-- Shortcut -->
     <string name="shortcuts_title">Atalhos</string>
+    <string name="shortcuts_description">Adicione, remova ou reordene as ações do menu.</string>
 
     <!-- Hide Automatically -->
     <string name="hide_automatically_title">Ocultar automaticamente</string>
@@ -50,6 +51,13 @@
 
     <!-- Advanced Settings -->
     <string name="advanced_settings_title">Configurações avançadas</string>
+    <string name="import_export_settings">Importar ou exportar configurações</string>
+    <string name="import_settings">Importar configurações</string>
+    <string name="export_settings">Exportar configurações</string>
+    <string name="settings_imported">Configurações importadas.</string>
+    <string name="settings_exported">Configurações exportadas.</string>
+    <string name="settings_import_failed">Não foi possível importar. Escolha um arquivo de tema do Quick Ball.</string>
+    <string name="settings_export_failed">Não foi possível exportar as configurações.</string>
 
     <!-- Lock Ball Position -->
     <string name="lock_ball_position_title">Bloquear posição da bola</string>
@@ -87,6 +95,7 @@
     
     <!-- Quick Ball Menu Items -->
     <!-- Navigation -->
+    <string name="menu_open_quick_ball">Abrir menu</string>
     <string name="menu_home">Início</string>
     <string name="menu_back">Voltar</string>
     <string name="menu_recent">Aplicativos recentes</string>
@@ -173,9 +182,11 @@
 
     <!-- Gestures -->
     <string name="gesture_header_title">Gestos</string>
+    <string name="gestures_haptics_title">Gestos e háptica</string>
+    <string name="gestures_description">Ações de toque e deslize, e vibração.</string>
     <string name="gesture_requirement_notice">Os gestos funcionam na alça lateral quando \"Fixar na borda\" está ativado, ou na bola flutuante quando \"Bloquear posição da bola\" está ativado.</string>
     <string name="enable_gestures_title">Ativar gestos</string>
-    <string name="enable_gestures_description">Ativar gestos pode atrasar ligeiramente a abertura do menu.</string>
+    <string name="single_tap_title">Toque simples</string>
     <string name="double_tap_title">Toque duplo</string>
     <string name="triple_tap_title">Toque triplo</string>
     <string name="long_press_title">Pressionar e segurar</string>
@@ -186,7 +197,6 @@
     <!-- Haptics -->
     <string name="haptics_header_title">Resposta tátil</string>
     <string name="vibration_feedback_title">Vibração de retorno</string>
-    <string name="vibration_feedback_description">Vibração ao tocar, deslizar e executar ações</string>
     <string name="haptic_light">Leve</string>
     <string name="haptic_medium">Médio</string>
     <string name="haptic_strong">Forte</string>
@@ -199,6 +209,11 @@
     <string name="rate_dialog_p4">E se você está gostando do %1$s, uma avaliação de 5★ significaria muito para mim. Leva apenas um minuto, mas ajuda mais pessoas a descobrirem o aplicativo e, sinceramente, realmente alegra o meu dia.</string>
     <string name="rate_dialog_thank_you">Obrigado por usar o %1$s e apoiar meu trabalho.</string>
     <string name="rate_dialog_signature">Chayan</string>
-    <string name="rate_dialog_leave_review">Deixar avaliação 5★</string>
+    <string name="rate_dialog_leave_review">Deixar uma avaliação</string>
     <string name="rate_dialog_email_me">Enviar e-mail</string>
+    <string name="support_dialog_title">Está gostando do %1$s?</string>
+    <string name="support_dialog_body">%1$s é grátis, não tem anúncios e eu o desenvolvo sozinho no meu tempo livre. Se ele facilita o uso do seu celular, uma pequena gorjeta me ajuda a continuar melhorando.</string>
+    <string name="support_dialog_support">Apoiar</string>
+    <string name="support_dialog_not_now">Agora não</string>
+    <string name="support_dialog_dont_show">Não mostrar novamente</string>
 </resources>

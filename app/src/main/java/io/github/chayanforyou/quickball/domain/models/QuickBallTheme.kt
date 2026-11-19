@@ -28,6 +28,8 @@ enum class QuickBallTheme(
     val menuBorderColor: Int,
     val connectorColor: Int,
     val pillColor: Int,
+    val toastBgColor: Int,
+    val toastFgColor: Int,
     val isBorderEnabled: Boolean = true
 ) {
     DEFAULT(
@@ -40,6 +42,8 @@ enum class QuickBallTheme(
         menuBorderColor = AppDefaults.MENU_BORDER_COLOR,
         connectorColor = AppDefaults.MENU_CONNECTOR_COLOR,
         pillColor = AppDefaults.PILL_COLOR,
+        toastBgColor = AppDefaults.TOAST_BG_COLOR,
+        toastFgColor = AppDefaults.TOAST_FG_COLOR,
         isBorderEnabled = false
     ),
     BLACK("Black", ring = 0xFFFFFF, itemRing = 0xA0A0A0, base = 0x000000, icon = 0xFFFFFF, connector = 0x404040),
@@ -129,7 +133,8 @@ enum class QuickBallTheme(
 
     /**
      * Ball and menu items share one look: [base] fill, [icon] glyphs; [ring] outlines the
-     * ball and colors the edge handle, [itemRing] outlines each menu item.
+     * ball and colors the edge handle, [itemRing] outlines each menu item. Toasts use the
+     * same [base] fill and [icon] text color.
      */
     constructor(
         title: String,
@@ -147,7 +152,9 @@ enum class QuickBallTheme(
         menuIconColor = opaque(icon),
         menuBorderColor = opaque(itemRing),
         connectorColor = opaque(connector),
-        pillColor = pill(ring)
+        pillColor = pill(ring),
+        toastBgColor = fill(base),
+        toastFgColor = opaque(icon)
     )
 
     companion object {
@@ -160,7 +167,9 @@ enum class QuickBallTheme(
             menuIconColor: Int,
             menuBorderColor: Int,
             connectorColor: Int,
-            pillColor: Int
+            pillColor: Int,
+            toastBgColor: Int,
+            toastFgColor: Int
         ): QuickBallTheme? = entries.find {
             it.ballColor == ballColor &&
                 it.ballIconColor == ballIconColor &&
@@ -169,7 +178,9 @@ enum class QuickBallTheme(
                 it.menuIconColor == menuIconColor &&
                 it.menuBorderColor == menuBorderColor &&
                 it.connectorColor == connectorColor &&
-                it.pillColor == pillColor
+                it.pillColor == pillColor &&
+                it.toastBgColor == toastBgColor &&
+                it.toastFgColor == toastFgColor
         }
     }
 }

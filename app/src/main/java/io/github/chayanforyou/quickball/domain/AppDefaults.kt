@@ -6,6 +6,8 @@ import io.github.chayanforyou.quickball.domain.models.MenuConnectorStyle
 
 object AppDefaults {
     const val BALL_SIZE = 45f
+    const val BALL_SIZE_MIN = 40f
+    const val BALL_SIZE_MAX = 60f
     const val BALL_COLOR = 0xBF2C2C2C.toInt()
     const val BALL_ICON_COLOR = 0xFFFFFFFF.toInt()
     const val BALL_BORDER_COLOR = 0x66FFFFFF
@@ -27,6 +29,8 @@ object AppDefaults {
     const val MENU_SIZE_MIN = 40f
     const val MENU_SIZE_MAX = 56f
     const val MENU_ICON_SIZE = 24f
+    const val MENU_ICON_SIZE_MIN = 15f
+    const val MENU_ICON_SIZE_MAX = 35f
     const val MENU_RADIUS = 90f
     const val MENU_RADIUS_MIN = 60f
     const val MENU_RADIUS_MAX = 120f
@@ -36,10 +40,17 @@ object AppDefaults {
     const val TOAST_FG_COLOR = 0xFFFFFFFF.toInt()
     const val PILL_COLOR = 0xCC777777.toInt()
     const val PILL_HEIGHT = 48f
+    const val PILL_HEIGHT_MIN = 30f
+    const val PILL_HEIGHT_MAX = 80f
     const val PILL_THICKNESS = 3f
+    const val PILL_THICKNESS_MIN = 1f
+    const val PILL_THICKNESS_MAX = 10f
     const val PILL_TOUCH_WIDTH = 25f
+    const val PILL_TOUCH_WIDTH_MIN = 15f
+    const val PILL_TOUCH_WIDTH_MAX = 50f
     const val PILL_ARC_ANGLE = 40f
     const val GESTURE_ENABLED = false
+    val SINGLE_TAP_ACTION = MenuAction.OPEN_MENU.name
     val DOUBLE_TAP_ACTION = MenuAction.LOCK_SCREEN.name
     val TRIPLE_TAP_ACTION = MenuAction.SCREENSHOT.name
     val LONG_PRESS_ACTION = MenuAction.POWER_DIALOG.name

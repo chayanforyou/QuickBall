@@ -1,9 +1,11 @@
 package io.github.chayanforyou.quickball.ui.floating
 
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Canvas
+import android.graphics.Path
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.RippleDrawable
 import android.os.Build
@@ -15,14 +17,15 @@ import android.view.animation.OvershootInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.core.graphics.toColorInt
+import androidx.core.graphics.withClip
 import io.github.chayanforyou.quickball.domain.AppPreference
 import io.github.chayanforyou.quickball.domain.models.MenuAction
 import io.github.chayanforyou.quickball.domain.models.MenuConnectorStyle
 import io.github.chayanforyou.quickball.domain.models.QuickBallMenuItem
 import io.github.chayanforyou.quickball.utils.DensityUtils
 import io.github.chayanforyou.quickball.utils.getAppIcon
-import io.github.chayanforyou.quickball.utils.getScreenSize
 import kotlin.math.hypot
+import kotlin.math.min
 
 /**
  * Full-screen overlay displaying the radial menu items.
@@ -37,6 +40,7 @@ class FloatPanelView(
     fabX: Int,
     fabY: Int,
     fabSize: Int,
+    private val screenSize: Pair<Int, Int>,
     private val items: List<QuickBallMenuItem>,
     private val onDismiss: () -> Unit,
     private val onDismissFinished: () -> Unit,
@@ -49,9 +53,10 @@ class FloatPanelView(
         private const val SCREEN_MARGIN_DP = 8f
 
         private const val ANIMATION_DURATION = 240L
+        private const val CONNECTOR_DURATION = 240L
         private const val STAGGER_DELAY = 15L
 
-        private val OVERSHOOT = OvershootInterpolator(0.9f)
+        private val OVERSHOOT = OvershootInterpolator(0.8f)
         private val DECELERATE = DecelerateInterpolator(1.0f)
     }
 
@@ -69,7 +74,7 @@ class FloatPanelView(
     private val fabCenterX = fabX + halfFab
     private val fabCenterY = fabY + halfFab
     private val isOnRight by lazy {
-        val (screenWidth, _) = context.getScreenSize()
+        val (screenWidth, _) = screenSize
         fabCenterX > (screenWidth / 2)
     }
 
@@ -95,6 +100,8 @@ class FloatPanelView(
     private val itemOffsets: List<Pair<Float, Float>>
     private var isCollapsing = false
     private var hasDismissed = false
+    private var connectorProgress = 1f
+    private val connectorClip = Path()
 
     init {
         require(items.size >= 2) {
@@ -201,7 +208,7 @@ class FloatPanelView(
      * Computes the target offset of every item relative to the central FAB, see [FanLayout].
      */
     private fun computeFanningOffsets(): List<Pair<Float, Float>> {
-        val (_, screenHeight) = context.getScreenSize()
+        val (_, screenHeight) = screenSize
         val margin = DensityUtils.dp2px(SCREEN_MARGIN_DP)
 
         val layout = FanLayout.compute(
@@ -231,7 +238,7 @@ class FloatPanelView(
      * Vertical shift that keeps the whole fan on screen when the FAB is near the top or bottom.
      */
     private fun getScreenFitShift(minOffsetY: Float, maxOffsetY: Float): Float {
-        val (_, screenHeight) = context.getScreenSize()
+        val (_, screenHeight) = screenSize
         if (screenHeight <= 0) return 0f
 
         val margin = DensityUtils.dp2px(SCREEN_MARGIN_DP)
@@ -266,14 +273,15 @@ class FloatPanelView(
         val centerX = fabCenterX.toFloat()
         val centerY = fabCenterY.toFloat()
 
-        if (connectors.hasRing) {
+        if (connectors.hasRing && connectorProgress > 0f) {
+            val sweep = ringSweep * connectorProgress
             connectors.drawRing(
                 canvas,
                 centerX,
                 centerY,
                 connectorStart,
-                ringStart,
-                ringSweep,
+                ringStart + (ringSweep - sweep) / 2,
+                sweep,
                 groupOpacity()
             )
         }
@@ -281,23 +289,27 @@ class FloatPanelView(
         itemViews.forEachIndexed { index, itemView ->
             val (offsetX, offsetY) = itemOffsets[index]
 
-            // Follow the item while it animates
-            val deltaX = offsetX + itemView.translationX
-            val deltaY = offsetY + itemView.translationY
-            val distance = hypot(deltaX, deltaY)
-            if (distance <= 0f) return@forEachIndexed
+            val restDistance = hypot(offsetX, offsetY)
+            if (restDistance <= 0f) return@forEachIndexed
 
-            connectors.drawConnector(
-                canvas = canvas,
-                centerX = centerX,
-                centerY = centerY,
-                directionX = deltaX / distance,
-                directionY = deltaY / distance,
-                start = connectorStart,
-                end = distance - buttonSize / 2f * itemView.scaleX,
-                opacity = itemView.alpha,
-                bend = curveBends.getOrElse(index) { 0f }
-            )
+            // Lay out at the resting length and clip to the moving item, so the shape stays fixed
+            val restEnd = restDistance - buttonSize / 2f
+            val distance = hypot(offsetX + itemView.translationX, offsetY + itemView.translationY)
+            val visibleEnd = min(distance - buttonSize / 2f * itemView.scaleX, grow(connectorStart, restEnd))
+
+            clipToRadius(canvas, centerX, centerY, visibleEnd, restEnd) {
+                connectors.drawConnector(
+                    canvas = canvas,
+                    centerX = centerX,
+                    centerY = centerY,
+                    directionX = offsetX / restDistance,
+                    directionY = offsetY / restDistance,
+                    start = connectorStart,
+                    end = restEnd,
+                    opacity = itemView.alpha,
+                    bend = curveBends.getOrElse(index) { 0f }
+                )
+            }
         }
     }
 
@@ -311,12 +323,16 @@ class FloatPanelView(
 
         // Canvas angles: 0° points right, 270° points up, clockwise positive
         val startAngle = if (isOnRight) 180f - arcEdgeAngle else 270f
-        connectors.drawRing(
-            canvas, centerX, centerY, arcRadius,
-            Math.toRadians(startAngle.toDouble()),
-            Math.toRadians(90.0 + arcEdgeAngle),
-            groupOpacity()
-        )
+        val fullSweep = 90.0 + arcEdgeAngle
+        val sweep = fullSweep * connectorProgress
+        if (connectorProgress > 0f) {
+            connectors.drawRing(
+                canvas, centerX, centerY, arcRadius,
+                Math.toRadians(startAngle + (fullSweep - sweep) / 2),
+                Math.toRadians(sweep),
+                groupOpacity()
+            )
+        }
 
         itemViews.forEachIndexed { index, itemView ->
             val (offsetX, offsetY) = itemOffsets[index]
@@ -327,18 +343,22 @@ class FloatPanelView(
             val restDistance = hypot(restX, restY)
             if (restDistance <= 0f) return@forEachIndexed
 
+            val restEnd = restDistance - buttonSize / 2f
             val distance = hypot(restX + itemView.translationX, restY + itemView.translationY)
+            val visibleEnd = min(distance - buttonSize / 2f * itemView.scaleX, grow(arcRadius, restEnd))
 
-            connectors.drawConnector(
-                canvas = canvas,
-                centerX = centerX,
-                centerY = centerY,
-                directionX = restX / restDistance,
-                directionY = restY / restDistance,
-                start = arcRadius,
-                end = distance - buttonSize / 2f * itemView.scaleX,
-                opacity = itemView.alpha
-            )
+            clipToRadius(canvas, centerX, centerY, visibleEnd, restEnd) {
+                connectors.drawConnector(
+                    canvas = canvas,
+                    centerX = centerX,
+                    centerY = centerY,
+                    directionX = restX / restDistance,
+                    directionY = restY / restDistance,
+                    start = arcRadius,
+                    end = restEnd,
+                    opacity = itemView.alpha
+                )
+            }
         }
     }
 
@@ -372,6 +392,49 @@ class FloatPanelView(
                 .setInterpolator(OVERSHOOT)
                 .setUpdateListener { invalidate() }
                 .start()
+        }
+    }
+
+    private fun grow(start: Float, end: Float): Float {
+        return start + (end - start) * connectorProgress
+    }
+
+    /**
+     * Reveals a connector by clipping it instead of shortening it, so wave, zigzag and
+     * bubble shapes stay fixed while it grows or its item moves.
+     */
+    private inline fun clipToRadius(
+        canvas: Canvas,
+        centerX: Float,
+        centerY: Float,
+        radius: Float,
+        fullRadius: Float,
+        draw: () -> Unit
+    ) {
+        if (radius >= fullRadius) {
+            draw()
+            return
+        }
+        if (radius <= 0f) return
+        connectorClip.rewind()
+        connectorClip.addCircle(centerX, centerY, radius, Path.Direction.CW)
+        canvas.withClip(connectorClip) { draw() }
+    }
+
+    fun hideConnectors() {
+        connectorProgress = 0f
+        invalidate()
+    }
+
+    fun showConnectors() {
+        ValueAnimator.ofFloat(connectorProgress, 1f).apply {
+            duration = CONNECTOR_DURATION
+            interpolator = DECELERATE
+            addUpdateListener {
+                connectorProgress = it.animatedValue as Float
+                invalidate()
+            }
+            start()
         }
     }
 

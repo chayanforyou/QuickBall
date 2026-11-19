@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.chayanforyou.quickball.R
 import io.github.chayanforyou.quickball.billing.TipJarClient
+import io.github.chayanforyou.quickball.utils.SupportPrompter
 
 /**
  * Support sheet for the Google Play build: one-time tips through Play Billing.
@@ -37,6 +38,7 @@ fun SupportBottomSheet(
 
     val tipJar = remember {
         TipJarClient(context) {
+            SupportPrompter.setDontShowAgain(context)
             Toast.makeText(context, R.string.tip_thank_you, Toast.LENGTH_LONG).show()
             currentOnDismiss()
         }
