@@ -20,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import io.github.chayanforyou.quickball.R
+import io.github.chayanforyou.quickball.utils.SupportPrompter
 
 private class SupportPlatform(val name: String, val host: String, val url: String)
 
@@ -38,7 +39,6 @@ private val SupportPlatforms = listOf(
 
 // bKash wallet number shown in the sheet
 private const val BKASH_NUMBER = "01734811761"
-
 private const val BKASH_ACCOUNT_TYPE = "Personal"
 private const val BKASH_METHOD = "Send Money"
 
@@ -52,6 +52,7 @@ fun SupportBottomSheet(
     val context = LocalContext.current
 
     fun openPlatform(platform: SupportPlatform) {
+        SupportPrompter.setDontShowAgain(context)
         try {
             context.startActivity(Intent(Intent.ACTION_VIEW, platform.url.toUri()))
         } catch (_: ActivityNotFoundException) {
@@ -61,6 +62,7 @@ fun SupportBottomSheet(
     }
 
     fun copyBkashNumber() {
+        SupportPrompter.setDontShowAgain(context)
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         clipboard.setPrimaryClip(ClipData.newPlainText("bKash", BKASH_NUMBER))
 

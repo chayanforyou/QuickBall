@@ -43,6 +43,7 @@
 
     <!-- Shortcut -->
     <string name="shortcuts_title">Atajos</string>
+    <string name="shortcuts_description">Añade, quita o reordena las acciones del menú.</string>
 
     <!-- Hide Automatically -->
     <string name="hide_automatically_title">Ocultar automáticamente</string>
@@ -50,6 +51,13 @@
 
     <!-- Advanced Settings -->
     <string name="advanced_settings_title">Ajustes avanzados</string>
+    <string name="import_export_settings">Importar o exportar ajustes</string>
+    <string name="import_settings">Importar ajustes</string>
+    <string name="export_settings">Exportar ajustes</string>
+    <string name="settings_imported">Ajustes importados.</string>
+    <string name="settings_exported">Ajustes exportados.</string>
+    <string name="settings_import_failed">No se pudo importar. Elige un archivo de tema de Quick Ball.</string>
+    <string name="settings_export_failed">No se pudieron exportar los ajustes.</string>
 
     <!-- Lock Ball Position -->
     <string name="lock_ball_position_title">Bloquear posición de la bola</string>
@@ -87,6 +95,7 @@
     
     <!-- Quick Ball Menu Items -->
     <!-- Navigation -->
+    <string name="menu_open_quick_ball">Abrir menú</string>
     <string name="menu_home">Inicio</string>
     <string name="menu_back">Atrás</string>
     <string name="menu_recent">Aplicaciones recientes</string>
@@ -173,9 +182,11 @@
 
     <!-- Gestures -->
     <string name="gesture_header_title">Gestos</string>
+    <string name="gestures_haptics_title">Gestos y háptica</string>
+    <string name="gestures_description">Acciones de toque y deslizamiento, y vibración.</string>
     <string name="gesture_requirement_notice">Los gestos funcionan en el asa de borde cuando \"Fijar al borde\" está activado, o en la bola flotante cuando \"Bloquear posición de la bola\" está activado.</string>
     <string name="enable_gestures_title">Activar gestos</string>
-    <string name="enable_gestures_description">Activar los gestos puede retrasar ligeramente la apertura del menú.</string>
+    <string name="single_tap_title">Toque simple</string>
     <string name="double_tap_title">Doble toque</string>
     <string name="triple_tap_title">Triple toque</string>
     <string name="long_press_title">Pulsación larga</string>
@@ -186,7 +197,6 @@
     <!-- Haptics -->
     <string name="haptics_header_title">Respuesta háptica</string>
     <string name="vibration_feedback_title">Vibración táctil</string>
-    <string name="vibration_feedback_description">Respuesta háptica en toques, deslizamientos y acciones</string>
     <string name="haptic_light">Ligero</string>
     <string name="haptic_medium">Medio</string>
     <string name="haptic_strong">Fuerte</string>
@@ -199,6 +209,11 @@
     <string name="rate_dialog_p4">Y si estás disfrutando de %1$s, una reseña de 5★ significaría mucho para mí. Solo toma un minuto, pero ayuda a más personas a descubrir la aplicación y, sinceramente, realmente me alegra el día.</string>
     <string name="rate_dialog_thank_you">Gracias por usar %1$s y apoyar mi trabajo.</string>
     <string name="rate_dialog_signature">Chayan</string>
-    <string name="rate_dialog_leave_review">Dejar una reseña de 5★</string>
+    <string name="rate_dialog_leave_review">Dejar una reseña</string>
     <string name="rate_dialog_email_me">Enviarme un correo</string>
+    <string name="support_dialog_title">¿Te gusta %1$s?</string>
+    <string name="support_dialog_body">%1$s es gratis, no tiene anuncios y lo desarrollo solo en mi tiempo libre. Si te facilita el uso del teléfono, una pequeña propina me ayuda a seguir mejorándolo.</string>
+    <string name="support_dialog_support">Apoyar</string>
+    <string name="support_dialog_not_now">Ahora no</string>
+    <string name="support_dialog_dont_show">No volver a mostrar</string>
 </resources>

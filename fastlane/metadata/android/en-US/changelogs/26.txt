@@ -1,0 +1,5 @@
+- New Gestures & Haptics screen, opened from Home
+- Single tap gesture with a new Open Menu action
+- Import and export your theme as a .qbtheme file
+- Smoother menu animation
+- Fixed a crash when showing the edge handle

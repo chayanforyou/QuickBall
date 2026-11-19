@@ -43,6 +43,7 @@
 
     <!-- Shortcut -->
     <string name="shortcuts_title">Shortcuts</string>
+    <string name="shortcuts_description">Add, remove or reorder actions in the menu.</string>
 
     <!-- Hide Automatically -->
     <string name="hide_automatically_title">Hide automatically</string>
@@ -50,6 +51,13 @@
 
     <!-- Advanced Settings -->
     <string name="advanced_settings_title">Advanced settings</string>
+    <string name="import_export_settings">Import or export settings</string>
+    <string name="import_settings">Import settings</string>
+    <string name="export_settings">Export settings</string>
+    <string name="settings_imported">Settings imported.</string>
+    <string name="settings_exported">Settings exported.</string>
+    <string name="settings_import_failed">Could not import. Choose a Quick Ball theme file.</string>
+    <string name="settings_export_failed">Could not export settings.</string>
 
     <!-- Lock Ball Position -->
     <string name="lock_ball_position_title">Lock ball position</string>
@@ -87,6 +95,7 @@
     
     <!-- Quick Ball Menu Items -->
     <!-- Navigation -->
+    <string name="menu_open_quick_ball">Open Menu</string>
     <string name="menu_home">Home</string>
     <string name="menu_back">Back</string>
     <string name="menu_recent">Recent Apps</string>
@@ -173,9 +182,11 @@
 
     <!-- Gestures -->
     <string name="gesture_header_title">Gestures</string>
+    <string name="gestures_haptics_title">Gestures &amp; Haptics</string>
+    <string name="gestures_description">Tap and swipe actions, and vibration.</string>
     <string name="gesture_requirement_notice">Gestures work on the edge handle when \"Stick to edge\" is enabled, or on the floating ball when \"Lock ball position\" is enabled.</string>
     <string name="enable_gestures_title">Enable gestures</string>
-    <string name="enable_gestures_description">Enabling gestures may slightly delay opening the menu.</string>
+    <string name="single_tap_title">Single tap</string>
     <string name="double_tap_title">Double tap</string>
     <string name="triple_tap_title">Triple tap</string>
     <string name="long_press_title">Long press</string>
@@ -186,7 +197,6 @@
     <!-- Haptics -->
     <string name="haptics_header_title">Haptics</string>
     <string name="vibration_feedback_title">Vibration feedback</string>
-    <string name="vibration_feedback_description">Tick on taps, swipes, and actions</string>
     <string name="haptic_light">Light</string>
     <string name="haptic_medium">Medium</string>
     <string name="haptic_strong">Strong</string>
@@ -199,6 +209,11 @@
     <string name="rate_dialog_p4">And if you\'re enjoying %1$s, a 5★ review would mean a lot to me. It only takes a minute, but it helps more people discover the app—and honestly, it really does make my day.</string>
     <string name="rate_dialog_thank_you">Thank you for using %1$s and supporting my work.</string>
     <string name="rate_dialog_signature">Chayan</string>
-    <string name="rate_dialog_leave_review">Leave a 5★ review</string>
+    <string name="rate_dialog_leave_review">Leave a review</string>
     <string name="rate_dialog_email_me">Email me</string>
+    <string name="support_dialog_title">Enjoying %1$s?</string>
+    <string name="support_dialog_body">%1$s is free, has no ads, and I build it on my own in my spare time. If it makes your phone easier to use, a small tip helps me keep improving it.</string>
+    <string name="support_dialog_support">Support</string>
+    <string name="support_dialog_not_now">Not now</string>
+    <string name="support_dialog_dont_show">Don\'t show again</string>
 </resources>

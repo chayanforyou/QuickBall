@@ -43,6 +43,7 @@
 
     <!-- Shortcut -->
     <string name="shortcuts_title">Verknüpfungen</string>
+    <string name="shortcuts_description">Aktionen im Menü hinzufügen, entfernen oder neu anordnen.</string>
 
     <!-- Hide Automatically -->
     <string name="hide_automatically_title">Automatisch ausblenden</string>
@@ -50,6 +51,13 @@
 
     <!-- Advanced Settings -->
     <string name="advanced_settings_title">Erweiterte Einstellungen</string>
+    <string name="import_export_settings">Einstellungen importieren oder exportieren</string>
+    <string name="import_settings">Einstellungen importieren</string>
+    <string name="export_settings">Einstellungen exportieren</string>
+    <string name="settings_imported">Einstellungen importiert.</string>
+    <string name="settings_exported">Einstellungen exportiert.</string>
+    <string name="settings_import_failed">Import fehlgeschlagen. Wähle eine Quick Ball-Theme-Datei.</string>
+    <string name="settings_export_failed">Einstellungen konnten nicht exportiert werden.</string>
 
     <!-- Lock Ball Position -->
     <string name="lock_ball_position_title">Ballposition sperren</string>
@@ -87,6 +95,7 @@
     
     <!-- Quick Ball Menu Items -->
     <!-- Navigation -->
+    <string name="menu_open_quick_ball">Menü öffnen</string>
     <string name="menu_home">Startseite</string>
     <string name="menu_back">Zurück</string>
     <string name="menu_recent">Letzte Apps</string>
@@ -173,9 +182,11 @@
 
     <!-- Gestures -->
     <string name="gesture_header_title">Gesten</string>
+    <string name="gestures_haptics_title">Gesten &amp; Haptik</string>
+    <string name="gestures_description">Aktionen für Tippen und Wischen sowie Vibration.</string>
     <string name="gesture_requirement_notice">Gesten funktionieren auf dem Randgriff, wenn \"Am Rand anheften\" aktiviert ist, oder auf dem schwebenden Ball, wenn \"Ballposition sperren\" aktiviert ist.</string>
     <string name="enable_gestures_title">Gesten aktivieren</string>
-    <string name="enable_gestures_description">Das Aktivieren von Gesten kann das Öffnen des Menüs leicht verzögern.</string>
+    <string name="single_tap_title">Einfach tippen</string>
     <string name="double_tap_title">Doppeltippen</string>
     <string name="triple_tap_title">Dreifachtippen</string>
     <string name="long_press_title">Gedrückt halten</string>
@@ -186,7 +197,6 @@
     <!-- Haptics -->
     <string name="haptics_header_title">Haptik</string>
     <string name="vibration_feedback_title">Vibrationsfeedback</string>
-    <string name="vibration_feedback_description">Haptic-Feedback bei Tippen, Wischen und Aktionen</string>
     <string name="haptic_light">Leicht</string>
     <string name="haptic_medium">Mittel</string>
     <string name="haptic_strong">Stark</string>
@@ -199,6 +209,11 @@
     <string name="rate_dialog_p4">Und wenn dir %1$s gefällt, würde eine 5★-Bewertung mir sehr viel bedeuten. Es dauert nur eine Minute, hilft aber mehr Menschen, die App zu entdecken – und macht mir ehrlich den Tag schöner.</string>
     <string name="rate_dialog_thank_you">Danke, dass du %1$s nutzt und meine Arbeit unterstützt.</string>
     <string name="rate_dialog_signature">Chayan</string>
-    <string name="rate_dialog_leave_review">5★-Bewertung abgeben</string>
+    <string name="rate_dialog_leave_review">Bewertung abgeben</string>
     <string name="rate_dialog_email_me">E-Mail schreiben</string>
+    <string name="support_dialog_title">Gefällt dir %1$s?</string>
+    <string name="support_dialog_body">%1$s ist kostenlos, werbefrei und ich entwickle es allein in meiner Freizeit. Wenn es dir das Handy erleichtert, hilft mir ein kleines Trinkgeld, es weiter zu verbessern.</string>
+    <string name="support_dialog_support">Unterstützen</string>
+    <string name="support_dialog_not_now">Nicht jetzt</string>
+    <string name="support_dialog_dont_show">Nicht mehr anzeigen</string>
 </resources>

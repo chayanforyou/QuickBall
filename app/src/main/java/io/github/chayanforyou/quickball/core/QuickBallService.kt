@@ -18,10 +18,10 @@ import android.os.Looper
 import android.util.Log
 import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import android.view.animation.PathInterpolator
+import android.widget.FrameLayout
 import androidx.core.content.getSystemService
 import io.github.chayanforyou.quickball.domain.AppPreference
 import io.github.chayanforyou.quickball.domain.models.MenuAction
@@ -64,14 +64,24 @@ class QuickBallService : AccessibilityService() {
 
         const val EDGE_PADDING_DP = 6f
         const val STASH_DELAY_MS = 2500L
+        private const val STASH_ALPHA = 0.4f
+
+        private val KEEP_MENU_OPEN_ACTIONS = setOf(
+            MenuAction.VOLUME_UP,
+            MenuAction.VOLUME_DOWN,
+            MenuAction.BRIGHTNESS_UP,
+            MenuAction.BRIGHTNESS_DOWN
+        )
     }
 
     // Window Managers & Views
     private var windowManager: WindowManager? = null
+    private var screenSize = 0 to 0
     private var fabView: FloatTouchView? = null
     private var fabParams: WindowManager.LayoutParams? = null
     private var pillView: SideKickView? = null
     private var pillParams: WindowManager.LayoutParams? = null
+    private var menuWindow: FrameLayout? = null
     private var menuView: FloatPanelView? = null
     private var menuParams: WindowManager.LayoutParams? = null
     private var actionHandler: QuickBallActionHandler? = null
@@ -128,7 +138,6 @@ class QuickBallService : AccessibilityService() {
     // Stash / Auto-Hide State
     private var isDragging = false
     private var isStashed = false
-    private var stashAlpha = 0.4f
     private var isStashing = false
     private var fabAnimator: ValueAnimator? = null
     private val stashHandler = Handler(Looper.getMainLooper())
@@ -152,6 +161,7 @@ class QuickBallService : AccessibilityService() {
     override fun onServiceConnected() {
         super.onServiceConnected()
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
+        updateScreenSize()
         initFloatingBall()
         registerScreenReceiver()
     }
@@ -169,10 +179,11 @@ class QuickBallService : AccessibilityService() {
     }
 
     override fun onDestroy() {
+        fabAnimator?.cancel()
         stopInactivityTimer()
         removePill()
         removeFabWindow()
-        removeMenuWindow()
+        destroyMenuWindow()
         unregisterReceiverSafe(screenReceiver)
         stashHandler.removeCallbacksAndMessages(null)
         actionHandler?.cleanup()
@@ -219,6 +230,7 @@ class QuickBallService : AccessibilityService() {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
+        updateScreenSize()
         refreshBallVisibility()
         recalculatePosition()
     }
@@ -285,7 +297,7 @@ class QuickBallService : AccessibilityService() {
         stopInactivityTimer()
         removePill()
         removeFabWindow()
-        removeMenuWindow()
+        destroyMenuWindow()
     }
 
     private fun updateBall() {
@@ -305,24 +317,34 @@ class QuickBallService : AccessibilityService() {
         val params = pillParams ?: return
         val wm = windowManager ?: return
 
+        applyPillLayout(pill, params)
+        pill.update()
+
+        runCatching { wm.updateViewLayout(pill, params) }
+    }
+
+    private fun applyPillLayout(pill: SideKickView, params: WindowManager.LayoutParams) {
         val pillWidth = DensityUtils.dp2px(prefs.pillTouchWidth)
         val pillHeight = DensityUtils.dp2px(prefs.pillHeight)
-        val (screenW, _) = getScreenSize()
+        val (screenW, _) = screenSize
 
         params.width = pillWidth
         params.height = pillHeight
         params.x = if (isOnRight) screenW - pillWidth else 0
         params.y = fabY + (fabSizePx - pillHeight) / 2
-
-        pill.update()
-
-        try {
-            wm.updateViewLayout(pill, params)
-        } catch (_: Exception) {
-        }
+        pill.onRight = isOnRight
     }
 
     private open inner class QuickBallGestureListener : GestureListener {
+        override fun onSingleTap() {
+            if (prefs.isGestureEnabled) {
+                executeGestureAction(prefs.singleTapAction)
+            } else {
+                performHapticFeedback()
+                openMenu()
+            }
+        }
+
         override fun onDoubleTap() = executeGestureAction(prefs.doubleTapAction)
         override fun onTripleTap() = executeGestureAction(prefs.tripleTapAction)
         override fun onLongPress() = executeGestureAction(prefs.longPressAction)
@@ -334,9 +356,20 @@ class QuickBallService : AccessibilityService() {
         if (!prefs.isGestureEnabled) return
         performHapticFeedback()
         val action = MenuAction.fromName(actionName) ?: return
-        val menuItem = QuickBallMenuItem(action = action)
-        actionHandler?.onMenuAction(menuItem)
+        if (action == MenuAction.OPEN_MENU) {
+            openMenu()
+            return
+        }
+        actionHandler?.onMenuAction(QuickBallMenuItem(action = action))
         resetInactivityTimer()
+    }
+
+    private fun openMenu() {
+        if (isStashed || isStashing) {
+            unstashAndExpandMenu()
+        } else {
+            expandMenu()
+        }
     }
 
     /* -------------------- FAB Window & Gestures -------------------- */
@@ -374,7 +407,7 @@ class QuickBallService : AccessibilityService() {
                     initialWindowX = fabX
                     initialWindowY = fabY
 
-                    val (sw, sh) = getScreenSize()
+                    val (sw, sh) = screenSize
                     screenW = sw
                     screenH = sh
                 }
@@ -396,7 +429,7 @@ class QuickBallService : AccessibilityService() {
 
                     fabParams?.x = fabX
                     fabParams?.y = fabY
-                    updateFabViewLayout(this@apply, fabParams)
+                    updateFabViewLayout()
                 }
 
                 override fun onDragEnd() {
@@ -407,11 +440,7 @@ class QuickBallService : AccessibilityService() {
                 override fun onSingleTap() {
                     isDragging = false
                     if (!isStickToEdge) alpha = 1.0f
-                    if (isStashed || isStashing) {
-                        unstashFab()
-                    }
-                    performHapticFeedback()
-                    expandMenu()
+                    super.onSingleTap()
                 }
             }
         }
@@ -423,16 +452,13 @@ class QuickBallService : AccessibilityService() {
 
     private fun removeFabWindow() {
         fabView?.let {
-            try {
-                windowManager?.removeView(it)
-            } catch (_: IllegalArgumentException) {
-            }
+            runCatching { windowManager?.removeView(it) }
             fabView = null
         }
     }
 
     private fun snapToEdge() {
-        val (screenW, screenH) = getScreenSize()
+        val (screenW, screenH) = screenSize
 
         isOnRight = (fabX + fabSizePx / 2) > screenW / 2
         savedYFraction = if (screenH > 0) (fabY.toFloat() / screenH) else 0.5f
@@ -455,15 +481,15 @@ class QuickBallService : AccessibilityService() {
 
         if (!isStickToEdge) {
             if (animated) {
-                animateFabX(fabX, 250L, alpha = stashAlpha)
+                animateFabX(fabX, 250L, alpha = STASH_ALPHA)
             } else {
-                view.alpha = stashAlpha
+                view.alpha = STASH_ALPHA
             }
             return
         }
         if (isStashed) return
 
-        val (screenW, _) = getScreenSize()
+        val (screenW, _) = screenSize
 
         val targetX = if (isOnRight) {
             screenW
@@ -475,16 +501,16 @@ class QuickBallService : AccessibilityService() {
 
         if (animated) {
             isStashing = true
-            animateFabX(targetX, 250L, alpha = stashAlpha) {
+            animateFabX(targetX, 250L, alpha = STASH_ALPHA) {
                 isStashing = false
                 isStashed = true
                 showPill()
             }
         } else {
-            view.alpha = stashAlpha
+            view.alpha = STASH_ALPHA
             fabX = targetX
             params.x = targetX
-            updateFabViewLayout(view, params)
+            updateFabViewLayout()
             isStashed = true
             showPill()
         }
@@ -498,19 +524,17 @@ class QuickBallService : AccessibilityService() {
         val view = fabView ?: return
         val params = fabParams ?: return
 
-        val (screenW, _) = getScreenSize()
+        val (screenW, _) = screenSize
         val targetX = getEdgeX(screenW)
 
         isStashing = false
-        removePill()
+        hidePill()
         fabAnimator?.cancel()
 
         if (animated) {
-            params.x = if (isOnRight) screenW - fabSizePx else 0
-            updateFabViewLayout(view, params)
             fabX = params.x
 
-            animateFabX(targetX, 250L, alpha = 1.0f) {
+            animateFabX(targetX, 220L, alpha = 1.0f) {
                 isStashed = false
                 resetInactivityTimer()
                 onFinished?.invoke()
@@ -519,7 +543,7 @@ class QuickBallService : AccessibilityService() {
             view.alpha = 1.0f
             fabX = targetX
             params.x = targetX
-            updateFabViewLayout(view, params)
+            updateFabViewLayout()
             isStashed = false
             resetInactivityTimer()
             onFinished?.invoke()
@@ -545,7 +569,7 @@ class QuickBallService : AccessibilityService() {
                 val currentX = anim.animatedValue as Int
                 fabX = currentX
                 params.x = currentX
-                updateFabViewLayout(view, params)
+                updateFabViewLayout()
 
                 if (alpha != null) {
                     val fraction = anim.animatedFraction
@@ -569,57 +593,45 @@ class QuickBallService : AccessibilityService() {
         animator.start()
     }
 
-    private fun updateFabViewLayout(view: View, params: ViewGroup.LayoutParams?) {
+    private fun updateFabViewLayout() {
         val wm = windowManager ?: return
-        try {
-            wm.updateViewLayout(view, params)
-        } catch (_: Exception) {
-        }
+        val view = fabView ?: return
+        runCatching { wm.updateViewLayout(view, fabParams) }
     }
 
     /* -------------------- Stashed Pill Management -------------------- */
 
     @SuppressLint("ClickableViewAccessibility")
     private fun showPill() {
-        if (pillView != null) return
+        pillView?.let {
+            updatePill()
+            it.visibility = View.VISIBLE
+            return
+        }
         val wm = windowManager ?: return
 
-        val pillWidth = DensityUtils.dp2px(prefs.pillTouchWidth)
-        val pillHeight = DensityUtils.dp2px(prefs.pillHeight)
-
-        val (screenW, _) = getScreenSize()
-        val targetX = if (isOnRight) screenW - pillWidth else 0
-        val targetY = fabY + (fabSizePx - pillHeight) / 2
-
-        pillView = SideKickView(this).apply {
-            onRight = isOnRight
-            listener = object : QuickBallGestureListener() {
-                override fun onSingleTap() {
-                    performHapticFeedback()
-                    removePill()
-                    unstashFab()
-                    expandMenu()
-                }
-            }
+        val pill = SideKickView(this).apply {
+            listener = QuickBallGestureListener()
         }
+        val params = createSystemWindowParams(0, 0)
+        applyPillLayout(pill, params)
 
-        pillParams = createSystemWindowParams(
-            width = pillWidth,
-            height = pillHeight,
-        ).apply {
-            x = targetX
-            y = targetY
+        try {
+            wm.addView(pill, params)
+        } catch (_: WindowManager.BadTokenException) {
+            return
         }
+        pillView = pill
+        pillParams = params
+    }
 
-        wm.addView(pillView, pillParams)
+    private fun hidePill() {
+        pillView?.visibility = View.GONE
     }
 
     private fun removePill() {
         pillView?.let {
-            try {
-                windowManager?.removeView(it)
-            } catch (_: Exception) {
-            }
+            runCatching { windowManager?.removeView(it) }
             pillView = null
         }
         pillParams = null
@@ -634,25 +646,26 @@ class QuickBallService : AccessibilityService() {
         fabView?.setExpanded(true)
         stopInactivityTimer()
 
+        val window = menuWindow ?: createMenuWindow(wm) ?: return
+        val params = menuParams ?: return
+
+        params.flags = params.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE.inv()
+        runCatching { wm.updateViewLayout(window, params) }
+        window.visibility = View.VISIBLE
+
         val existingView = menuView
-        val existingParams = menuParams
-        if (existingView != null && existingParams != null) {
-            existingParams.flags =
-                existingParams.flags and WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE.inv()
-            try {
-                wm.updateViewLayout(existingView, existingParams)
-            } catch (_: Exception) {
-            }
+        if (existingView != null) {
             existingView.animateExpand()
             return
         }
 
-        menuView = FloatPanelView(
+        val panel = FloatPanelView(
             context = this,
             fabX = getEdgeX(),
             fabY = fabY,
             fabSize = fabSizePx,
-            items = getMenuItems(),
+            screenSize = screenSize,
+            items = prefs.selectedMenuItems,
             onDismiss = {
                 startCollapsingMenu()
             },
@@ -663,28 +676,42 @@ class QuickBallService : AccessibilityService() {
             onMenuItemClicked = { menuItem ->
                 performHapticFeedback()
                 actionHandler?.onMenuAction(menuItem)
-                if (menuItem.action !in setOf(
-                        MenuAction.VOLUME_UP,
-                        MenuAction.VOLUME_DOWN,
-                        MenuAction.BRIGHTNESS_UP,
-                        MenuAction.BRIGHTNESS_DOWN
-                    )
-                ) {
+                if (menuItem.action !in KEEP_MENU_OPEN_ACTIONS) {
                     startCollapsingMenu()
                 }
             }
         )
+        menuView = panel
+        window.addView(panel)
+        panel.animateExpand()
+    }
 
-        menuParams = createSystemWindowParams(
+    private fun unstashAndExpandMenu() {
+        expandMenu()
+        menuView?.hideConnectors()
+        menuView?.showConnectors()
+        unstashFab()
+    }
+
+    private fun createMenuWindow(wm: WindowManager): FrameLayout? {
+        val window = FrameLayout(this)
+        val params = createSystemWindowParams(
             width = WindowManager.LayoutParams.MATCH_PARENT,
             height = WindowManager.LayoutParams.MATCH_PARENT,
         ).apply {
             x = 0
             y = 0
         }
-
-        wm.addView(menuView, menuParams)
-        menuView?.animateExpand()
+        try {
+            wm.addView(window, params)
+        } catch (_: WindowManager.BadTokenException) {
+            isExpanded = false
+            fabView?.setExpanded(false)
+            return null
+        }
+        menuWindow = window
+        menuParams = params
+        return window
     }
 
     private fun startCollapsingMenu() {
@@ -692,14 +719,12 @@ class QuickBallService : AccessibilityService() {
         fabView?.setExpanded(false)
 
         val wm = windowManager ?: return
+        val window = menuWindow ?: return
         val view = menuView ?: return
         val params = menuParams ?: return
 
         params.flags = params.flags or WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-        try {
-            wm.updateViewLayout(view, params)
-        } catch (_: Exception) {
-        }
+        runCatching { wm.updateViewLayout(window, params) }
 
         view.animateCollapse()
     }
@@ -708,18 +733,20 @@ class QuickBallService : AccessibilityService() {
         isExpanded = false
         fabView?.setExpanded(false)
 
-        menuView?.let {
-            try {
-                windowManager?.removeView(it)
-            } catch (_: IllegalArgumentException) {
-            }
-            menuView = null
+        menuWindow?.let {
+            it.removeAllViews()
+            it.visibility = View.GONE
         }
-        menuParams = null
+        menuView = null
     }
 
-    private fun getMenuItems(): List<QuickBallMenuItem> {
-        return prefs.selectedMenuItems
+    private fun destroyMenuWindow() {
+        removeMenuWindow()
+        menuWindow?.let {
+            runCatching { windowManager?.removeView(it) }
+            menuWindow = null
+        }
+        menuParams = null
     }
 
     /* -------------------- Timers & Helpers -------------------- */
@@ -746,47 +773,38 @@ class QuickBallService : AccessibilityService() {
             removeMenuWindow()
         }
 
-        val (screenW, screenH) = getScreenSize()
+        val (screenW, screenH) = screenSize
+        fabX = getEdgeX(screenW)
+        fabY = getEdgeY(screenH)
 
         if (isStashed) {
-            fabX = getEdgeX(screenW)
-            fabY = getEdgeY(screenH)
-
-            fabParams?.let { p ->
-                p.x = if (isOnRight) screenW else -fabSizePx
-                p.y = fabY
-                fabView?.let { v ->
-                    v.alpha = stashAlpha
-                    updateFabViewLayout(v, p)
-                }
-            }
-
-            removePill()
+            moveFab(if (isOnRight) screenW else -fabSizePx, STASH_ALPHA)
             showPill()
         } else {
-            removePill()
-
-            fabX = getEdgeX(screenW)
-            fabY = getEdgeY(screenH)
-
-            fabParams?.let { p ->
-                p.x = fabX
-                p.y = fabY
-                fabView?.let { v ->
-                    v.alpha = 1.0f
-                    updateFabViewLayout(v, p)
-                }
-            }
-            isStashed = false
+            hidePill()
+            moveFab(fabX, 1.0f)
             resetInactivityTimer()
         }
     }
 
-    private fun getEdgeX(screenW: Int = getScreenSize().first): Int {
+    private fun moveFab(x: Int, alpha: Float) {
+        val view = fabView ?: return
+        val params = fabParams ?: return
+        params.x = x
+        params.y = fabY
+        view.alpha = alpha
+        updateFabViewLayout()
+    }
+
+    private fun updateScreenSize() {
+        windowManager?.let { screenSize = it.getScreenSize() }
+    }
+
+    private fun getEdgeX(screenW: Int = screenSize.first): Int {
         return if (isOnRight) screenW - fabSizePx - edgePaddingPx else edgePaddingPx
     }
 
-    private fun getEdgeY(screenH: Int = getScreenSize().second): Int {
+    private fun getEdgeY(screenH: Int = screenSize.second): Int {
         return (savedYFraction * screenH).roundToInt()
             .coerceIn(topBoundary, screenH - fabSizePx - bottomBoundary)
     }

@@ -26,12 +26,12 @@ data class QuickBallMenuItem(
     companion object {
         fun getAllMenuItems(): List<QuickBallMenuItem> {
             return MenuAction.entries
-                .filter { it != MenuAction.LAUNCH_APP }
+                .filter { it != MenuAction.LAUNCH_APP && it != MenuAction.OPEN_MENU }
                 .map { QuickBallMenuItem(action = it) }
         }
 
         fun getMenuItemByAction(action: MenuAction): QuickBallMenuItem? {
-            if (action == MenuAction.LAUNCH_APP) return null
+            if (action == MenuAction.LAUNCH_APP || action == MenuAction.OPEN_MENU) return null
             return QuickBallMenuItem(action = action)
         }
 

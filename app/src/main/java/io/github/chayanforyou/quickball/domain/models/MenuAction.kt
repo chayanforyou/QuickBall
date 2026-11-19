@@ -11,6 +11,10 @@ enum class MenuAction(
     @field:DrawableRes val iconRes: Int = 0,
     @field:StringRes val titleRes: Int = 0
 ) {
+    // Quick Ball
+    @SerializedName("OPEN_MENU")
+    OPEN_MENU(R.drawable.ic_menu_open, R.string.menu_open_quick_ball),
+
     // Navigation
     @SerializedName("HOME")
     HOME(R.drawable.ic_home, R.string.menu_home),

@@ -152,6 +152,7 @@ class QuickBallActionHandler(
             MenuAction.QUICK_SETTINGS -> performQuickSettingsAction()
             MenuAction.POWER_DIALOG -> performPowerDialogAction()
             MenuAction.LAUNCH_APP -> launchApp(menuItem.packageName)
+            MenuAction.OPEN_MENU -> Unit
         }
     }
 

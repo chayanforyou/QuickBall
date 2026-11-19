@@ -43,6 +43,7 @@
 
     <!-- Shortcut -->
     <string name="shortcuts_title">शॉर्टकट</string>
+    <string name="shortcuts_description">मेनू में एक्शन जोड़ें, हटाएं या क्रम बदलें।</string>
 
     <!-- Hide Automatically -->
     <string name="hide_automatically_title">स्वचालित रूप से छुपाएं</string>
@@ -50,6 +51,13 @@
 
     <!-- Advanced Settings -->
     <string name="advanced_settings_title">उन्नत सेटिंग्स</string>
+    <string name="import_export_settings">सेटिंग्स इम्पोर्ट या एक्सपोर्ट करें</string>
+    <string name="import_settings">सेटिंग्स इम्पोर्ट करें</string>
+    <string name="export_settings">सेटिंग्स एक्सपोर्ट करें</string>
+    <string name="settings_imported">सेटिंग्स इम्पोर्ट हो गईं।</string>
+    <string name="settings_exported">सेटिंग्स एक्सपोर्ट हो गईं।</string>
+    <string name="settings_import_failed">इम्पोर्ट नहीं हो सका। Quick Ball थीम फ़ाइल चुनें।</string>
+    <string name="settings_export_failed">सेटिंग्स एक्सपोर्ट नहीं हो सकीं।</string>
 
     <!-- Lock Ball Position -->
     <string name="lock_ball_position_title">बॉल की स्थिति लॉक करें</string>
@@ -87,6 +95,7 @@
     
     <!-- Quick Ball Menu Items -->
     <!-- Navigation -->
+    <string name="menu_open_quick_ball">मेनू खोलें</string>
     <string name="menu_home">होम</string>
     <string name="menu_back">वापस</string>
     <string name="menu_recent">हाल के ऐप्स</string>
@@ -173,9 +182,11 @@
 
     <!-- Gestures -->
     <string name="gesture_header_title">जेस्चर</string>
+    <string name="gestures_haptics_title">जेस्चर और हैप्टिक्स</string>
+    <string name="gestures_description">टैप और स्वाइप एक्शन, और वाइब्रेशन।</string>
     <string name="gesture_requirement_notice">जेस्चर एज हैंडल पर काम करेंगे जब \"किनारे से चिपकाएं\" सक्षम हो, या फ्लोटिंग बॉल पर जब \"बॉल की स्थिति लॉक करें\" सक्षम हो।</string>
     <string name="enable_gestures_title">जेस्चर सक्षम करें</string>
-    <string name="enable_gestures_description">जेस्चर सक्षम करने से मेनू खुलने में थोड़ी देरी हो सकती है।</string>
+    <string name="single_tap_title">सिंगल टैप</string>
     <string name="double_tap_title">डबल टैप</string>
     <string name="triple_tap_title">ट्रिपल टैप</string>
     <string name="long_press_title">देर तक दबाएं</string>
@@ -186,7 +197,6 @@
     <!-- Haptics -->
     <string name="haptics_header_title">हैप्टिक्स</string>
     <string name="vibration_feedback_title">वाइब्रेशन फीडबैक</string>
-    <string name="vibration_feedback_description">टैप, स्वाइप और कार्रवाइयों पर वाइब्रेशन</string>
     <string name="haptic_light">हल्का</string>
     <string name="haptic_medium">मध्यम</string>
     <string name="haptic_strong">तेज़</string>
@@ -199,6 +209,11 @@
     <string name="rate_dialog_p4">और अगर आपको %1$s पसंद आ रहा है, तो 5★ रिव्यू मेरे लिए बहुत मायने रखेगा। इसमें सिर्फ एक मिनट लगता है, लेकिन इससे और लोगों को ऐप खोजने में मदद मिलती है—और सच कहूँ तो, यह मेरा दिन बना देता है।</string>
     <string name="rate_dialog_thank_you">%1$s का उपयोग करने और मेरे काम का समर्थन करने के लिए धन्यवाद।</string>
     <string name="rate_dialog_signature">Chayan</string>
-    <string name="rate_dialog_leave_review">5★ रिव्यू दें</string>
+    <string name="rate_dialog_leave_review">रिव्यू दें</string>
     <string name="rate_dialog_email_me">मुझे ईमेल करें</string>
+    <string name="support_dialog_title">%1$s पसंद आ रहा है?</string>
+    <string name="support_dialog_body">%1$s मुफ़्त है, इसमें कोई विज्ञापन नहीं है, और मैं इसे अकेले अपने खाली समय में बनाता हूँ। अगर यह आपका फ़ोन इस्तेमाल करना आसान बनाता है, तो एक छोटी सी टिप मुझे इसे बेहतर बनाते रहने में मदद करती है।</string>
+    <string name="support_dialog_support">सपोर्ट करें</string>
+    <string name="support_dialog_not_now">अभी नहीं</string>
+    <string name="support_dialog_dont_show">फिर से न दिखाएं</string>
 </resources>

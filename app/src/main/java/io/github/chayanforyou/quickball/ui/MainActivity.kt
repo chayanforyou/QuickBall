@@ -19,6 +19,7 @@ import androidx.navigation.compose.rememberNavController
 import io.github.chayanforyou.quickball.ui.navigation.Screen
 import io.github.chayanforyou.quickball.ui.screens.settings.AdvancedSettingsScreen
 import io.github.chayanforyou.quickball.ui.screens.autohide.AutoHideSettingsScreen
+import io.github.chayanforyou.quickball.ui.screens.gesture.GestureSettingsScreen
 import io.github.chayanforyou.quickball.ui.screens.home.HomeScreen
 import io.github.chayanforyou.quickball.ui.screens.onboarding.OnboardingScreen
 import io.github.chayanforyou.quickball.ui.screens.shortcut.SelectAppsScreen
@@ -74,6 +75,7 @@ class MainActivity : ComponentActivity() {
                         HomeScreen(
                             onNavigateToShortcuts = { navController.navigate(Screen.ShortcutMenu.name) },
                             onNavigateToAutoHide = { navController.navigate(Screen.AutoHideSettings.name) },
+                            onNavigateToGestures = { navController.navigate(Screen.GestureSettings.name) },
                             onNavigateToAdvanced = { navController.navigate(Screen.AdvancedSettings.name) },
                             modifier = Modifier.fillMaxSize(),
                             viewModel = viewModel
@@ -118,6 +120,14 @@ class MainActivity : ComponentActivity() {
 
                     composable(Screen.AutoHideSettings.name) {
                         AutoHideSettingsScreen(
+                            onNavigateBack = { navController.navigateUp() },
+                            modifier = Modifier.fillMaxSize(),
+                            viewModel = viewModel
+                        )
+                    }
+
+                    composable(Screen.GestureSettings.name) {
+                        GestureSettingsScreen(
                             onNavigateBack = { navController.navigateUp() },
                             modifier = Modifier.fillMaxSize(),
                             viewModel = viewModel
