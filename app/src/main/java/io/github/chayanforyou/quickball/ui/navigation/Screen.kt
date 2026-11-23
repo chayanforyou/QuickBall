@@ -8,5 +8,6 @@ enum class Screen {
     SelectApps,
     AutoHideSettings,
     GestureSettings,
-    AdvancedSettings
+    AdvancedSettings,
+    SyncSettings
 }

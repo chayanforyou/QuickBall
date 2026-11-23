@@ -19,7 +19,11 @@ object PermissionUtils {
         val manager = getSystemService(context, AccessibilityManager::class.java)
         val services = manager?.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK)
             ?: return false
-        return services.any { it.resolveInfo.serviceInfo.packageName == context.packageName }
+        // Our own service specifically, not any service of the package: the sync module has its own.
+        return services.any {
+            val info = it.resolveInfo?.serviceInfo ?: return@any false
+            info.packageName == context.packageName && info.name == QuickBallService::class.java.name
+        }
     }
 
     fun canModifySystemSettings(context: Context): Boolean {

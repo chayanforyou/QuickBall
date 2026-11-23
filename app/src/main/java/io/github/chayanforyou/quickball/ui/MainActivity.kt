@@ -18,6 +18,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import io.github.chayanforyou.quickball.ui.navigation.Screen
 import io.github.chayanforyou.quickball.ui.screens.settings.AdvancedSettingsScreen
+import io.github.chayanforyou.quickball.ui.screens.settings.SyncSettingsScreen
 import io.github.chayanforyou.quickball.ui.screens.autohide.AutoHideSettingsScreen
 import io.github.chayanforyou.quickball.ui.screens.gesture.GestureSettingsScreen
 import io.github.chayanforyou.quickball.ui.screens.home.HomeScreen
@@ -77,6 +78,7 @@ class MainActivity : ComponentActivity() {
                             onNavigateToAutoHide = { navController.navigate(Screen.AutoHideSettings.name) },
                             onNavigateToGestures = { navController.navigate(Screen.GestureSettings.name) },
                             onNavigateToAdvanced = { navController.navigate(Screen.AdvancedSettings.name) },
+                            onNavigateToSync = { navController.navigate(Screen.SyncSettings.name) },
                             modifier = Modifier.fillMaxSize(),
                             viewModel = viewModel
                         )
@@ -139,6 +141,13 @@ class MainActivity : ComponentActivity() {
                             onNavigateBack = { navController.navigateUp() },
                             modifier = Modifier.fillMaxSize(),
                             viewModel = viewModel
+                        )
+                    }
+
+                    composable(Screen.SyncSettings.name) {
+                        SyncSettingsScreen(
+                            onNavigateBack = { navController.navigateUp() },
+                            modifier = Modifier.fillMaxSize()
                         )
                     }
                 }

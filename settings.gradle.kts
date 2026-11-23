@@ -22,3 +22,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "QuickBall"
 include(":app")
+include(":sync")

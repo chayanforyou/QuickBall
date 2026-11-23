@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
+import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -88,6 +89,7 @@ fun HomeScreen(
     onNavigateToAutoHide: () -> Unit,
     onNavigateToGestures: () -> Unit,
     onNavigateToAdvanced: () -> Unit,
+    onNavigateToSync: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: QuickBallViewModel = viewModel()
 ) {
@@ -430,6 +432,38 @@ fun HomeScreen(
                         onCheckedChange = { checked ->
                             viewModel.setHideOnLandscape(checked)
                         }
+                    )
+                }
+            }
+
+            // Sync
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = AppCardDefaults.cardColors()
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onNavigateToSync() }
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Sync,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(end = 12.dp)
+                    )
+                    Text(
+                        text = stringResource(R.string.sync_title),
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }

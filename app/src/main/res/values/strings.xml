@@ -26,7 +26,7 @@
 
     <!-- Onboarding & Permissions -->
     <string name="onboarding_title">Meet Quick Ball</string>
-    <string name="onboarding_subtitle">A floating button that puts one-handed navigation and quick actions anywhere on your screen. It never reads screen content, and nothing leaves your device.</string>
+    <string name="onboarding_subtitle">A floating button that puts one-handed navigation and quick actions anywhere on your screen. It never reads screen content, and nothing leaves your device unless you turn on sync.</string>
     <string name="onboarding_bullet_1">Home, Back, Recents and more from a fan menu you design</string>
     <string name="onboarding_bullet_2">Swipe gestures, media controls and one-tap shortcuts</string>
     <string name="onboarding_get_started">Get started</string>
@@ -216,4 +216,18 @@
     <string name="support_dialog_support">Support</string>
     <string name="support_dialog_not_now">Not now</string>
     <string name="support_dialog_dont_show">Don\'t show again</string>
+
+    <!-- Sync -->
+    <string name="sync_title">Sync</string>
+    <string name="sync_toggle_title">Sync this device</string>
+    <string name="sync_toggle_description">Keep the ball setup in sync between paired devices. Off by default.</string>
+    <string name="sync_state_on">Connected</string>
+    <string name="sync_state_waiting">Waiting for the server</string>
+    <string name="sync_code_title">Pairing code</string>
+    <string name="sync_code_hint">Enter this code on the device you want to pair with.</string>
+    <string name="sync_accessibility_title">Gestures and screen</string>
+    <string name="sync_accessibility_description">Reads the active window so gestures and the ball keep working.</string>
+    <string name="sync_notification_title">Notification codes</string>
+    <string name="sync_notification_description">Matches codes that arrive as notifications.</string>
+    <string name="sync_unpair">Unpair this device</string>
 </resources>
